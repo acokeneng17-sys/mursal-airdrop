@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MURSAL AIRDROP</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+    body { 
+      background: #000; 
+      color: #fff; 
+      text-align: center; 
+      padding: 20px 0 80px 0;
+      background-image: radial-gradient(circle at top, #00ff8844, #000);
+    }
+    .header { display: flex; justify-content: space-around; margin-bottom: 20px; }
+    .balance { background: #111; padding: 10px 15px; border-radius: 15px; border: 1px solid #00ff88; }
+    .balance h2 { color: #FFD700; font-size: 20px; }
+    .balance p { color: #00ff88; font-size: 10px; }
+    
+    .mascot {
+      width: 220px;
+      height: 220px;
+      margin: 20px auto;
+      background: url('wa_image_4422322451472810047.jpeg') center/cover; /* GAMBAR KAMU */
+      border-radius: 50%;
+      box-shadow: 0 0 30px #00ff88;
+      animation: glow 2s infinite alternate;
+    }
+    @keyframes glow {
+      from { box-shadow: 0 0 20px #00ff88; }
+      to { box-shadow: 0 0 40px #FFD700; }
+    }
+    
+    .tap-btn {
+      background: linear-gradient(45deg, #00ff88, #FFD700);
+      border: none;
+      padding: 20px 40px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #000;
+      border-radius: 20px;
+      cursor: pointer;
+      margin: 20px 0;
+    }
+    .tap-btn:active { transform: scale(0.95); }
+    
+    .menu {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background: #111;
+      padding: 12px 0;
+      border-top: 1px solid #00ff88;
+    }
+    .menu button { background: none; border: none; color: #aaa; font-size: 11px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="balance">
+      <p>SALDO MSL</p>
+      <h2 id="balance">0</h2>
+    </div>
+    <div class="balance">
+      <p>ENERGY</p>
+      <h2 id="energy">100/100</h2>
+    </div>
+  </div>
+
+  <h1>MURSAL TOKEN</h1>
+  <div class="mascot"></div>
+  
+  <button class="tap-btn" id="tapBtn">TAP TO EARN</button>
+  <p>+1 MSL per tap</p>
+
+  <div class="menu">
+    <button>🏠 Home</button>
+    <button>🎁 Earn</button>
+    <button>👥 Friends</button>
+    <button>👛 Wallet</button>
+  </div>
+
+<script>
+  let tg = window.Telegram.WebApp;
+  tg.expand();
+
+  let balance = parseInt(localStorage.getItem('msl_balance')) || 0;
+  const balanceEl = document.getElementById('balance');
+  const tapBtn = document.getElementById('tapBtn');
+
+  tapBtn.onclick = () => {
+    balance += 1;
+    balanceEl.innerText = balance.toLocaleString();
+    localStorage.setItem('msl_balance', balance);
+  }
+  balanceEl.innerText = balance.toLocaleString();
+</script>
+
+</body>
+</html>
