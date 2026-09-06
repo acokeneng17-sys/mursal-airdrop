@@ -7,22 +7,28 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body { background: #000; color: #fff; font-family: Arial; margin: 0; padding-bottom: 80px; }
-  .header { display: flex; justify-content: space-between; padding: 15px; align-items: center; }
-  .box { background: #111; border: 2px solid #00ff88; border-radius: 15px; padding: 10px 15px; text-align: center; }
-  .box.title { color: #00ff88; font-size: 12px; }
-  .box.value { color: #ffff00; font-size: 18px; font-weight: bold; }
-  .lang-btn { background: #00ff88; color: #000; border: none; padding: 5px 8px; border-radius: 8px; font-weight: bold; font-size: 12px; }
+   .header { display: flex; justify-content: space-between; padding: 15px; align-items: center; }
+   .box { background: #111; border: 2px solid #00ff88; border-radius: 15px; padding: 10px 15px; text-align: center; }
+   .box.title { color: #00ff88; font-size: 12px; }
+   .box.value { color: #ffff00; font-size: 18px; font-weight: bold; }
+   .lang-btn { background: #00ff88; color: #000; border: none; padding: 5px 8px; border-radius: 8px; font-weight: bold; font-size: 12px; }
     h1 { text-align: center; color: #fff; }
-  .circle { width: 200px; height: 200px; background: #000; border: 5px solid #00ff88; border-radius: 50%; margin: 20px auto; box-shadow: 0 0 30px #00ff88; }
-  .btn { background: linear-gradient(90deg, #00ff88, #ffff00); color: #000; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 15px; width: 80%; display: block; margin: 10px auto; cursor: pointer; }
-  .btn:disabled { background: #333; color: #777; }
-  .timer { text-align: center; color: #ffff00; font-size: 16px; }
-  .navbar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid #00ff88; }
-  .nav-item { text-align: center; color: #888; font-size: 12px; cursor: pointer; }
-  .nav-item.active { color: #00ff88; }
-  .page { display: none; padding: 20px; }
-  .page.active { display: block; }
-  .card { background: #111; border: 1px solid #00ff88; border-radius: 15px; padding: 15px; margin: 10px 0; }
+   .circle { width: 200px; height: 200px; background: #000; border: 5px solid #00ff88; border-radius: 50%; margin: 20px auto; box-shadow: 0 0 30px #00ff88; }
+   .btn { background: linear-gradient(90deg, #00ff88, #ffff00); color: #000; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 15px; width: 80%; display: block; margin: 10px auto; cursor: pointer; }
+   .btn:disabled { background: #333; color: #777; }
+   .timer { text-align: center; color: #ffff00; font-size: 16px; }
+   .navbar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid #00ff88; }
+   .nav-item { text-align: center; color: #888; font-size: 12px; cursor: pointer; }
+   .nav-item.active { color: #00ff88; }
+   .page { display: none; padding: 20px; }
+   .page.active { display: block; }
+   .card { background: #111; border: 1px solid #00ff88; border-radius: 15px; padding: 15px; margin: 10px 0; }
+    
+    /* BARU V3.2 */
+    @keyframes spin { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+   .circle.mining { animation: spin 4s linear infinite; }
+   .progress-bar { width: 100%; background: #222; border-radius: 10px; margin: 10px 0; }
+   .progress { height: 10px; background: linear-gradient(90deg, #00ff88, #ffff00); border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -45,7 +51,17 @@
   </div>
 </div>
 
-<div id="earn" class="page"><h1 data-id="TUGAS" data-en="TASKS" data-in="कार्य" data-ru="ЗАДАНИЯ" data-kr="작업">TUGAS</h1><p>Coming Soon</p></div>
+<div id="earn" class="page">
+  <h1 data-id="TUGAS" data-en="TASKS" data-in="कार्य" data-ru="ЗАДАНИЯ" data-kr="작업">TUGAS</h1>
+  <div class="card">
+    <p>📢 Join Channel Telegram</p>
+    <button class="btn" onclick="claimTask(100)">Claim 100 MSL</button>
+  </div>
+  <div class="card">
+    <p>🐦 Follow Twitter @MURSAL</p>
+    <button class="btn" onclick="claimTask(100)">Claim 100 MSL</button>
+  </div>
+</div>
 
 <div id="friends" class="page">
   <h1 data-id="REFERRAL" data-en="REFERRAL" data-in="रेफ़रल" data-ru="РЕФЕРАЛ" data-kr="추천">REFERRAL</h1>
@@ -70,18 +86,16 @@ let tg = window.Telegram.WebApp; tg.expand();
 let langs = ['id', 'en', 'in', 'ru', 'kr'];
 let langIndex = 0;
 let lang = 'id';
-
-// FIX: Kasih default semua
 let data = JSON.parse(localStorage.getItem('mursal_data')) || {saldo: 15, miningStart: 0, level: 1};
 if(!data.level) data.level = 1;
 
 const LEVELS = [
-  {rate: 100, cost: 500},
-  {rate: 200, cost: 2000},
-  {rate: 400, cost: 10000}
+  {rate: 100, cost: 500, desc: "Pemula"},
+  {rate: 200, cost: 2000, desc: "Pro"},
+  {rate: 400, cost: 10000, desc: "Master"}
 ];
 const DURATION = 4 * 60 * 60 * 1000;
-const BOT_USERNAME = "mursalairdrop_bot"; // GANTI INI
+const BOT_USERNAME = "mursalairdrop_bot"; // PENTING: GANTI INI
 
 const TEXT = {
   ready: {id:"SIAP DI CLAIM!", en:"READY TO CLAIM!", in:"दावा करने के लिए तैयार!", ru:"ГОТОВ К ЗАЯВКЕ!", kr:"수령 가능!"},
@@ -90,7 +104,8 @@ const TEXT = {
   upgradeSuccess: {id:"Upgrade Berhasil!", en:"Upgrade Success!", in:"अपग्रेड सफल!", ru:"УСПЕШНОЕ УЛУЧШЕНИЕ!", kr:"업그레이드 성공!"},
   linkCopied: {id:"Link disalin!", en:"Link Copied!", in:"लिंक कॉपी किया गया!", ru:"ССЫЛКА СКОПИРОВАНА!", kr:"링크 복사됨!"},
   refBonus: {id:"Kamu dapat bonus 500 MSL dari referral!", en:"You got 500 MSL referral bonus!", in:"आपको रेफरल बोनस 500 MSL मिला!", ru:"Вы получили бонус 500 MSL за реферала!", kr:"추천 보너스 500 MSL를 받았습니다!"},
-  startMine: {id:"START MINING", en:"START MINING", in:"माइनिंग शुरू करें", ru:"НАЧАТЬ МАЙНИНГ", kr:"채굴 시작"}
+  startMine: {id:"START MINING", en:"START MINING", in:"माइनिंग शुरू करें", ru:"НАЧАТЬ МАЙНИНГ", kr:"채굴 시작"},
+  taskDone: {id:"Tugas Selesai! +100 MSL", en:"Task Done! +100 MSL", in:"कार्य पूरा! +100 MSL", ru:"Задание выполнено! +100 MSL", kr:"작업 완료! +100 MSL"}
 }
 
 function save() { localStorage.setItem('mursal_data', JSON.stringify(data)); }
@@ -109,36 +124,51 @@ function openPage(pageId) {
   event.currentTarget.classList.add('active');
 }
 
+function claimTask(reward) {
+  data.saldo += reward;
+  save(); updateUI();
+  alert(`${TEXT.taskDone[lang]}`);
+}
+
 function updateUI() {
   document.getElementById('saldo').innerText = data.saldo;
   document.getElementById('speed').innerText = `Lv.${data.level}`;
   let currentLevel = LEVELS[data.level - 1];
-  document.getElementById('upgradeInfo').innerText = `Lv.${data.level}: ${currentLevel.rate} MSL / 4 Jam`;
+  
+  document.getElementById('upgradeInfo').innerHTML = `
+    Lv.${data.level}: ${currentLevel.rate} MSL / 4 Jam<br>
+    <small>Rank: ${currentLevel.desc}</small>
+    <div class="progress-bar"><div class="progress" style="width:${(data.level/LEVELS.length)*100}%"></div></div>
+  `;
   
   if(data.level < LEVELS.length) {
-    document.getElementById('btnUpgrade').innerText = `Upgrade ke Lv.${data.level + 1} - ${LEVELS[data.level].cost} MSL`;
-    document.getElementById('btnUpgrade').disabled = data.saldo < LEVELS[data.level].cost;
+    let next = LEVELS[data.level];
+    document.getElementById('btnUpgrade').innerText = `Upgrade ke Lv.${data.level + 1} - ${next.cost} MSL`;
+    document.getElementById('btnUpgrade').disabled = data.saldo < next.cost;
   } else {
     document.getElementById('btnUpgrade').innerText = "MAX LEVEL";
     document.getElementById('btnUpgrade').disabled = true;
   }
 
-  // FIX LOGIKA MINING
+  let circle = document.querySelector('.circle');
   if(data.miningStart > 0) {
     let diff = (data.miningStart + DURATION) - new Date().getTime();
     if(diff <= 0) {
       document.getElementById('timer').innerText = TEXT.ready[lang];
       document.getElementById('btnMine').innerText = `CLAIM ${currentLevel.rate} MSL`;
+      circle.classList.remove('mining');
     } else {
       let h = String(Math.floor(diff / 3600000)).padStart(2,'0');
       let m = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
       let s = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
       document.getElementById('timer').innerText = `${TEXT.claimIn[lang]} ${h}:${m}:${s}`;
       document.getElementById('btnMine').innerText = TEXT.mining[lang];
+      circle.classList.add('mining');
     }
   } else {
     document.getElementById('timer').innerText = lang === 'id'? "Tekan tombol untuk mulai mining" : "Press button to start mining";
     document.getElementById('btnMine').innerText = TEXT.startMine[lang];
+    circle.classList.remove('mining');
   }
   
   document.querySelectorAll(`[data-${lang}]`).forEach(el => {
@@ -148,20 +178,11 @@ function updateUI() {
   document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=ref_${tg.initDataUnsafe.user?.id || 123}`;
 }
 
-// FIX: LOGIKA KLIK TOMBOL
 document.getElementById('btnMine').onclick = () => {
   let now = new Date().getTime();
   let currentRate = LEVELS[data.level - 1].rate;
-  
-  if(data.miningStart === 0) { 
-    // Mulai mining baru
-    data.miningStart = now; 
-  } 
-  else if(now >= data.miningStart + DURATION) { 
-    // Claim + mulai lagi
-    data.saldo += currentRate; 
-    data.miningStart = now; 
-  }
+  if(data.miningStart === 0) { data.miningStart = now; } 
+  else if(now >= data.miningStart + DURATION) { data.saldo += currentRate; data.miningStart = now; }
   save(); updateUI();
 }
 
@@ -180,7 +201,6 @@ function copyRef() {
   alert(TEXT.linkCopied[lang]);
 }
 
-// Cek Referral
 if(tg.initDataUnsafe.start_param && tg.initDataUnsafe.start_param.startsWith('ref_')) {
   if(!localStorage.getItem('ref_claimed')) {
     data.saldo += 500;
@@ -194,21 +214,3 @@ setInterval(updateUI, 1000); updateUI();
 </script>
 </body>
 </html>
-<div id="earn" class="page">
-  <h1 data-id="TUGAS" data-en="TASKS" data-in="कार्य" data-ru="ЗАДАНИЯ" data-kr="작업">TUGAS</h1>
-  <div class="card">
-    <p>Join Channel Telegram</p>
-    <button class="btn" onclick="alert('Claim 100 MSL')">Claim 100 MSL</button>
-  </div>
-  <div class="card">
-    <p>Follow Twitter @MURSAL</p>
-    <button class="btn" onclick="alert('Claim 100 MSL')">Claim 100 MSL</button>
-  </div>
-</div>
-<div id="wallet" class="page">
-  <h1 data-id="WALLET" data-en="WALLET" data-in="वॉलेट" data-ru="КОШЕЛЕК" data-kr="지갑">WALLET</h1>
-  <div class="card">
-    <p data-id="Hubungkan Wallet TON" data-en="Connect TON Wallet">Hubungkan Wallet TON</p>
-    <button class="btn">Connect Wallet</button>
-  </div>
-</div>
