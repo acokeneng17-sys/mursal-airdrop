@@ -3,104 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MURSAL AIRDROP</title>
+  <title>MURSAL TOKEN</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
-    body { 
-      background: #000; 
-      color: #fff; 
-      text-align: center; 
-      padding: 20px 0 80px 0;
-      background-image: radial-gradient(circle at top, #00ff8844, #000);
-    }
-    .header { display: flex; justify-content: space-around; margin-bottom: 20px; }
-    .balance { background: #111; padding: 10px 15px; border-radius: 15px; border: 1px solid #00ff88; }
-    .balance h2 { color: #FFD700; font-size: 20px; }
-    .balance p { color: #00ff88; font-size: 10px; }
-    
-    .mascot {
-      width: 220px;
-      height: 220px;
-      margin: 20px auto;
-      background: url('wa_image_4422322451472810047.jpeg') center/cover; /* GAMBAR KAMU */
-      border-radius: 50%;
-      box-shadow: 0 0 30px #00ff88;
-      animation: glow 2s infinite alternate;
-    }
-    @keyframes glow {
-      from { box-shadow: 0 0 20px #00ff88; }
-      to { box-shadow: 0 0 40px #FFD700; }
-    }
-    
-    .tap-btn {
-      background: linear-gradient(45deg, #00ff88, #FFD700);
-      border: none;
-      padding: 20px 40px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #000;
-      border-radius: 20px;
-      cursor: pointer;
-      margin: 20px 0;
-    }
-    .tap-btn:active { transform: scale(0.95); }
-    
-    .menu {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      background: #111;
-      padding: 12px 0;
-      border-top: 1px solid #00ff88;
-    }
-    .menu button { background: none; border: none; color: #aaa; font-size: 11px; }
+    body { background: #000; color: #fff; font-family: Arial; margin: 0; padding-bottom: 80px; }
+    .header { display: flex; justify-content: space-between; padding: 15px; }
+    .box { background: #111; border: 2px solid #00ff88; border-radius: 15px; padding: 10px 20px; text-align: center; }
+    .box .title { color: #00ff88; font-size: 12px; }
+    .box .value { color: #ffff00; font-size: 20px; font-weight: bold; }
+    h1 { text-align: center; color: #fff; }
+    .circle { width: 200px; height: 200px; background: #000; border: 5px solid #00ff88; border-radius: 50%; margin: 20px auto; box-shadow: 0 0 30px #00ff88; }
+    .btn { background: linear-gradient(90deg, #00ff88, #ffff00); color: #000; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 15px; width: 80%; display: block; margin: 20px auto; }
+    .timer { text-align: center; color: #ffff00; }
+    .navbar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid #00ff88; }
+    .nav-item { text-align: center; color: #888; font-size: 12px; cursor: pointer; }
+    .nav-item.active { color: #00ff88; }
+    .page { display: none; padding: 20px; text-align: center; }
+    .page.active { display: block; }
   </style>
 </head>
 <body>
 
+<div id="home" class="page active">
   <div class="header">
-    <div class="balance">
-      <p>SALDO MSL</p>
-      <h2 id="balance">0</h2>
-    </div>
-    <div class="balance">
-      <p>ENERGY</p>
-      <h2 id="energy">100/100</h2>
-    </div>
+    <div class="box"><div class="title">SALDO MSL</div><div class="value" id="saldo">15</div></div>
+    <div class="box"><div class="title">ENERGY</div><div class="value">100/100</div></div>
   </div>
-
   <h1>MURSAL TOKEN</h1>
-  <div class="mascot"></div>
-  
-  <button class="tap-btn" id="tapBtn">TAP TO EARN</button>
-  <p>+1 MSL per tap</p>
+  <div class="circle"></div>
+  <button class="btn" id="btnMine">START MINING</button>
+  <p class="timer" id="timer">Belum Mining</p>
+</div>
 
-  <div class="menu">
-    <button>🏠 Home</button>
-    <button>🎁 Earn</button>
-    <button>👥 Friends</button>
-    <button>👛 Wallet</button>
-  </div>
+<div id="earn" class="page"><h1>TUGAS</h1><p>Coming Soon</p></div>
+<div id="friends" class="page"><h1>REFERRAL</h1><p>Coming Soon</p></div>
+<div id="wallet" class="page"><h1>WALLET</h1><p>Coming Soon</p></div>
+
+<div class="navbar">
+  <div class="nav-item active" onclick="openPage('home')">🏠<br>Home</div>
+  <div class="nav-item" onclick="openPage('earn')">🎁<br>Earn</div>
+  <div class="nav-item" onclick="openPage('friends')">👥<br>Friends</div>
+  <div class="nav-item" onclick="openPage('wallet')">👛<br>Wallet</div>
+</div>
 
 <script>
-  let tg = window.Telegram.WebApp;
-  tg.expand();
+let tg = window.Telegram.WebApp; tg.expand();
+let data = JSON.parse(localStorage.getItem('mursal_data')) || {saldo: 15, miningStart: 0};
+const RATE = 100; const DURATION = 4 * 60 * 60 * 1000;
 
-  let balance = parseInt(localStorage.getItem('msl_balance')) || 0;
-  const balanceEl = document.getElementById('balance');
-  const tapBtn = document.getElementById('tapBtn');
+function save() { localStorage.setItem('mursal_data', JSON.stringify(data)); }
+function openPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
 
-  tapBtn.onclick = () => {
-    balance += 1;
-    balanceEl.innerText = balance.toLocaleString();
-    localStorage.setItem('msl_balance', balance);
+function updateUI() {
+  document.getElementById('saldo').innerText = data.saldo;
+  if(data.miningStart > 0) {
+    let diff = (data.miningStart + DURATION) - new Date().getTime();
+    if(diff <= 0) {
+      document.getElementById('timer').innerText = "SIAP DI CLAIM!";
+      document.getElementById('btnMine').innerText = "CLAIM 100 MSL";
+    } else {
+      let h = Math.floor(diff / 3600000);
+      let m = Math.floor((diff % 3600000) / 60000);
+      let s = Math.floor((diff % 60000) / 1000);
+      document.getElementById('timer').innerText = `Claim dalam ${h}:${m}:${s}`;
+      document.getElementById('btnMine').innerText = "SEDANG MINING...";
+    }
   }
-  balanceEl.innerText = balance.toLocaleString();
-</script>
+}
 
+document.getElementById('btnMine').onclick = () => {
+  let now = new Date().getTime();
+  if(data.miningStart === 0) { data.miningStart = now; } 
+  else if(now >= data.miningStart + DURATION) { data.saldo += RATE; data.miningStart = now; }
+  save(); updateUI();
+}
+
+setInterval(updateUI, 1000); updateUI();
+</script>
 </body>
 </html>
