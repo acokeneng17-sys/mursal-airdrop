@@ -7,51 +7,97 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body { background: #000; color: #fff; font-family: Arial; margin: 0; padding-bottom: 80px; }
-    .header { display: flex; justify-content: space-between; padding: 15px; }
-    .box { background: #111; border: 2px solid #00ff88; border-radius: 15px; padding: 10px 20px; text-align: center; }
-    .box .title { color: #00ff88; font-size: 12px; }
-    .box .value { color: #ffff00; font-size: 20px; font-weight: bold; }
+  .header { display: flex; justify-content: space-between; padding: 15px; align-items: center; }
+  .box { background: #111; border: 2px solid #00ff88; border-radius: 15px; padding: 10px 15px; text-align: center; }
+  .box.title { color: #00ff88; font-size: 12px; }
+  .box.value { color: #ffff00; font-size: 18px; font-weight: bold; }
+  .lang-btn { background: #00ff88; color: #000; border: none; padding: 5px 8px; border-radius: 8px; font-weight: bold; font-size: 12px; }
     h1 { text-align: center; color: #fff; }
-    .circle { width: 200px; height: 200px; background: #000; border: 5px solid #00ff88; border-radius: 50%; margin: 20px auto; box-shadow: 0 0 30px #00ff88; }
-    .btn { background: linear-gradient(90deg, #00ff88, #ffff00); color: #000; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 15px; width: 80%; display: block; margin: 20px auto; }
-    .timer { text-align: center; color: #ffff00; }
-    .navbar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid #00ff88; }
-    .nav-item { text-align: center; color: #888; font-size: 12px; cursor: pointer; }
-    .nav-item.active { color: #00ff88; }
-    .page { display: none; padding: 20px; text-align: center; }
-    .page.active { display: block; }
+  .circle { width: 200px; height: 200px; background: #000; border: 5px solid #00ff88; border-radius: 50%; margin: 20px auto; box-shadow: 0 0 30px #00ff88; }
+  .btn { background: linear-gradient(90deg, #00ff88, #ffff00); color: #000; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 15px; width: 80%; display: block; margin: 10px auto; }
+  .btn:disabled { background: #333; color: #777; }
+  .timer { text-align: center; color: #ffff00; }
+  .navbar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid #00ff88; }
+  .nav-item { text-align: center; color: #888; font-size: 12px; cursor: pointer; }
+  .nav-item.active { color: #00ff88; }
+  .page { display: none; padding: 20px; }
+  .page.active { display: block; }
+  .card { background: #111; border: 1px solid #00ff88; border-radius: 15px; padding: 15px; margin: 10px 0; }
   </style>
 </head>
 <body>
 
+<div class="header">
+  <div class="box"><div class="title" data-id="SALDO MSL" data-en="MSL BALANCE" data-in="एमएसएल बैलेंस" data-ru="БАЛАНС MSL" data-kr="MSL 잔액">SALDO MSL</div><div class="value" id="saldo">0</div></div>
+  <button class="lang-btn" onclick="nextLang()">ID</button>
+  <div class="box"><div class="title" data-id="SPEED" data-en="SPEED" data-in="गति" data-ru="СКОРОСТЬ" data-kr="속도">SPEED</div><div class="value" id="speed">Lv.1</div></div>
+</div>
+
 <div id="home" class="page active">
-  <div class="header">
-    <div class="box"><div class="title">SALDO MSL</div><div class="value" id="saldo">15</div></div>
-    <div class="box"><div class="title">ENERGY</div><div class="value">100/100</div></div>
-  </div>
-  <h1>MURSAL TOKEN</h1>
+  <h1 data-id="MURSAL TOKEN" data-en="MURSAL TOKEN" data-in="मुर्सल टोकन" data-ru="ТОКЕН MURSAL" data-kr="머설 토큰">MURSAL TOKEN</h1>
   <div class="circle"></div>
   <button class="btn" id="btnMine">START MINING</button>
   <p class="timer" id="timer">Belum Mining</p>
+  <div class="card">
+    <h3 data-id="Upgrade Mining" data-en="Upgrade Mining" data-in="माइनिंग अपग्रेड" data-ru="УЛУЧШЕНИЕ МАЙНИНГА" data-kr="채굴 업그레이드">Upgrade Mining</h3>
+    <p id="upgradeInfo">Lv.1: 100 MSL / 4 Jam</p>
+    <button class="btn" id="btnUpgrade" onclick="upgrade()">Upgrade ke Lv.2 - 500 MSL</button>
+  </div>
 </div>
 
-<div id="earn" class="page"><h1>TUGAS</h1><p>Coming Soon</p></div>
-<div id="friends" class="page"><h1>REFERRAL</h1><p>Coming Soon</p></div>
-<div id="wallet" class="page"><h1>WALLET</h1><p>Coming Soon</p></div>
+<div id="earn" class="page"><h1 data-id="TUGAS" data-en="TASKS" data-in="कार्य" data-ru="ЗАДАНИЯ" data-kr="작업">TUGAS</h1><p>Coming Soon</p></div>
+
+<div id="friends" class="page">
+  <h1 data-id="REFERRAL" data-en="REFERRAL" data-in="रेफ़रल" data-ru="РЕФЕРАЛ" data-kr="추천">REFERRAL</h1>
+  <div class="card">
+    <p data-id="Ajak teman dapat 500 MSL" data-en="Invite friends get 500 MSL" data-in="दोस्तों को आमंत्रित करें और 500 MSL पाएं" data-ru="Пригласи друзей и получи 500 MSL" data-kr="친구를 초대하고 500 MSL 받기">Ajak teman dapat 500 MSL</p>
+    <p id="refLink" style="word-break: break-all; font-size: 12px;"></p>
+    <button class="btn" onclick="copyRef()" data-id="Copy Link" data-en="Copy Link" data-in="लिंक कॉपी करें" data-ru="КОПИРОВАТЬ ССЫЛКУ" data-kr="링크 복사">Copy Link</button>
+  </div>
+</div>
+
+<div id="wallet" class="page"><h1 data-id="WALLET" data-en="WALLET" data-in="वॉलेट" data-ru="КОШЕЛЕК" data-kr="지갑">WALLET</h1><p>Coming Soon</p></div>
 
 <div class="navbar">
-  <div class="nav-item active" onclick="openPage('home')">🏠<br>Home</div>
-  <div class="nav-item" onclick="openPage('earn')">🎁<br>Earn</div>
-  <div class="nav-item" onclick="openPage('friends')">👥<br>Friends</div>
-  <div class="nav-item" onclick="openPage('wallet')">👛<br>Wallet</div>
+  <div class="nav-item active" onclick="openPage('home')">🏠<br><span data-id="Home" data-en="Home" data-in="होम" data-ru="ГЛАВНАЯ" data-kr="홈">Home</span></div>
+  <div class="nav-item" onclick="openPage('earn')">🎁<br><span data-id="Earn" data-en="Earn" data-in="कमाएं" data-ru="ЗАРАБОТАТЬ" data-kr="수익">Earn</span></div>
+  <div class="nav-item" onclick="openPage('friends')">👥<br><span data-id="Friends" data-en="Friends" data-in="दोस्त" data-ru="ДРУЗЬЯ" data-kr="친구">Friends</span></div>
+  <div class="nav-item" onclick="openPage('wallet')">👛<br><span data-id="Wallet" data-en="Wallet" data-in="वॉलेट" data-ru="КОШЕЛЕК" data-kr="지갑">Wallet</span></div>
 </div>
 
 <script>
 let tg = window.Telegram.WebApp; tg.expand();
-let data = JSON.parse(localStorage.getItem('mursal_data')) || {saldo: 15, miningStart: 0};
-const RATE = 100; const DURATION = 4 * 60 * 60 * 1000;
+let langs = ['id', 'en', 'in', 'ru', 'kr'];
+let langIndex = 0;
+let lang = 'id';
+let data = JSON.parse(localStorage.getItem('mursal_data')) || {saldo: 15, miningStart: 0, level: 1, referrals: 0};
+
+const LEVELS = [
+  {rate: 100, cost: 500},
+  {rate: 200, cost: 2000},
+  {rate: 400, cost: 10000}
+];
+const DURATION = 4 * 60 * 60 * 1000;
+const BOT_USERNAME = "mursalairdrop_bot"; // GANTI DENGAN USERNAME BOT KAMU
+
+const TEXT = {
+  ready: {id:"SIAP DI CLAIM!", en:"READY TO CLAIM!", in:"दावा करने के लिए तैयार!", ru:"ГОТОВ К ЗАЯВКЕ!", kr:"수령 가능!"},
+  mining: {id:"SEDANG MINING...", en:"MINING...", in:"माइनिंग चल रही है...", ru:"МАЙНИНГ...", kr:"채굴 중..."},
+  claimIn: {id:"Claim dalam", en:"Claim in", in:"में दावा", ru:"Забрать через", kr:"수령까지"},
+  upgradeSuccess: {id:"Upgrade Berhasil!", en:"Upgrade Success!", in:"अपग्रेड सफल!", ru:"УСПЕШНОЕ УЛУЧШЕНИЕ!", kr:"업그레이드 성공!"},
+  linkCopied: {id:"Link disalin!", en:"Link Copied!", in:"लिंक कॉपी किया गया!", ru:"ССЫЛКА СКОПИРОВАНА!", kr:"링크 복사됨!"},
+  refBonus: {id:"Kamu dapat bonus 500 MSL dari referral!", en:"You got 500 MSL referral bonus!", in:"आपको रेफरल बोनस 500 MSL मिला!", ru:"Вы получили бонус 500 MSL за реферала!", kr:"추천 보너스 500 MSL를 받았습니다!"}
+}
 
 function save() { localStorage.setItem('mursal_data', JSON.stringify(data)); }
+
+function nextLang() {
+  langIndex = (langIndex + 1) % langs.length;
+  lang = langs[langIndex];
+  document.querySelector('.lang-btn').innerText = lang.toUpperCase();
+  updateUI();
+}
+
 function openPage(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -61,40 +107,73 @@ function openPage(pageId) {
 
 function updateUI() {
   document.getElementById('saldo').innerText = data.saldo;
+  document.getElementById('speed').innerText = `Lv.${data.level}`;
+  let currentLevel = LEVELS[data.level - 1];
+  document.getElementById('upgradeInfo').innerText = `Lv.${data.level}: ${currentLevel.rate} MSL / 4 Jam`;
+  
+  if(data.level < LEVELS.length) {
+    document.getElementById('btnUpgrade').innerText = `Upgrade ke Lv.${data.level + 1} - ${LEVELS[data.level].cost} MSL`;
+    document.getElementById('btnUpgrade').disabled = data.saldo < LEVELS[data.level].cost;
+  } else {
+    document.getElementById('btnUpgrade').innerText = "MAX LEVEL";
+    document.getElementById('btnUpgrade').disabled = true;
+  }
+
   if(data.miningStart > 0) {
     let diff = (data.miningStart + DURATION) - new Date().getTime();
     if(diff <= 0) {
-      document.getElementById('timer').innerText = "SIAP DI CLAIM!";
-      document.getElementById('btnMine').innerText = "CLAIM 100 MSL";
+      document.getElementById('timer').innerText = TEXT.ready[lang];
+      document.getElementById('btnMine').innerText = `CLAIM ${currentLevel.rate} MSL`;
     } else {
       let h = Math.floor(diff / 3600000);
       let m = Math.floor((diff % 3600000) / 60000);
       let s = Math.floor((diff % 60000) / 1000);
-      document.getElementById('timer').innerText = `Claim dalam ${h}:${m}:${s}`;
-      document.getElementById('btnMine').innerText = "SEDANG MINING...";
+      document.getElementById('timer').innerText = `${TEXT.claimIn[lang]} ${h}:${m}:${s}`;
+      document.getElementById('btnMine').innerText = TEXT.mining[lang];
     }
   }
+  
+  document.querySelectorAll(`[data-${lang}]`).forEach(el => {
+    el.innerText = el.getAttribute(`data-${lang}`);
+  });
+  
+  document.getElementById('refLink').innerText = `https://t.me/${BOT_USERNAME}?start=ref_${tg.initDataUnsafe.user.id}`;
+}
+
+function upgrade() {
+  let nextLevel = LEVELS[data.level];
+  if(data.saldo >= nextLevel.cost) {
+    data.saldo -= nextLevel.cost;
+    data.level += 1;
+    save(); updateUI();
+    alert(TEXT.upgradeSuccess[lang]);
+  }
+}
+
+function copyRef() {
+  navigator.clipboard.writeText(document.getElementById('refLink').innerText);
+  alert(TEXT.linkCopied[lang]);
 }
 
 document.getElementById('btnMine').onclick = () => {
   let now = new Date().getTime();
+  let currentRate = LEVELS[data.level - 1].rate;
   if(data.miningStart === 0) { data.miningStart = now; } 
-  else if(now >= data.miningStart + DURATION) { data.saldo += RATE; data.miningStart = now; }
+  else if(now >= data.miningStart + DURATION) { data.saldo += currentRate; data.miningStart = now; }
   save(); updateUI();
+}
+
+// Cek Referral saat pertama buka
+if(tg.initDataUnsafe.start_param && tg.initDataUnsafe.start_param.startsWith('ref_')) {
+  if(!localStorage.getItem('ref_claimed')) {
+    data.saldo += 500;
+    localStorage.setItem('ref_claimed', 'true');
+    save();
+    alert(TEXT.refBonus[lang]);
+  }
 }
 
 setInterval(updateUI, 1000); updateUI();
 </script>
 </body>
 </html>
-<div id="friends" class="page">
-  <h1>REFERRAL</h1>
-  <p>Ajak teman dapat 500 MSL</p>
-  <button onclick="copyLink()">Copy Link Referral</button>
-</div>
-<div id="wallet" class="page">
-  <h1>WALLET</h1>
-  <p>Hubungkan Wallet TON</p>
-  <button>Connect Wallet</button>
-</div>
-
