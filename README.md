@@ -1,0 +1,2 @@
+# mursal-airdrop
+app mini
