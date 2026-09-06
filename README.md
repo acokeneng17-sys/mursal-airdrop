@@ -1,2 +1,2 @@
-# mursal-airdrop
+# mursalcoin-airdrop
 app mini
