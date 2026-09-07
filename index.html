@@ -552,9 +552,68 @@
         document.getElementById(btn.dataset.tab).classList.add("aktif");
       };
     });
+// === FUNGSI ABSEN HARIAN YANG DIPERBAIKI ===
+const HARI_POIN = [
+  100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
+  1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
+  2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000
+];
 
+function ambilTanggalHariIni() {
+  const sekarang = new Date();
+  return `${sekarang.getFullYear()}-${sekarang.getMonth()+1}-${sekarang.getDate()}`;
+}
+
+async function cekStatusAbsen() {
+  const userId = ambilUserId();
+  const snap = await get(ref(db, `pengguna/${userId}/absen`));
+  const data = snap.val() || {};
+
+  const hariIni = ambilTanggalHariIni();
+  const tanggalTerakhir = data.tanggalTerakhir || "";
+  let hariBerikutnya = data.hariBerikutnya || 1;
+  let sudahAbsenHariIni = (tanggalTerakhir === hariIni);
+
+  // Jika lupa >1 hari → mulai ulang dari hari ke-1
+  if (tanggalTerakhir) {
+    const lalu = new Date(tanggalTerakhir);
+    const sekarang = new Date(hariIni);
+    const bedaHari = Math.floor((sekarang - lalu) / (1000 * 60 * 60 * 24));
+    if (bedaHari > 1) {
+      hariBerikutnya = 1;
+      sudahAbsenHariIni = false;
+    }
+  }
+
+  tampilkanAbsen(hariBerikutnya, sudahAbsenHariIni);
+  return { hariBerikutnya, sudahAbsenHariIni };
+}
+
+async function klaimAbsen() {
+  const { hariBerikutnya, sudahAbsenHariIni } = await cekStatusAbsen();
+  if (sudahAbsenHariIni) {
+    alert("⚠️ Sudah absen hari ini! Silakan datang BESOK!");
+    return;
+  }
+
+  const poinDapat = HARI_POIN[hariBerikutnya - 1] || 3000;
+  const userId = ambilUserId();
+  const hariIni = ambilTanggalHariIni();
+
+  // Simpan tanggal absen hari ini
+  await update(ref(db, `pengguna/${userId}/absen`), {
+    tanggalTerakhir: hariIni,
+    hariBerikutnya: Math.min(hariBerikutnya + 1, 31)
+  });
+
+  tambahPoin(poinDapat);
+  alert(`✅ Absen Berhasil!\nHari ke-${hariBerikutnya} +${poinDapat} Poin\n⏭️ Bisa absen lagi BESOK!`);
+  cekStatusAbsen();
+}
+  
     // === MULAI ===
-    muat();
+    muat().then(() => cekStatusAbsen());
+    
   </script>
 </body>
 </html>
