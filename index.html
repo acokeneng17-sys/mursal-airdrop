@@ -34,8 +34,12 @@
 <body>
 
 <div class="header">
-  <div class="box"><div class="title" data-id="SALDO MSL" data-en="MSL BALANCE" data-in="एमएसएल बैलेंस" data-ru="БАЛАНС MSL" data-kr="MSL 잔액">SALDO MSL</div><div class="value" id="saldo">0</div></div>
+  <div class="box">
+    <div class="title" data-id="USER" data-en="USER" data-in="उपयोगकर्ता" data-ru="ПОЛЬЗОВАТЕЛЬ" data-kr="사용자">USER</div>
+    <div class="value" id="username" style="font-size: 12px;">Guest</div>
+  </div>
   <button class="lang-btn" onclick="nextLang()">ID</button>
+  <div class="box"><div class="title" data-id="SALDO MSL" data-en="MSL BALANCE" data-in="एमएसएल बैलेंस" data-ru="БАЛАНС MSL" data-kr="MSL 잔액">SALDO MSL</div><div class="value" id="saldo">0</div></div>
   <div class="box"><div class="title" data-id="SPEED" data-en="SPEED" data-in="गति" data-ru="СКОРОСТЬ" data-kr="속도">SPEED</div><div class="value" id="speed">Lv.1</div></div>
 </div>
 
@@ -144,9 +148,18 @@ function claimTask(taskId, reward) {
 }
 
 function updateUI() {
+  // AMBIL USERNAME DARI TELEGRAM
+  let tgUser = tg.initDataUnsafe.user;
+  if(tgUser) {
+    document.getElementById('username').innerText = tgUser.username ? '@' + tgUser.username : tgUser.first_name;
+  }
+
   document.getElementById('saldo').innerText = data.saldo;
   document.getElementById('speed').innerText = `Lv.${data.level}`;
   let currentLevel = LEVELS[data.level - 1];
+  ... lanjut kode kamu
+  
+  
   
   document.getElementById('upgradeInfo').innerHTML = `
     Lv.${data.level}: ${currentLevel.rate} MSL / 4 Jam<br>
