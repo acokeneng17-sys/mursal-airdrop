@@ -610,9 +610,55 @@ async function klaimAbsen() {
   alert(`✅ Absen Berhasil!\nHari ke-${hariBerikutnya} +${poinDapat} Poin\n⏭️ Bisa absen lagi BESOK!`);
   cekStatusAbsen();
 }
-  
+  // === FUNGSI REFERAL / UNDANGAN ===
+function buatLinkUndangan() {
+  const userId = ambilUserId();
+  const linkUndangan = window.location.origin + window.location.pathname + "?ref=" + userId;
+  return linkUndangan;
+}
+
+async function salinLinkUndangan() {
+  const link = buatLinkUndangan();
+  try {
+    await navigator.clipboard.writeText(link);
+    alert("✅ Link disalin! Bagikan ke teman-temanmu!");
+  } catch (err) {
+    alert("❌ Gagal menyalin! Salin manual:\n" + link);
+  }
+}
+
+async function prosesReferalOtomatis() {
+  const params = new URLSearchParams(window.location.search);
+  const pengundangId = params.get("ref");
+  const userId = ambilUserId();
+
+  if (!pengundangId || pengundangId === userId) return;
+
+  const snapCek = await get(ref(db, `mursal_airdrop/${userId}/diundangOleh`));
+  const sudahDiundang = snapCek.val();
+  if (sudahDiundang) return;
+
+  const snapPengundang = await get(ref(db, `mursal_airdrop/${pengundangId}`));
+  const dataPengundang = snapPengundang.val() || {};
+  const poinSekarang = dataPengundang.poin || 0;
+  const jumlahUndangan = dataPengundang.jmlUndang || 0;
+
+  await update(ref(db, `mursal_airdrop/${pengundangId}`), {
+    poin: poinSekarang + 5000,
+    jmlUndang: jumlahUndangan + 1
+  });
+
+  await set(ref(db, `mursal_airdrop/${userId}/diundangOleh`), pengundangId);
+  alert("✅ Undangan tercatat! Pengundang mendapat +5000 poin!");
+}
+// === AKHIR FUNGSI REFERAL ===
+
     // === MULAI ===
-    muat().then(() => cekStatusAbsen());
+    muat().then(async () => {
+  await prosesReferalOtomatis();
+  await cekStatusAbsen();
+});
+    
     
   </script>
 </body>
