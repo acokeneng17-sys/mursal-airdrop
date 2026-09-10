@@ -3,54 +3,629 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- SDK Telegram -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Tailwind CSS untuk tampilan -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <title>Mini App Saya</title>
-</head>
-<body class="bg-slate-900 text-white flex flex-col items-center justify-between min-h-screen p-6">
+  <title>Asteroid2Shiba Mining App</title>
 
-  <!-- Header Ringkas -->
-  <div class="w-full text-center mt-4">
-    <h1 class="text-xl font-bold text-amber-400">ASTEROID MINER</h1>
-    <p class="text-xs text-gray-400">Level 1</p>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: #080d1a;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 15px;
+      padding-bottom: 80px;
+    }
+
+    /* Multi Language Selector */
+    .top-bar {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .lang-select {
+      background: #11192e;
+      color: #a3e635;
+      border: 1px solid #1e293b;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      outline: none;
+    }
+
+    /* Cards Header */
+    .stats-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .stat-card {
+      background-color: #11192e;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-title {
+      font-size: 10px;
+      color: #64748b;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: #a3e635;
+    }
+
+    /* Views / Sections */
+    .view-section {
+      display: none;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 15px;
+    }
+
+    .view-section.active {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Home Tap View */
+    .tap-btn-wrapper {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(163, 230, 53, 0.35);
+      cursor: pointer;
+      transition: transform 0.08s ease;
+      background: #0f172a;
+      border: 2px solid #a3e635;
+      margin: 20px 0;
+    }
+
+    .tap-btn-wrapper:active {
+      transform: scale(0.94);
+    }
+
+    .points-display {
+      font-size: 36px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    .points-label {
+      font-size: 11px;
+      color: #64748b;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      background-color: #007aff;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn-primary:active {
+      opacity: 0.85;
+    }
+
+    .btn-action {
+      background-color: #a3e635;
+      color: #0f172a;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-action:disabled {
+      background-color: #334155;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    /* Lists & Cards for Tasks/Daily */
+    .item-card {
+      background-color: #11192e;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 14px;
+      width: 100%;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .item-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .item-sub {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* Profile View */
+    .profile-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid #a3e635;
+      margin-bottom: 12px;
+      object-fit: cover;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+      background-color: #11192e;
+      color: white;
+      margin-bottom: 10px;
+      outline: none;
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background-color: #0d1322;
+      border-top: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      max-width: 500px;
+      margin: 0 auto;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #64748b;
+      font-size: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .nav-item.active {
+      color: #a3e635;
+    }
+
+    .nav-icon {
+      font-size: 18px;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar & Language Selector -->
+  <div class="top-bar">
+    <div style="font-weight: bold; font-size: 14px; color: #a3e635;">AST2 APP</div>
+    <select class="lang-select" id="langSelect" onchange="changeLanguage()">
+      <option value="id">🇲🇨 Indonesia</option>
+      <option value="en">🇬🇧 English</option>
+      <option value="in">🇮🇳 India</option>
+      <option value="cn">🇨🇳 中国 (China)</option>
+      <option value="ru">🇷🇺 Русский</option>
+      <option value="af">🇿🇦 Afrikaans</option>
+    </select>
   </div>
 
-  <!-- Tombol Tambang / Koin -->
-  <div class="flex flex-col items-center">
-    <button id="tapBtn" class="bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-2xl w-40 h-40 rounded-full shadow-lg shadow-amber-500/50 active:scale-95 transition flex items-center justify-center">
-      TAP!
-    </button>
-    <div class="mt-6 text-center">
-      <span id="score" class="text-5xl font-black">0</span>
-      <p class="text-xs text-gray-400 mt-1">TOTAL POIN</p>
+  <!-- Header Stats -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-title" id="lbl-points">TOTAL POIN</div>
+      <div class="stat-value" id="val-points">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-title" id="lbl-coins">SALDO COIN AST</div>
+      <div class="stat-value" id="val-coins">0 AST</div>
     </div>
   </div>
 
-  <!-- Tombol Klaim -->
-  <button onclick="alert('Poin berhasil diklaim!')" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-3 rounded-xl">
-    Claim Points
-  </button>
+  <!-- 1. HOME / TAP VIEW -->
+  <div id="view-home" class="view-section active">
+    <div class="tap-btn-wrapper" id="tap-btn">
+      <img src="logo.png" style="width:92%;height:92%;border-radius:50%" alt="Logo" onerror="this.src='https://via.placeholder.com/200/a3e635/0f172a?text=AST2'">
+    </div>
+    <div class="points-display" id="tap-score">+0</div>
+    <div class="points-label" id="lbl-tap-sub">POIN DITAMBANG</div>
+    <button class="btn-primary" id="btn-claim-tap" onclick="claimTapPoints()">Claim Points</button>
+  </div>
+
+  <!-- 2. ABSEN HARIAN VIEW -->
+  <div id="view-daily" class="view-section">
+    <div class="item-card" style="flex-direction: column; align-items: flex-start;">
+      <div class="item-title" id="daily-title">Absen Harian (30 Hari)</div>
+      <div class="item-sub" id="daily-desc" style="margin-top: 6px;">Dapatkan 100 Poin/hari. Berhasil 30 hari berturut-turut tanpa putus dapat bonus 1.000 Poin!</div>
+      <div class="item-sub" style="color: #a3e635; margin-top: 4px;" id="daily-status">Streak: 0 Hari</div>
+    </div>
+    <button class="btn-primary" id="btn-checkin" onclick="doCheckIn()">Absen Sekarang</button>
+  </div>
+
+  <!-- 3. TUGAS SOSMED VIEW -->
+  <div id="view-tasks" class="view-section">
+    <div class="item-card">
+      <div class="item-info">
+        <div class="item-title">Follow TikTok</div>
+        <div class="item-sub">+2.500 Poin</div>
+      </div>
+      <button class="btn-action" id="btn-task-tiktok" onclick="doTask('tiktok', 'https://www.tiktok.com/@asteroid2shiba?_r=1&_t=ZS-99bZoXsikMc')">Buka</button>
+    </div>
+
+    <div class="item-card">
+      <div class="item-info">
+        <div class="item-title">Subscribe YouTube</div>
+        <div class="item-sub">+2.500 Poin</div>
+      </div>
+      <button class="btn-action" id="btn-task-yt" onclick="doTask('yt', 'https://www.youtube.com/@asteroid2shiba')">Buka</button>
+    </div>
+
+    <div class="item-card">
+      <div class="item-info">
+        <div class="item-title">Follow X (Twitter)</div>
+        <div class="item-sub">+2.500 Poin</div>
+      </div>
+      <button class="btn-action" id="btn-task-x" onclick="doTask('x', 'https://x.com/AKeneng37002')">Buka</button>
+    </div>
+
+    <div class="item-card">
+      <div class="item-info">
+        <div class="item-title">Follow Instagram</div>
+        <div class="item-sub">+2.500 Poin</div>
+      </div>
+      <button class="btn-action" id="btn-task-ig" onclick="doTask('ig', 'https://www.instagram.com/asteroid2shiba?stkn=MWZkMW03MXhqY2I1eg==')">Buka</button>
+    </div>
+  </div>
+
+  <!-- 4. TUKAR POIN VIEW -->
+  <div id="view-swap" class="view-section">
+    <div class="item-card" style="flex-direction: column; align-items: stretch; text-align: center;">
+      <div class="item-title" id="swap-rate-title">Kurs Penukaran</div>
+      <div style="font-size: 20px; font-weight: bold; color: #a3e635; margin: 10px 0;">1.000 Poin = 100 Coin AST</div>
+      <input type="number" id="swapAmount" class="input-field" placeholder="Masukkan Poin yang ingin ditukar (Kelipatan 1000)" style="text-align: center;">
+      <button class="btn-primary" onclick="swapPoints()">Tukar Sekarang</button>
+    </div>
+  </div>
+
+  <!-- 5. REFERRAL VIEW -->
+  <div id="view-ref" class="view-section">
+    <div class="item-card" style="flex-direction: column; align-items: flex-start;">
+      <div class="item-title" id="ref-title">Undang Teman</div>
+      <div class="item-sub" id="ref-desc" style="margin-top: 6px;">Dapatkan +25.000 Poin untuk setiap teman yang bergabung lewat link kamu!</div>
+      <input type="text" id="refLink" class="input-field" readonly style="margin-top: 10px; font-size: 11px;">
+      <button class="btn-primary" onclick="copyRefLink()">Salin Link Referral</button>
+    </div>
+  </div>
+
+  <!-- 6. PROFIL VIEW -->
+  <div id="view-profile" class="view-section">
+    <img id="prof-img" src="https://via.placeholder.com/100/a3e635/0f172a?text=AST2" class="profile-avatar" alt="Profile">
+    <input type="text" id="prof-username" class="input-field" placeholder="Username Member" style="text-align: center;">
+    <input type="text" id="prof-avatar-url" class="input-field" placeholder="URL Foto Profil (Opsional)" style="text-align: center;">
+    <button class="btn-primary" onclick="saveProfile()">Simpan Profil</button>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="showTab('home', this)">
+      <div class="nav-icon">⛏️</div>
+      <div id="nav-home">Mining</div>
+    </div>
+    <div class="nav-item" onclick="showTab('daily', this)">
+      <div class="nav-icon">📅</div>
+      <div id="nav-daily">Absen</div>
+    </div>
+    <div class="nav-item" onclick="showTab('tasks', this)">
+      <div class="nav-icon">📋</div>
+      <div id="nav-tasks">Tugas</div>
+    </div>
+    <div class="nav-item" onclick="showTab('swap', this)">
+      <div class="nav-icon">🔄</div>
+      <div id="nav-swap">Tukar</div>
+    </div>
+    <div class="nav-item" onclick="showTab('ref', this)">
+      <div class="nav-icon">👥</div>
+      <div id="nav-ref">Referral</div>
+    </div>
+    <div class="nav-item" onclick="showTab('profile', this)">
+      <div class="nav-icon">👤</div>
+      <div id="nav-profile">Profil</div>
+    </div>
+  </div>
 
   <script>
-    // Inisialisasi Telegram
     const tg = window.Telegram.WebApp;
-    tg.expand(); // Bikin tampilan full screen di Telegram
+    tg.ready();
+    tg.expand();
 
-    let points = 0;
-    const tapBtn = document.getElementById('tapBtn');
-    const scoreText = document.getElementById('score');
+    // Anti-Cheat & Single Account Lock (1 UID / Local Device Lock)
+    let telegramUser = tg.initDataUnsafe?.user;
+    let userId = telegramUser ? telegramUser.id : "GUEST_" + Math.floor(Math.random() * 899999 + 100000);
 
-    tapBtn.addEventListener('click', () => {
-      points += 1;
-      scoreText.innerText = points;
+    // Initial State & Data LocalStorage
+    let db = JSON.parse(localStorage.getItem('ast2_user_db')) || {
+      uid: userId,
+      username: telegramUser ? telegramUser.username || telegramUser.first_name : "Member_AST2",
+      avatar: "logo.png",
+      points: 0,
+      coins: 0,
+      lastCheckinDate: null,
+      checkinStreak: 0,
+      tasks: { tiktok: false, yt: false, x: false, ig: false },
+      lang: 'id'
+    };
 
-      // Efek getar HP saat tombol ditap
-      if (tg.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred('medium');
+    let tapScore = 0;
+
+    // Translations Dictionary
+    const translations = {
+      id: {
+        points: "TOTAL POIN", coins: "SALDO COIN AST", tapSub: "POIN DITAMBANG",
+        dailyTitle: "Absen Harian (30 Hari)", dailyDesc: "Dapatkan 100 Poin/hari. Berhasil 30 hari berturut-turut tanpa putus dapat bonus 1.000 Poin!",
+        swapRate: "Kurs Penukaran", refTitle: "Undang Teman", refDesc: "Dapatkan +25.000 Poin untuk setiap teman yang bergabung lewat link kamu!",
+        navHome: "Mining", navDaily: "Absen", navTasks: "Tugas", navSwap: "Tukar", navRef: "Referral", navProfile: "Profil"
+      },
+      en: {
+        points: "TOTAL POINTS", coins: "AST COIN BALANCE", tapSub: "MINED POINTS",
+        dailyTitle: "Daily Check-in (30 Days)", dailyDesc: "Get 100 Points/day. Streak 30 days without breaking to get +1,000 Bonus Points!",
+        swapRate: "Exchange Rate", refTitle: "Invite Friends", refDesc: "Get +25,000 Points for each friend joining via your referral link!",
+        navHome: "Mining", navDaily: "Check-in", navTasks: "Tasks", navSwap: "Swap", navRef: "Referral", navProfile: "Profile"
+      },
+      in: {
+        points: "कुल अंक", coins: "AST कॉइन बैलेंस", tapSub: "माइन किए गए अंक",
+        dailyTitle: "दैनिक उपस्थिति (30 दिन)", dailyDesc: "प्रतिदिन 100 अंक प्राप्त करें। 30 दिनों तक बिना रुके +1000 बोनस अंक प्राप्त करें!",
+        swapRate: "विनिमय दर", refTitle: "दोस्तों को आमंत्रित करें", refDesc: "प्रत्येक आमंत्रित मित्र के लिए +25,000 अंक प्राप्त करें!",
+        navHome: "माइनिंग", navDaily: "उपस्थिति", navTasks: "कार्य", navSwap: "अदला-बदली", navRef: "रेफरल", navProfile: "प्रोफ़ाइल"
+      },
+      cn: {
+        points: "总积分", coins: "AST 币余额", tapSub: "挖矿积分",
+        dailyTitle: "每日签到 (30天)", dailyDesc: "每天获得100积分。连续30天不中断可额外获得1,000奖励积分！",
+        swapRate: "兑换率", refTitle: "邀请好友", refDesc: "每邀请一位好友加入即可获得 +25,000 积分！",
+        navHome: "挖矿", navDaily: "签到", navTasks: "任务", navSwap: "兑换", navRef: "推荐", navProfile: "个人资料"
+      },
+      ru: {
+        points: "ВСЕГО ОЧКОВ", coins: "БАЛАНС AST COIN", tapSub: "ДОБЫТО ОЧКОВ",
+        dailyTitle: "Ежедневный вход (30 дней)", dailyDesc: "100 очков в день. Отмечайтесь 30 дней подряд, чтобы получить бонус 1000 очков!",
+        swapRate: "Курс обмена", refTitle: "Пригласить друзей", refDesc: "Получайте +25 000 очков за каждого друга, перешедшего по вашей ссылке!",
+        navHome: "Майнинг", navDaily: "Чек-ин", navTasks: "Задания", navSwap: "Обмен", navRef: "Рефералы", navProfile: "Профиль"
+      },
+      af: {
+        points: "TOTALE PUNTE", coins: "AST COIN BALANS", tapSub: "GEANALYSEERDE PUNTE",
+        dailyTitle: "Daaglikse Inklok (30 Dae)", dailyDesc: "Kry 100 Punte/dag. Voltooi 30 dae sonder onderbreking vir +1,000 Bonus Punte!",
+        swapRate: "Wisselkoers", refTitle: "Nooi Vriende Uit", refDesc: "Kry +25,000 Punte vir elke vriend wat via jou skakel aansluit!",
+        navHome: "Mynbou", navDaily: "Inklok", navTasks: "Take", navSwap: "Ruil", navRef: "Verwysing", navProfile: "Profiel"
       }
+    };
+
+    function saveData() {
+      localStorage.setItem('ast2_user_db', JSON.stringify(db));
+      updateUI();
+    }
+
+    function updateUI() {
+      document.getElementById('val-points').innerText = db.points.toLocaleString();
+      document.getElementById('val-coins').innerText = `${db.coins.toLocaleString()} AST`;
+      document.getElementById('prof-username').value = db.username;
+      document.getElementById('prof-img').src = db.avatar;
+      document.getElementById('daily-status').innerText = `Streak: ${db.checkinStreak} / 30 Hari`;
+
+      // Update Referal Link
+      document.getElementById('refLink').value = `https://t.me/ast2komunitasmining_bot/play?startapp=${db.uid}`;
+
+      // Update Tasks Buttons State
+      ['tiktok', 'yt', 'x', 'ig'].forEach(t => {
+        const btn = document.getElementById(`btn-task-${t}`);
+        if (db.tasks[t]) {
+          btn.innerText = "Selesai ✓";
+          btn.disabled = true;
+        }
+      });
+    }
+
+    // Change Language
+    function changeLanguage() {
+      const selected = document.getElementById('langSelect').value;
+      db.lang = selected;
+      const dict = translations[selected] || translations['id'];
+
+      document.getElementById('lbl-points').innerText = dict.points;
+      document.getElementById('lbl-coins').innerText = dict.coins;
+      document.getElementById('lbl-tap-sub').innerText = dict.tapSub;
+      document.getElementById('daily-title').innerText = dict.dailyTitle;
+      document.getElementById('daily-desc').innerText = dict.dailyDesc;
+      document.getElementById('swap-rate-title').innerText = dict.swapRate;
+      document.getElementById('ref-title').innerText = dict.refTitle;
+      document.getElementById('ref-desc').innerText = dict.refDesc;
+
+      document.getElementById('nav-home').innerText = dict.navHome;
+      document.getElementById('nav-daily').innerText = dict.navDaily;
+      document.getElementById('nav-tasks').innerText = dict.navTasks;
+      document.getElementById('nav-swap').innerText = dict.navSwap;
+      document.getElementById('nav-ref').innerText = dict.navRef;
+      document.getElementById('nav-profile').innerText = dict.navProfile;
+
+      saveData();
+    }
+
+    // Tab Navigation
+    function showTab(tabName, el) {
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(`view-${tabName}`).classList.add('active');
+      el.classList.add('active');
+    }
+
+    // 1. Tap Mining
+    document.getElementById('tap-btn').addEventListener('click', () => {
+      tapScore++;
+      document.getElementById('tap-score').innerText = `+${tapScore}`;
+      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
     });
+
+    function claimTapPoints() {
+      if (tapScore === 0) {
+        tg.showAlert("Belum ada poin hasil tambang!");
+        return;
+      }
+      db.points += tapScore;
+      tg.showAlert(`Berhasil mengklaim +${tapScore} Poin!`);
+      tapScore = 0;
+      document.getElementById('tap-score').innerText = "+0";
+      saveData();
+    }
+
+    // 2. Absen Harian Logic (30 Days Cycle + Reset On Missed)
+    function doCheckIn() {
+      const today = new Date().toDateString();
+
+      if (db.lastCheckinDate === today) {
+        tg.showAlert("Kamu sudah melakukan absen hari ini! Silakan kembali besok.");
+        return;
+      }
+
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+      if (db.lastCheckinDate === yesterday) {
+        db.checkinStreak++;
+      } else {
+        // Lupa absen -> Reset streak dari awal
+        db.checkinStreak = 1;
+      }
+
+      db.lastCheckinDate = today;
+      let reward = 100;
+
+      // Bonus Hari ke-30
+      if (db.checkinStreak === 30) {
+        reward += 1000;
+        tg.showAlert("SELAMAT! Kamu berhasil absen 30 hari tanpa putus & dapat Bonus 1.000 Poin!");
+        db.checkinStreak = 0; // Reset siklus 30 hari
+      } else {
+        tg.showAlert(`Absen Berhasil! +${reward} Poin ditambahkan. Streak: ${db.checkinStreak} hari.`);
+      }
+
+      db.points += reward;
+      saveData();
+    }
+
+    // 3. Tugas Sosmed Logic (+2500 Poin/Tugas)
+    function doTask(type, link) {
+      if (db.tasks[type]) return;
+
+      window.open(link, '_blank');
+
+      setTimeout(() => {
+        db.tasks[type] = true;
+        db.points += 2500;
+        tg.showAlert("Tugas Selesai! +2.500 Poin berhasil ditambahkan.");
+        saveData();
+      }, 3000);
+    }
+
+    // 4. Tukar Poin (1000 Poin = 100 Coin AST)
+    function swapPoints() {
+      const amount = parseInt(document.getElementById('swapAmount').value);
+
+      if (isNaN(amount) || amount < 1000 || amount % 1000 !== 0) {
+        tg.showAlert("Masukkan jumlah poin minimal 1.000 dan kelipatan 1.000!");
+        return;
+      }
+
+      if (db.points < amount) {
+        tg.showAlert("Poin kamu tidak cukup untuk ditukar!");
+        return;
+      }
+
+      const coinsGained = (amount / 1000) * 100;
+      db.points -= amount;
+      db.coins += coinsGained;
+
+      document.getElementById('swapAmount').value = "";
+      tg.showAlert(`Berhasil menukar ${amount.toLocaleString()} Poin menjadi ${coinsGained.toLocaleString()} Coin AST!`);
+      saveData();
+    }
+
+    // 5. Referral Logic
+    function copyRefLink() {
+      const link = document.getElementById('refLink');
+      link.select();
+      document.execCommand("copy");
+      tg.showAlert("Link referral berhasil disalin!");
+    }
+
+    // 6. Profil Logic
+    function saveProfile() {
+      const username = document.getElementById('prof-username').value;
+      const avatar = document.getElementById('prof-avatar-url').value;
+
+      if (username) db.username = username;
+      if (avatar) db.avatar = avatar;
+
+      tg.showAlert("Profil berhasil diperbarui!");
+      saveData();
+    }
+
+    // Initialize Page
+    document.getElementById('langSelect').value = db.lang;
+    changeLanguage();
+    updateUI();
   </script>
 </body>
 </html>
