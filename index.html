@@ -499,3 +499,193 @@
         const btn = document.getElementById(`btn-task-${t}`);
         if (db.tasks[t]) {
           btn.innerText = "Selesai ✓";
+          btn.disabled = true;
+        }
+      });
+    }
+
+    // Auto-Mining Clock Loop
+    function updateMiningStatus() {
+      const btn = document.getElementById('btn-claim-mining');
+      const timerEl = document.getElementById('mining-timer');
+      const minedPointsEl = document.getElementById('mined-points');
+
+      if (!db.miningStartTime) {
+        // Belum mulai mining
+        minedPointsEl.innerText = "0.00";
+        timerEl.innerText = "Status: Siap Di-Mining";
+        btn.innerText = "Mulai Mining";
+        btn.disabled = false;
+        return;
+      }
+
+      const now = Date.now();
+      const elapsed = now - db.miningStartTime;
+
+      if (elapsed >= MINING_DURATION) {
+        // Mining Selesai / Penuh (3 Jam)
+        minedPointsEl.innerText = MAX_MINED_POINTS.toFixed(2);
+        timerEl.innerText = "Status: Penampungan Penuh!";
+        btn.innerText = `Klaim +${MAX_MINED_POINTS} Poin & Mulai Lagi`;
+        btn.disabled = false;
+      } else {
+        // Sedang Berjalan
+        const remaining = MINING_DURATION - elapsed;
+        const hours = Math.floor(remaining / (1000 * 60 * 60));
+        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+        const currentMined = (elapsed / MINING_DURATION) * MAX_MINED_POINTS;
+        minedPointsEl.innerText = currentMined.toFixed(2);
+
+        timerEl.innerText = `Sedang Mining: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        btn.innerText = "Mining Sedang Berjalan...";
+        btn.disabled = true;
+      }
+    }
+
+    setInterval(updateMiningStatus, 1000);
+
+    function handleMiningAction() {
+      const now = Date.now();
+
+      if (!db.miningStartTime) {
+        // Klik Mulai Pertama Kali
+        db.miningStartTime = now;
+        tg.showAlert("Mining Otomatis 3 Jam Dimulai!");
+      } else {
+        const elapsed = now - db.miningStartTime;
+        if (elapsed >= MINING_DURATION) {
+          // Klaim Poin & Mulai Ulang Sesi
+          db.points += MAX_MINED_POINTS;
+          db.miningStartTime = now; // Reset timer 3 jam baru
+          tg.showAlert(`Berhasil mengklaim +${MAX_MINED_POINTS} Poin! Sesi 3 jam berikutnya dimulai.`);
+          if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        }
+      }
+      saveData();
+      updateMiningStatus();
+    }
+
+    function changeLanguage() {
+      const selected = document.getElementById('langSelect').value;
+      db.lang = selected;
+      const dict = translations[selected] || translations['id'];
+
+      document.getElementById('lbl-points').innerText = dict.points;
+      document.getElementById('lbl-coins').innerText = dict.coins;
+      document.getElementById('lbl-tap-sub').innerText = dict.tapSub;
+      document.getElementById('daily-title').innerText = dict.dailyTitle;
+      document.getElementById('daily-desc').innerText = dict.dailyDesc;
+      document.getElementById('swap-rate-title').innerText = dict.swapRate;
+      document.getElementById('ref-title').innerText = dict.refTitle;
+      document.getElementById('ref-desc').innerText = dict.refDesc;
+
+      document.getElementById('nav-home').innerText = dict.navHome;
+      document.getElementById('nav-daily').innerText = dict.navDaily;
+      document.getElementById('nav-tasks').innerText = dict.navTasks;
+      document.getElementById('nav-swap').innerText = dict.navSwap;
+      document.getElementById('nav-ref').innerText = dict.navRef;
+      document.getElementById('nav-profile').innerText = dict.navProfile;
+
+      saveData();
+    }
+
+    function showTab(tabName, el) {
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(`view-${tabName}`).classList.add('active');
+      el.classList.add('active');
+    }
+
+    function doCheckIn() {
+      const today = new Date().toDateString();
+
+      if (db.lastCheckinDate === today) {
+        tg.showAlert("Kamu sudah melakukan absen hari ini! Silakan kembali besok.");
+        return;
+      }
+
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+      if (db.lastCheckinDate === yesterday) {
+        db.checkinStreak++;
+      } else {
+        db.checkinStreak = 1;
+      }
+
+      db.lastCheckinDate = today;
+      let reward = 100;
+
+      if (db.checkinStreak === 30) {
+        reward += 1000;
+        tg.showAlert("SELAMAT! Kamu berhasil absen 30 hari tanpa putus & dapat Bonus 1.000 Poin!");
+        db.checkinStreak = 0;
+      } else {
+        tg.showAlert(`Absen Berhasil! +${reward} Poin ditambahkan. Streak: ${db.checkinStreak} hari.`);
+      }
+
+      db.points += reward;
+      saveData();
+    }
+
+    function doTask(type, link) {
+      if (db.tasks[type]) return;
+
+      window.open(link, '_blank');
+
+      setTimeout(() => {
+        db.tasks[type] = true;
+        db.points += 2500;
+        tg.showAlert("Tugas Selesai! +2.500 Poin berhasil ditambahkan.");
+        saveData();
+      }, 3000);
+    }
+
+    function swapPoints() {
+      const amount = parseInt(document.getElementById('swapAmount').value);
+
+      if (isNaN(amount) || amount < 1000 || amount % 1000 !== 0) {
+        tg.showAlert("Masukkan jumlah poin minimal 1.000 dan kelipatan 1.000!");
+        return;
+      }
+
+      if (db.points < amount) {
+        tg.showAlert("Poin kamu tidak cukup untuk ditukar!");
+        return;
+      }
+
+      const coinsGained = (amount / 1000) * 100;
+      db.points -= amount;
+      db.coins += coinsGained;
+
+      document.getElementById('swapAmount').value = "";
+      tg.showAlert(`Berhasil menukar ${amount.toLocaleString()} Poin menjadi ${coinsGained.toLocaleString()} Coin AST!`);
+      saveData();
+    }
+
+    function copyRefLink() {
+      const link = document.getElementById('refLink');
+      link.select();
+      document.execCommand("copy");
+      tg.showAlert("Link referral berhasil disalin!");
+    }
+
+    function saveProfile() {
+      const username = document.getElementById('prof-username').value;
+      const avatar = document.getElementById('prof-avatar-url').value;
+
+      if (username) db.username = username;
+      if (avatar) db.avatar = avatar;
+
+      tg.showAlert("Profil berhasil diperbarui!");
+      saveData();
+    }
+
+    document.getElementById('langSelect').value = db.lang;
+    changeLanguage();
+    updateUI();
+    updateMiningStatus();
+  </script>
+</body>
+</html>
