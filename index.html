@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Asteroid2Shiba Mining App</title>
 
-  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
@@ -29,7 +28,7 @@
       padding-bottom: 80px;
     }
 
-    /* Multi Language Selector */
+    /* Top Bar */
     .top-bar {
       width: 100%;
       max-width: 400px;
@@ -95,25 +94,34 @@
       align-items: center;
     }
 
-    /* Home Tap View */
-    .tap-btn-wrapper {
+    /* Home Mining View */
+    .mining-circle-wrapper {
       position: relative;
-      width: 200px;
-      height: 200px;
+      width: 210px;
+      height: 210px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 40px rgba(163, 230, 53, 0.35);
-      cursor: pointer;
-      transition: transform 0.08s ease;
-      background: #0f172a;
-      border: 2px solid #a3e635;
+      background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+      border: 3px solid #a3e635;
       margin: 20px 0;
+      overflow: hidden;
     }
 
-    .tap-btn-wrapper:active {
-      transform: scale(0.94);
+    .tap-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .tap-logo-fallback {
+      font-size: 28px;
+      font-weight: 900;
+      color: #a3e635;
+      text-shadow: 0 0 10px rgba(163, 230, 53, 0.5);
     }
 
     .points-display {
@@ -127,6 +135,14 @@
       color: #64748b;
       letter-spacing: 1px;
       font-weight: 700;
+    }
+
+    .timer-display {
+      font-size: 14px;
+      color: #a3e635;
+      font-weight: bold;
+      margin-top: 6px;
+      margin-bottom: 10px;
     }
 
     /* Buttons */
@@ -143,7 +159,13 @@
       margin-top: 10px;
     }
 
-    .btn-primary:active {
+    .btn-primary:disabled {
+      background-color: #1e293b;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .btn-primary:active:not(:disabled) {
       opacity: 0.85;
     }
 
@@ -164,7 +186,7 @@
       cursor: not-allowed;
     }
 
-    /* Lists & Cards for Tasks/Daily */
+    /* Cards */
     .item-card {
       background-color: #11192e;
       border: 1px solid #1e293b;
@@ -195,12 +217,22 @@
     }
 
     /* Profile View */
-    .profile-avatar {
+    .profile-avatar-box {
       width: 90px;
       height: 90px;
       border-radius: 50%;
       border: 3px solid #a3e635;
-      margin-bottom: 12px;
+      margin-bottom: 15px;
+      overflow: hidden;
+      background-color: #11192e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-avatar-box img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
 
@@ -215,7 +247,7 @@
       outline: none;
     }
 
-    /* Bottom Navigation Bar */
+    /* Bottom Nav */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -254,7 +286,6 @@
 </head>
 <body>
 
-  <!-- Top Bar & Language Selector -->
   <div class="top-bar">
     <div style="font-weight: bold; font-size: 14px; color: #a3e635;">AST2 APP</div>
     <select class="lang-select" id="langSelect" onchange="changeLanguage()">
@@ -267,7 +298,6 @@
     </select>
   </div>
 
-  <!-- Header Stats -->
   <div class="stats-container">
     <div class="stat-card">
       <div class="stat-title" id="lbl-points">TOTAL POIN</div>
@@ -279,17 +309,17 @@
     </div>
   </div>
 
-  <!-- 1. HOME / TAP VIEW -->
   <div id="view-home" class="view-section active">
-    <div class="tap-btn-wrapper" id="tap-btn">
-      <img src="logo.png" style="width:92%;height:92%;border-radius:50%" alt="Logo" onerror="this.src='https://via.placeholder.com/200/a3e635/0f172a?text=AST2'">
+    <div class="mining-circle-wrapper">
+      <img src="logo.png" class="tap-logo-img" alt="AST2" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
+      <div id="logo-fallback" class="tap-logo-fallback" style="display: none;">AST2</div>
     </div>
-    <div class="points-display" id="tap-score">+0</div>
-    <div class="points-label" id="lbl-tap-sub">POIN DITAMBANG</div>
-    <button class="btn-primary" id="btn-claim-tap" onclick="claimTapPoints()">Claim Points</button>
+    <div class="points-display" id="mined-points">0.00</div>
+    <div class="points-label" id="lbl-tap-sub">POIN TERTAMPUNG (MAX 250 / 3 JAM)</div>
+    <div class="timer-display" id="mining-timer">Status: Siap Di-Mining</div>
+    <button class="btn-primary" id="btn-claim-mining" onclick="handleMiningAction()">Mulai Mining / Claim</button>
   </div>
 
-  <!-- 2. ABSEN HARIAN VIEW -->
   <div id="view-daily" class="view-section">
     <div class="item-card" style="flex-direction: column; align-items: flex-start;">
       <div class="item-title" id="daily-title">Absen Harian (30 Hari)</div>
@@ -299,7 +329,6 @@
     <button class="btn-primary" id="btn-checkin" onclick="doCheckIn()">Absen Sekarang</button>
   </div>
 
-  <!-- 3. TUGAS SOSMED VIEW -->
   <div id="view-tasks" class="view-section">
     <div class="item-card">
       <div class="item-info">
@@ -334,7 +363,6 @@
     </div>
   </div>
 
-  <!-- 4. TUKAR POIN VIEW -->
   <div id="view-swap" class="view-section">
     <div class="item-card" style="flex-direction: column; align-items: stretch; text-align: center;">
       <div class="item-title" id="swap-rate-title">Kurs Penukaran</div>
@@ -344,7 +372,6 @@
     </div>
   </div>
 
-  <!-- 5. REFERRAL VIEW -->
   <div id="view-ref" class="view-section">
     <div class="item-card" style="flex-direction: column; align-items: flex-start;">
       <div class="item-title" id="ref-title">Undang Teman</div>
@@ -354,15 +381,15 @@
     </div>
   </div>
 
-  <!-- 6. PROFIL VIEW -->
   <div id="view-profile" class="view-section">
-    <img id="prof-img" src="https://via.placeholder.com/100/a3e635/0f172a?text=AST2" class="profile-avatar" alt="Profile">
+    <div class="profile-avatar-box">
+      <img id="prof-img" src="logo.png" alt="Profile" onerror="this.src='logo.png';">
+    </div>
     <input type="text" id="prof-username" class="input-field" placeholder="Username Member" style="text-align: center;">
     <input type="text" id="prof-avatar-url" class="input-field" placeholder="URL Foto Profil (Opsional)" style="text-align: center;">
     <button class="btn-primary" onclick="saveProfile()">Simpan Profil</button>
   </div>
 
-  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <div class="nav-item active" onclick="showTab('home', this)">
       <div class="nav-icon">⛏️</div>
@@ -395,59 +422,59 @@
     tg.ready();
     tg.expand();
 
-    // Anti-Cheat & Single Account Lock (1 UID / Local Device Lock)
+    // ID & LocalStorage Init
     let telegramUser = tg.initDataUnsafe?.user;
     let userId = telegramUser ? telegramUser.id : "GUEST_" + Math.floor(Math.random() * 899999 + 100000);
 
-    // Initial State & Data LocalStorage
     let db = JSON.parse(localStorage.getItem('ast2_user_db')) || {
       uid: userId,
-      username: telegramUser ? telegramUser.username || telegramUser.first_name : "Member_AST2",
+      username: telegramUser ? (telegramUser.username || telegramUser.first_name) : "Member_AST2",
       avatar: "logo.png",
       points: 0,
       coins: 0,
       lastCheckinDate: null,
       checkinStreak: 0,
       tasks: { tiktok: false, yt: false, x: false, ig: false },
-      lang: 'id'
+      lang: 'id',
+      miningStartTime: null // Waktu mulai mining
     };
 
-    let tapScore = 0;
+    const MINING_DURATION = 3 * 60 * 60 * 1000; // 3 Jam (ms)
+    const MAX_MINED_POINTS = 250; // 2000 poin / 24 jam = 250 poin / 3 jam
 
-    // Translations Dictionary
     const translations = {
       id: {
-        points: "TOTAL POIN", coins: "SALDO COIN AST", tapSub: "POIN DITAMBANG",
+        points: "TOTAL POIN", coins: "SALDO COIN AST", tapSub: "POIN TERTAMPUNG (MAX 250 / 3 JAM)",
         dailyTitle: "Absen Harian (30 Hari)", dailyDesc: "Dapatkan 100 Poin/hari. Berhasil 30 hari berturut-turut tanpa putus dapat bonus 1.000 Poin!",
         swapRate: "Kurs Penukaran", refTitle: "Undang Teman", refDesc: "Dapatkan +25.000 Poin untuk setiap teman yang bergabung lewat link kamu!",
         navHome: "Mining", navDaily: "Absen", navTasks: "Tugas", navSwap: "Tukar", navRef: "Referral", navProfile: "Profil"
       },
       en: {
-        points: "TOTAL POINTS", coins: "AST COIN BALANCE", tapSub: "MINED POINTS",
+        points: "TOTAL POINTS", coins: "AST COIN BALANCE", tapSub: "MINED STORAGE (MAX 250 / 3 HRS)",
         dailyTitle: "Daily Check-in (30 Days)", dailyDesc: "Get 100 Points/day. Streak 30 days without breaking to get +1,000 Bonus Points!",
         swapRate: "Exchange Rate", refTitle: "Invite Friends", refDesc: "Get +25,000 Points for each friend joining via your referral link!",
         navHome: "Mining", navDaily: "Check-in", navTasks: "Tasks", navSwap: "Swap", navRef: "Referral", navProfile: "Profile"
       },
       in: {
-        points: "कुल अंक", coins: "AST कॉइन बैलेंस", tapSub: "माइन किए गए अंक",
+        points: "कुल अंक", coins: "AST कॉइन बैलेंस", tapSub: "माइन किए गए अंक (अधिकतम 250 / 3 घंटे)",
         dailyTitle: "दैनिक उपस्थिति (30 दिन)", dailyDesc: "प्रतिदिन 100 अंक प्राप्त करें। 30 दिनों तक बिना रुके +1000 बोनस अंक प्राप्त करें!",
         swapRate: "विनिमय दर", refTitle: "दोस्तों को आमंत्रित करें", refDesc: "प्रत्येक आमंत्रित मित्र के लिए +25,000 अंक प्राप्त करें!",
         navHome: "माइनिंग", navDaily: "उपस्थिति", navTasks: "कार्य", navSwap: "अदला-बदली", navRef: "रेफरल", navProfile: "प्रोफ़ाइल"
       },
       cn: {
-        points: "总积分", coins: "AST 币余额", tapSub: "挖矿积分",
+        points: "总积分", coins: "AST 币余额", tapSub: "待领取积分 (上限 250 / 3小时)",
         dailyTitle: "每日签到 (30天)", dailyDesc: "每天获得100积分。连续30天不中断可额外获得1,000奖励积分！",
         swapRate: "兑换率", refTitle: "邀请好友", refDesc: "每邀请一位好友加入即可获得 +25,000 积分！",
         navHome: "挖矿", navDaily: "签到", navTasks: "任务", navSwap: "兑换", navRef: "推荐", navProfile: "个人资料"
       },
       ru: {
-        points: "ВСЕГО ОЧКОВ", coins: "БАЛАНС AST COIN", tapSub: "ДОБЫТО ОЧКОВ",
+        points: "ВСЕГО ОЧКОВ", coins: "БАЛАНС AST COIN", tapSub: "НАКОПЛЕНО (МАКС 250 / 3 ЧАСА)",
         dailyTitle: "Ежедневный вход (30 дней)", dailyDesc: "100 очков в день. Отмечайтесь 30 дней подряд, чтобы получить бонус 1000 очков!",
         swapRate: "Курс обмена", refTitle: "Пригласить друзей", refDesc: "Получайте +25 000 очков за каждого друга, перешедшего по вашей ссылке!",
         navHome: "Майнинг", navDaily: "Чек-ин", navTasks: "Задания", navSwap: "Обмен", navRef: "Рефералы", navProfile: "Профиль"
       },
       af: {
-        points: "TOTALE PUNTE", coins: "AST COIN BALANS", tapSub: "GEANALYSEERDE PUNTE",
+        points: "TOTALE PUNTE", coins: "AST COIN BALANS", tapSub: "GEANALYSEERDE PUNTE (Maks 250 / 3 Uur)",
         dailyTitle: "Daaglikse Inklok (30 Dae)", dailyDesc: "Kry 100 Punte/dag. Voltooi 30 dae sonder onderbreking vir +1,000 Bonus Punte!",
         swapRate: "Wisselkoers", refTitle: "Nooi Vriende Uit", refDesc: "Kry +25,000 Punte vir elke vriend wat via jou skakel aansluit!",
         navHome: "Mynbou", navDaily: "Inklok", navTasks: "Take", navSwap: "Ruil", navRef: "Verwysing", navProfile: "Profiel"
@@ -460,172 +487,15 @@
     }
 
     function updateUI() {
-      document.getElementById('val-points').innerText = db.points.toLocaleString();
+      document.getElementById('val-points').innerText = Math.floor(db.points).toLocaleString();
       document.getElementById('val-coins').innerText = `${db.coins.toLocaleString()} AST`;
       document.getElementById('prof-username').value = db.username;
-      document.getElementById('prof-img').src = db.avatar;
+      document.getElementById('prof-img').src = db.avatar || 'logo.png';
       document.getElementById('daily-status').innerText = `Streak: ${db.checkinStreak} / 30 Hari`;
 
-      // Update Referal Link
       document.getElementById('refLink').value = `https://t.me/ast2komunitasmining_bot/play?startapp=${db.uid}`;
 
-      // Update Tasks Buttons State
       ['tiktok', 'yt', 'x', 'ig'].forEach(t => {
         const btn = document.getElementById(`btn-task-${t}`);
         if (db.tasks[t]) {
           btn.innerText = "Selesai ✓";
-          btn.disabled = true;
-        }
-      });
-    }
-
-    // Change Language
-    function changeLanguage() {
-      const selected = document.getElementById('langSelect').value;
-      db.lang = selected;
-      const dict = translations[selected] || translations['id'];
-
-      document.getElementById('lbl-points').innerText = dict.points;
-      document.getElementById('lbl-coins').innerText = dict.coins;
-      document.getElementById('lbl-tap-sub').innerText = dict.tapSub;
-      document.getElementById('daily-title').innerText = dict.dailyTitle;
-      document.getElementById('daily-desc').innerText = dict.dailyDesc;
-      document.getElementById('swap-rate-title').innerText = dict.swapRate;
-      document.getElementById('ref-title').innerText = dict.refTitle;
-      document.getElementById('ref-desc').innerText = dict.refDesc;
-
-      document.getElementById('nav-home').innerText = dict.navHome;
-      document.getElementById('nav-daily').innerText = dict.navDaily;
-      document.getElementById('nav-tasks').innerText = dict.navTasks;
-      document.getElementById('nav-swap').innerText = dict.navSwap;
-      document.getElementById('nav-ref').innerText = dict.navRef;
-      document.getElementById('nav-profile').innerText = dict.navProfile;
-
-      saveData();
-    }
-
-    // Tab Navigation
-    function showTab(tabName, el) {
-      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById(`view-${tabName}`).classList.add('active');
-      el.classList.add('active');
-    }
-
-    // 1. Tap Mining
-    document.getElementById('tap-btn').addEventListener('click', () => {
-      tapScore++;
-      document.getElementById('tap-score').innerText = `+${tapScore}`;
-      if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-    });
-
-    function claimTapPoints() {
-      if (tapScore === 0) {
-        tg.showAlert("Belum ada poin hasil tambang!");
-        return;
-      }
-      db.points += tapScore;
-      tg.showAlert(`Berhasil mengklaim +${tapScore} Poin!`);
-      tapScore = 0;
-      document.getElementById('tap-score').innerText = "+0";
-      saveData();
-    }
-
-    // 2. Absen Harian Logic (30 Days Cycle + Reset On Missed)
-    function doCheckIn() {
-      const today = new Date().toDateString();
-
-      if (db.lastCheckinDate === today) {
-        tg.showAlert("Kamu sudah melakukan absen hari ini! Silakan kembali besok.");
-        return;
-      }
-
-      const yesterday = new Date(Date.now() - 86400000).toDateString();
-
-      if (db.lastCheckinDate === yesterday) {
-        db.checkinStreak++;
-      } else {
-        // Lupa absen -> Reset streak dari awal
-        db.checkinStreak = 1;
-      }
-
-      db.lastCheckinDate = today;
-      let reward = 100;
-
-      // Bonus Hari ke-30
-      if (db.checkinStreak === 30) {
-        reward += 1000;
-        tg.showAlert("SELAMAT! Kamu berhasil absen 30 hari tanpa putus & dapat Bonus 1.000 Poin!");
-        db.checkinStreak = 0; // Reset siklus 30 hari
-      } else {
-        tg.showAlert(`Absen Berhasil! +${reward} Poin ditambahkan. Streak: ${db.checkinStreak} hari.`);
-      }
-
-      db.points += reward;
-      saveData();
-    }
-
-    // 3. Tugas Sosmed Logic (+2500 Poin/Tugas)
-    function doTask(type, link) {
-      if (db.tasks[type]) return;
-
-      window.open(link, '_blank');
-
-      setTimeout(() => {
-        db.tasks[type] = true;
-        db.points += 2500;
-        tg.showAlert("Tugas Selesai! +2.500 Poin berhasil ditambahkan.");
-        saveData();
-      }, 3000);
-    }
-
-    // 4. Tukar Poin (1000 Poin = 100 Coin AST)
-    function swapPoints() {
-      const amount = parseInt(document.getElementById('swapAmount').value);
-
-      if (isNaN(amount) || amount < 1000 || amount % 1000 !== 0) {
-        tg.showAlert("Masukkan jumlah poin minimal 1.000 dan kelipatan 1.000!");
-        return;
-      }
-
-      if (db.points < amount) {
-        tg.showAlert("Poin kamu tidak cukup untuk ditukar!");
-        return;
-      }
-
-      const coinsGained = (amount / 1000) * 100;
-      db.points -= amount;
-      db.coins += coinsGained;
-
-      document.getElementById('swapAmount').value = "";
-      tg.showAlert(`Berhasil menukar ${amount.toLocaleString()} Poin menjadi ${coinsGained.toLocaleString()} Coin AST!`);
-      saveData();
-    }
-
-    // 5. Referral Logic
-    function copyRefLink() {
-      const link = document.getElementById('refLink');
-      link.select();
-      document.execCommand("copy");
-      tg.showAlert("Link referral berhasil disalin!");
-    }
-
-    // 6. Profil Logic
-    function saveProfile() {
-      const username = document.getElementById('prof-username').value;
-      const avatar = document.getElementById('prof-avatar-url').value;
-
-      if (username) db.username = username;
-      if (avatar) db.avatar = avatar;
-
-      tg.showAlert("Profil berhasil diperbarui!");
-      saveData();
-    }
-
-    // Initialize Page
-    document.getElementById('langSelect').value = db.lang;
-    changeLanguage();
-    updateUI();
-  </script>
-</body>
-</html>
