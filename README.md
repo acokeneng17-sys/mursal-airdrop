@@ -1,2 +1,2 @@
-# mursalcoin
+# AST2 MINING
 app mini
