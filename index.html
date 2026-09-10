@@ -409,16 +409,69 @@
       tg.showAlert(terjemahkan("alert_mining"));
     };
 
-    // === ABSEN ===
-    function tampilAbsen(){
-      const hr = Math.min(data.absenTurut+1,30);
-      document.getElementById("hariKe").textContent = hr;
-      document.getElementById("poinHari").textContent = poinAbsen[hr-1];
-      document.getElementById("turut").textContent = data.absenTurut;
-      const kemarin = Date.now() - 86400000;
-      if(data.absenTerakhir && data.absenTerakhir < kemarin){
-        if(new Date(data.absenTerakhir).toDateString() !== new Date().toDateString()){
-          data.absenTurut = 0; simpan();
+    /// === ABSEN HARIAN ===
+function tampilAbsen(){
+  // Pastikan data absen sudah ada
+  if(typeof data.absenTurut === 'undefined') data.absenTurut = 0;
+  if(typeof data.absenTerakhir === 'undefined') data.absenTerakhir = 0;
+
+  const hariIni = new Date().toDateString();
+  const hariTerakhir = data.absenTerakhir ? new Date(data.absenTerakhir).toDateString() : null;
+  
+  // ✅ Tampilkan urutan hari (maksimal 30)
+  const hariKe = Math.min(data.absenTurut + 1, 30);
+  document.getElementById("hariKe").textContent = hariKe;
+  document.getElementById("poinHari").textContent = hariKe * 100;
+
+  // ⚠️ Cek: Lupa absen kemarin? → urutan di-reset ke 1
+  const kemarin = new Date();
+  kemarin.setDate(kemarin.getDate() - 1);
+  if(hariTerakhir && hariTerakhir !== kemarin.toDateString()){
+    data.absenTurut = 0;
+    hariKe.textContent = "1";
+    simpan();
+  }
+
+  // 🔒 Tombol dikunci kalau sudah absen hari ini
+  const btn = document.getElementById("btnAbsen");
+  if(hariTerakhir === hariIni){
+    btn.disabled = true;
+    btn.textContent = "✅ Sudah Absen Hari Ini";
+    btn.style.opacity = "0.6";
+  } else {
+    btn.disabled = false;
+    btn.textContent = terjemahkan("absen");
+    btn.style.opacity = "1";
+  }
+
+  perbaruiTeks();
+}
+
+// === KLAIM ABSEN ===
+document.getElementById("btnAbsen").onclick = () => {
+  const hariIni = new Date().toDateString();
+  const hariTerakhir = data.absenTerakhir ? new Date(data.absenTerakhir).toDateString() : null;
+
+  // Cek ulang untuk berjaga-jaga
+  if(hariTerakhir === hariIni){
+    tg.showAlert("⚠️ Sudah absen hari ini! Coba lagi besok.");
+    return;
+  }
+
+  // Hitung poin: hari ke-1=100, ke-2=200... sampai hari ke-30=3000
+  const hariKe = Math.min(data.absenTurut + 1, 30);
+  const poinDapat = hariKe * 100;
+
+  data.poin = (data.poin || 0) + poinDapat;
+  data.absenTurut = hariKe;
+  data.absenTerakhir = Date.now(); // Simpan waktu absen
+
+  simpan();
+  tampilPoin();
+  tampilAbsen();
+  tg.showAlert(`${terjemahkan("alert_absen") || "✅ Absen Berhasil!"}\n+${poinDapat} Poin — Hari ke-${hariKe}`);
+};
+    
         }
       }
       perbaruiTeks();
@@ -456,27 +509,54 @@
     });
 
     // === REFERAL ===
-    function buatLinkRef(){
-      const link = `${window.location.origin}${window.location.pathname}?ref=${uid}`;
-      document.getElementById("linkRef").textContent = link;
-      document.getElementById("jmlUndang").textContent = data.jmlUndang;
-      const params = new URLSearchParams(window.location.search);
-      const ref = params.get("ref");
-      if(ref && ref !== uid && !data.refDari){
-        data.refDari = ref;
-        update(ref(db,"mursal_airdrop/"+ref), {
-          poin: ((data.poin||0) + POIN_REF),
-          jmlUndang: ((data.jmlUndang||0) + 1)
-        });
-        simpan();
-        tg.showAlert(terjemahkan("alert_ref"));
-      }
-    }
-    document.getElementById("btnBagikan").onclick = async ()=>{
-      const link = document.getElementById("linkRef").textContent;
-      await navigator.clipboard.writeText(link);
-      tg.showAlert(terjemahkan("alert_salin"));
-    };
+// Ambil ID pengguna Telegram sebagai ID unik
+const uid = String(tg.initDataUnsafe.user.id);
+const POIN_REF = 5000; // poin per undangan
+
+// Buat tampilkan link referal
+function buatLinkRef(){
+  // Buat link: ambil alamat halaman + ?ref=ID
+  const link = `${window.location.origin}${window.location.pathname}?ref=${uid}`;
+  
+  // Tampilkan di halaman
+  const elemenLink = document.getElementById("linkRef");
+  const elemenJml = document.getElementById("jmlUndang");
+  
+  if(elemenLink) elemenLink.textContent = link;
+  if(elemenJml) elemenJml.textContent = data.jmlUndang || 0;
+  
+  return link;
+}
+
+// Cek apakah pengguna datang dari link referal orang lain
+function cekReferalMasuk(){
+  const params = new URLSearchParams(window.location.search);
+  const refDari = params.get("ref");
+  
+  // Hanya berikan poin jika: ada ref, bukan milik sendiri, & belum pernah diberi
+  if(refDari && refDari !== uid && !data.refDari){
+    data.refDari = refDari; // catat siapa yang mengundang
+    simpan();
+    tg.showAlert(terjemahkan("alert_ref") || "✅ Berhasil bergabung dari undangan!");
+  }
+}
+
+// Tombol salin link
+document.getElementById("btnBagikan").onclick = async () => {
+  const link = `${window.location.origin}${window.location.pathname}?ref=${uid}`;
+  try {
+    await navigator.clipboard.writeText(link);
+    tg.showAlert(terjemahkan("alert_salin") || "✅ Link berhasil disalin!");
+  } catch(err) {
+    tg.showAlert("❌ Gagal menyalin. Salin manual: " + link);
+  }
+};
+
+// Jalankan saat aplikasi dibuka
+buatLinkRef();
+cekReferalMasuk();
+    
+    
 
     // ================== FITUR TUKAR POIN → KOIN ==================
     const inputPoin = document.getElementById("inputPoin");
