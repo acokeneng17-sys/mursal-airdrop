@@ -736,7 +736,13 @@
       notify("Profile Saved!");
       saveData();
     }
+// ==========================================
+// ⚙️ KONFIGURASI SUPABASE AST2
+// ==========================================
+const SUPABASE_URL = "https://eacnastpvwjwngvrpilk.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_cU45-75Obett_5aHhyLZkA_E7cFvupK";
 
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     document.getElementById('langSelect').value = db.lang;
     changeLanguage();
     updateUI();
