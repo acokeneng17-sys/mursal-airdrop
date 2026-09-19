@@ -11,158 +11,83 @@
   <style>
     :root {
       --gold: #FFD700;
-      --gold-light: #FFF200;
       --green: #00FF64;
       --dark: #0A0A0A;
       --card: #1A1A1A;
-      --card-border: rgba(255,215,0,0.25);
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: linear-gradient(180deg, #000000 0%, #1A1A1A 50%, #000000 100%);
-      min-height: 100vh;
-      color: white;
-      font-family: system-ui, -apple-system, sans-serif;
-      padding-bottom: 90px;
+      background: linear-gradient(180deg, #000 0%, #1A1A1A 50%, #000 100%);
+      min-height: 100vh; color: white;
+      font-family: system-ui; padding-bottom: 90px;
     }
     .mursal-logo {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
+      width: 180px; height: 180px; border-radius: 50%;
       background: radial-gradient(circle, #2A2A2A, #0A0A0A);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-      border: 4px solid var(--gold);
-      box-shadow: 0 0 35px rgba(255,215,0,0.4), inset 0 0 25px rgba(0,255,100,0.15);
-      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto; border: 4px solid var(--gold);
+      box-shadow: 0 0 35px rgba(255,215,0,0.4);
     }
     .mining-active {
       animation: pulse 1.5s ease-in-out 3;
       border-color: var(--green);
-      box-shadow: 0 0 40px rgba(0,255,100,0.5), inset 0 0 30px rgba(0,255,100,0.2);
+      box-shadow: 0 0 40px rgba(0,255,100,0.5);
     }
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+      0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)}
     }
     .card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 12px;
-      backdrop-filter: blur(10px);
-    }
-    .card-gold {
-      border-color: rgba(255,215,0,0.5);
-      box-shadow: 0 0 15px rgba(255,215,0,0.15);
+      background: var(--card); border: 1px solid rgba(255,215,0,0.25);
+      border-radius: 16px; padding: 18px; margin-bottom: 12px;
     }
     .btn-primary {
       background: linear-gradient(135deg, #B8860B, #FFD700);
-      color: #000;
-      font-weight: 700;
-      padding: 14px 20px;
-      border-radius: 12px;
-      border: none;
-      width: 100%;
-      cursor: pointer;
-      font-size: 16px;
-      transition: all 0.2s;
+      color: #000; font-weight: 700; padding: 14px;
+      border-radius: 12px; border: none; width: 100%;
+      font-size: 16px; cursor: pointer; transition: 0.2s;
     }
-    .btn-primary:disabled {
-      background: #333;
-      color: #777;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
+    .btn-primary:disabled { background: #333; color: #777; cursor: not-allowed; }
     .btn-success {
       background: linear-gradient(135deg, #009933, #00FF64);
-      color: #000;
-      font-weight: 700;
-      padding: 12px 20px;
-      border-radius: 12px;
-      border: none;
-      width: 100%;
-      cursor: pointer;
-      font-size: 15px;
+      color: #000; font-weight: 700; padding: 12px;
+      border-radius: 12px; border: none; width: 100%; cursor: pointer;
     }
     .btn-outline {
-      background: transparent;
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      padding: 10px 14px;
-      border-radius: 10px;
-      width: 100%;
+      background: transparent; border: 1px solid var(--gold);
+      color: var(--gold); padding: 10px 14px; border-radius: 10px;
       cursor: pointer;
     }
     .tab {
-      padding: 10px 12px;
-      border-radius: 10px 10px 0 0;
-      background: transparent;
-      color: #777;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
+      padding: 10px 12px; border-radius: 10px 10px 0 0;
+      background: transparent; color: #777; border: none;
+      cursor: pointer; font-size: 14px;
     }
-    .tab.active {
-      background: var(--card);
-      color: var(--gold);
-      font-weight: 600;
-      border-bottom: 2px solid var(--gold);
-    }
+    .tab.active { background: var(--card); color: var(--gold); border-bottom: 2px solid var(--gold); font-weight: 600; }
     .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      color: #666;
-      font-size: 11px;
-      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; color: #666; font-size: 11px; cursor: pointer;
     }
     .nav-item.active { color: var(--gold); }
     .hidden { display: none !important; }
     .balance-text {
-      font-size: 36px;
-      font-weight: 900;
+      font-size: 36px; font-weight: 900;
       background: linear-gradient(90deg, #FFD700, #FFF200);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .locked-box {
-      background: rgba(30,30,30,0.8);
-      border: 2px dashed #444;
-      border-radius: 12px;
-      padding: 30px 20px;
-      text-align: center;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .stat-box {
-      background: #222;
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
-    }
-    .countdown { font-variant-numeric: tabular-nums; }
-    .ref-item {
-      padding: 10px;
-      border-bottom: 1px solid #333;
-      font-size: 13px;
+      background: #222; border-radius: 10px; padding: 12px; text-align: center;
     }
   </style>
 </head>
 <body>
 
-<div id="app" class="px-4 pt-6 max-w-md mx-auto">
-  <!-- Header -->
+<div class="px-4 pt-6 max-w-md mx-auto">
   <div class="text-center mb-6">
-    <h1 class="text-2xl font-bold tracking-wider" style="color:var(--gold)">MURSAL TOKEN</h1>
-    <p class="text-sm text-gray-400 mt-1" id="userIdDisplay">Loading...</p>
+    <h1 class="text-2xl font-bold" style="color:var(--gold)">MURSAL TOKEN</h1>
+    <p class="text-sm text-gray-400 mt-1" id="userInfo">Loading...</p>
   </div>
 
-  <!-- TAB MENU -->
-  <div class="flex gap-1 mb-0 overflow-x-auto">
+  <div class="flex gap-1 mb-0">
     <button class="tab active" data-page="home">Home</button>
     <button class="tab" data-page="tasks">Tasks</button>
     <button class="tab" data-page="referral">Referral</button>
@@ -170,37 +95,30 @@
   </div>
 
   <div class="card rounded-tl-none">
-
-    <!-- ========== HOME ========== -->
+    <!-- HOME -->
     <div id="page-home" class="page-content">
-      <div class="flex flex-col items-center my-4">
+      <div class="flex flex-col items-center">
         <div id="miningLogo" class="mursal-logo mb-4">
           <span class="text-5xl font-bold" style="color:var(--gold)">M</span>
         </div>
-        
-        <p id="miningStatus" class="text-sm text-yellow-400 mb-1">⏳ READY TO MINE</p>
-        
+        <p id="miningStatus" class="text-sm text-green-400 mb-1">✅ READY TO MINE</p>
         <p class="text-sm text-gray-400">Your Balance</p>
         <p class="balance-text" id="balance">0.00 $MURSAL</p>
-        
         <div class="w-full mt-4">
           <button id="btnMine" class="btn-primary">⛏️ START MINING</button>
-          <p id="mineTimer" class="text-center text-sm text-gray-500 mt-2 countdown">Ready to mine!</p>
+          <p id="mineTimer" class="text-center text-sm text-gray-500 mt-2">Ready!</p>
         </div>
-        
         <div class="w-full mt-6">
-          <div class="card-gold card text-center">
+          <div class="card text-center" style="border-color:rgba(255,215,0,0.5)">
             <h3 class="font-bold text-lg mb-2">📅 DAILY CHECK-IN</h3>
-            <p class="text-sm text-gray-400 mb-2">Claim bonus every day!</p>
-            <p class="text-xs text-yellow-400 mb-3">+10 $MURSAL per day</p>
+            <p class="text-sm text-gray-400 mb-2">Claim +10 $MURSAL/day</p>
             <button id="btnAbsen" class="btn-primary">✅ CHECK-IN TODAY</button>
             <p id="absenInfo" class="text-xs text-gray-500 mt-2">Last: —</p>
           </div>
         </div>
-        
         <div class="grid grid-cols-2 gap-3 w-full mt-4">
           <div class="stat-box">
-            <p class="text-xs text-gray-400">Days Streak</p>
+            <p class="text-xs text-gray-400">Streak</p>
             <p class="text-lg font-bold text-yellow-400" id="streak">0</p>
           </div>
           <div class="stat-box">
@@ -211,98 +129,63 @@
       </div>
     </div>
 
-    <!-- ========== TASKS ========== -->
+    <!-- TASKS -->
     <div id="page-tasks" class="page-content hidden">
       <h2 class="text-lg font-semibold mb-4">📋 Tasks & Earn</h2>
-      <div class="space-y-3" id="taskList">
+      <div class="space-y-3">
         <div class="card flex justify-between items-center" data-task="x">
-          <div>
-            <p class="font-medium">Follow on X</p>
-            <p class="text-xs text-yellow-400">+15 $MURSAL</p>
-          </div>
-          <button class="btn-outline text-sm px-3 py-2 task-btn">Follow</button>
-        </div>
-        <div class="card flex justify-between items-center" data-task="xpost">
-          <div>
-            <p class="font-medium">Like & Repost X</p>
-            <p class="text-xs text-yellow-400">+20 $MURSAL</p>
-          </div>
-          <button class="btn-outline text-sm px-3 py-2 task-btn">Do Task</button>
+          <div><p class="font-medium">Follow X</p><p class="text-xs text-yellow-400">+15</p></div>
+          <button class="btn-outline task-btn">Follow</button>
         </div>
         <div class="card flex justify-between items-center" data-task="tg">
-          <div>
-            <p class="font-medium">Join Telegram</p>
-            <p class="text-xs text-yellow-400">+15 $MURSAL</p>
-          </div>
-          <button class="btn-outline text-sm px-3 py-2 task-btn">Join</button>
-        </div>
-        <div class="card flex justify-between items-center" data-task="tt">
-          <div>
-            <p class="font-medium">Follow TikTok</p>
-            <p class="text-xs text-yellow-400">+15 $MURSAL</p>
-          </div>
-          <button class="btn-outline text-sm px-3 py-2 task-btn">Follow</button>
-        </div>
-        <div class="card flex justify-between items-center" data-task="yt">
-          <div>
-            <p class="font-medium">Subscribe YouTube</p>
-            <p class="text-xs text-yellow-400">+15 $MURSAL</p>
-          </div>
-          <button class="btn-outline text-sm px-3 py-2 task-btn">Subscribe</button>
+          <div><p class="font-medium">Join Telegram</p><p class="text-xs text-yellow-400">+15</p></div>
+          <button class="btn-outline task-btn">Join</button>
         </div>
       </div>
     </div>
 
-    <!-- ========== REFERRAL — DAFTAR NAMA & ID ========== -->
+    <!-- REFERRAL -->
     <div id="page-referral" class="page-content hidden">
       <h2 class="text-lg font-semibold mb-4">🔗 Invite Friends</h2>
-      
-      <div class="card-gold card text-center mb-4">
+      <div class="card text-center mb-4" style="border-color:rgba(255,215,0,0.5)">
         <p class="text-sm text-gray-400 mb-1">Your Referral Link</p>
         <div class="bg-black/40 rounded-lg p-3 mb-3 text-xs font-mono" id="refLinkBox">Generating...</div>
         <button id="copyRef" class="btn-success">📋 Copy Link</button>
       </div>
-      
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="stat-box">
-          <p class="text-xs text-gray-400">Total Referrals</p>
+          <p class="text-xs text-gray-400">Total Refs</p>
           <p class="text-xl font-bold text-yellow-400" id="totalRefs">0</p>
         </div>
         <div class="stat-box">
-          <p class="text-xs text-gray-400">Bonus Earned</p>
+          <p class="text-xs text-gray-400">Bonus</p>
           <p class="text-xl font-bold text-yellow-400" id="refEarned">0</p>
         </div>
       </div>
-      
       <h3 class="font-medium mb-2">📋 Your Referrals</h3>
       <div id="refList" class="bg-black/30 rounded-lg p-3 max-h-60 overflow-y-auto">
-        <p class="text-sm text-gray-500">No referrals yet. Share your link!</p>
+        <p class="text-sm text-gray-500">No referrals yet</p>
       </div>
     </div>
 
-    <!-- ========== WALLET ========== -->
+    <!-- WALLET -->
     <div id="page-wallet" class="page-content hidden">
-      <h2 class="text-lg font-semibold mb-4">💰 Wallet & Withdraw</h2>
+      <h2 class="text-lg font-semibold mb-4">💰 Wallet</h2>
       <div class="card text-center mb-4">
-        <p class="text-sm text-gray-400">Your Balance</p>
+        <p class="text-sm text-gray-400">Balance</p>
         <p class="balance-text" id="walletBalance">0.00 $MURSAL</p>
-        <p class="text-xs text-gray-500 mt-1">ID: <span id="walletId">-</span></p>
       </div>
-      <div class="locked-box">
-        <p class="text-4xl mb-3">🔒</p>
-        <h3 class="text-lg font-bold text-yellow-400 mb-2">WITHDRAWAL COMING SOON</h3>
-        <p class="text-sm text-gray-400 mb-3">
-          Withdrawal feature is locked.<br>
-          Stay tuned — listing & withdrawals opening soon!
-        </p>
-        <p class="text-xs text-green-400">✅ Keep mining — your tokens are safe!</p>
+      <div class="text-center p-6 border-2 border-dashed rounded-xl">
+        <p class="text-4xl mb-2">🔒</p>
+        <p class="text-yellow-400 font-bold">Coming Soon</p>
+        <p class="text-sm text-gray-400 mt-2">Withdrawal will open after listing</p>
       </div>
     </div>
   </div>
 </div>
 
 <!-- BOTTOM NAV -->
-<div class="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur border-t border-gray-800 px-6 py-3">
+<div class="fixed bottom-0 left-0 right-0 bg-black/90 border-t border-gray-800 px-6 py-3">
   <div class="flex justify-between max-w-md mx-auto">
     <div class="nav-item active" data-nav="home"><span>⛏️</span>Mining</div>
     <div class="nav-item" data-nav="tasks"><span>✅</span>Tasks</div>
@@ -312,35 +195,30 @@
 </div>
 
 <script>
-// ========== FIREBASE ==========
+// ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyCVm5Pfg8wTrwFw8tClXse3Qa4boJkQ7Ek",
   authDomain: "ast2-database.firebaseapp.com",
   databaseURL: "https://ast2-database-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "ast2-database",
-  storageBucket: "ast2-database.appspot.com",
-  messagingSenderId: "1057748242781",
-  appId: "1:1057748242781:web:83a08db2c828d1f3c298b4"
+  projectId: "ast2-database"
 };
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ========== PENGATURAN ==========
-const MINE_INTERVAL = 4 * 60 * 60 * 1000; // 4 JAM
+// ===== SETTINGS =====
+const MINE_INTERVAL = 4 * 60 * 60 * 1000;
 const MINE_REWARD = 25;
 const DAILY_BONUS = 10;
 const REF_BONUS = 50;
 
-// ========== AMBIL ID TELEGRAM ==========
+// ===== GET USER ID =====
 let tg = window.Telegram?.WebApp;
 let userId, userName;
 
 if (tg && tg.initDataUnsafe?.user) {
   userId = String(tg.initDataUnsafe.user.id);
-  userName = tg.initDataUnsafe.user.username || `User${userId}`;
+  userName = tg.initDataUnsafe.user.first_name || `User${userId}`;
 } else {
-  // Buka di browser biasa → pakai localStorage
   userId = localStorage.getItem("mursalId");
   if (!userId) {
     userId = "mursal_" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
@@ -348,233 +226,160 @@ if (tg && tg.initDataUnsafe?.user) {
   }
   userName = `Guest_${userId.slice(-6)}`;
 }
+document.getElementById("userInfo").textContent = `👤 ${userName} | ID: ${userId.slice(0,8)}`;
 
-document.getElementById("userIdDisplay").textContent = `👤 ${userName} | ID: ${userId.slice(0,8)}...`;
-
-// Link referal dari URL
-const urlParams = new URLSearchParams(window.location.search);
-const inviterId = urlParams.get("ref");
-
-// ========== DATA USER ==========
-let userData = {
-  balance: 0,
-  totalMined: 0,
-  lastMineTime: 0,
-  lastCheckIn: null,
-  checkInStreak: 0,
-  tasksCompleted: {},
-  referralCount: 0,
-  referralBonusTotal: 0,
-  invitedBy: inviterId,
-  joinedAt: new Date().toISOString(),
-  userName: userName
-};
-
+const inviterId = new URLSearchParams(window.location.search).get("ref");
 let refLink = "";
 
-// ========== MUAT DATA & DAFTAR ==========
+// ===== USER DATA =====
+let userData = {
+  balance: 0, totalMined: 0, lastMineTime: 0,
+  lastCheckIn: null, checkInStreak: 0,
+  tasksCompleted: {}, referralCount: 0,
+  referralBonusTotal: 0, invitedBy: inviterId,
+  joinedAt: new Date().toISOString(), userName
+};
+
+// ===== LOAD DATA =====
 async function loadData() {
   const userRef = db.ref("mursal_users/" + userId);
   const snap = await userRef.once("value");
   const existing = snap.val();
   
   if (!existing) {
-    // Pengguna baru
     await userRef.set(userData);
-    
-    // Simpan ke daftar undangan pengundang
     if (inviterId && inviterId !== userId) {
       const invRef = db.ref("mursal_users/" + inviterId);
-      await invRef.transaction(data => {
-        if (data) {
-          data.referralCount = (data.referralCount || 0) + 1;
-          data.referralBonusTotal = (data.referralBonusTotal || 0) + REF_BONUS;
-          data.balance = (data.balance || 0) + REF_BONUS;
-          if (!data.referralList) data.referralList = [];
-          data.referralList.unshift({
-            id: userId,
-            name: userName,
-            joined: new Date().toLocaleString()
-          });
-          if (data.referralList.length > 50) data.referralList.length = 50;
+      await invRef.transaction(d => {
+        if (d) {
+          d.referralCount = (d.referralCount || 0) + 1;
+          d.referralBonusTotal = (d.referralBonusTotal || 0) + REF_BONUS;
+          d.balance = (d.balance || 0) + REF_BONUS;
+          if (!d.referralList) d.referralList = [];
+          d.referralList.unshift({ id: userId, name: userName, joined: new Date().toLocaleString() });
+          if (d.referralList.length > 50) d.referralList.length = 50;
         }
-        return data;
+        return d;
       });
     }
   } else {
     userData = { ...userData, ...existing };
   }
   
-  // Buat link referal unik
   refLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
   document.getElementById("refLinkBox").textContent = refLink;
   
   updateUI();
-  
-  // Pantau perubahan data secara langsung
-  userRef.on("value", snap => {
-    if (snap.val()) {
-      userData = { ...userData, ...snap.val() };
-      updateUI();
-    }
-  });
+  userRef.on("value", s => { if (s.val()) { userData = { ...userData, ...s.val() }; updateUI(); } });
 }
 
-async function saveData() {
-  await db.ref("mursal_users/" + userId).update(userData);
-}
+async function saveData() { await db.ref("mursal_users/" + userId).update(userData); }
 
-// ========== MINING ==========
+// ===== MINING =====
 document.getElementById("btnMine").addEventListener("click", async () => {
   const now = Date.now();
   if (now - userData.lastMineTime < MINE_INTERVAL) return;
-  
   userData.lastMineTime = now;
   userData.balance += MINE_REWARD;
   userData.totalMined += MINE_REWARD;
-  
   document.getElementById("miningLogo").classList.add("mining-active");
-  setTimeout(() => {
-    document.getElementById("miningLogo").classList.remove("mining-active");
-  }, 4500);
-  
+  setTimeout(() => document.getElementById("miningLogo").classList.remove("mining-active"), 4500);
   await saveData();
-  alert(`⛏️ MINING SUCCESS!\n+${MINE_REWARD} $MURSAL`);
+  alert(`⛏️ SUCCESS! +${MINE_REWARD} $MURSAL`);
 });
 
-// ========== ABSEN HARIAN ==========
+// ===== CHECK-IN =====
 document.getElementById("btnAbsen").addEventListener("click", async () => {
   const today = new Date().toDateString();
-  if (userData.lastCheckIn === today) {
-    alert("✅ Already checked in today!");
-    return;
-  }
-  
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const isConsecutive = userData.lastCheckIn === yesterday.toDateString();
-  userData.checkInStreak = isConsecutive ? userData.checkInStreak + 1 : 1;
+  if (userData.lastCheckIn === today) { alert("✅ Already checked in!"); return; }
+  const yest = new Date(); yest.setDate(yest.getDate() - 1);
+  userData.checkInStreak = userData.lastCheckIn === yest.toDateString() ? userData.checkInStreak + 1 : 1;
   userData.balance += DAILY_BONUS;
   userData.lastCheckIn = today;
-  
   await saveData();
-  alert(`✅ CHECK-IN!\n+${DAILY_BONUS} $MURSAL\n🔥 Streak: ${userData.checkInStreak}`);
+  alert(`✅ +${DAILY_BONUS} $MURSAL | Streak: ${userData.checkInStreak}`);
 });
 
-// ========== HITUNG MUNDUR MINING ==========
+// ===== TIMER =====
 function updateMineTimer() {
-  const now = Date.now();
-  const nextMine = userData.lastMineTime + MINE_INTERVAL;
-  const rem = nextMine - now;
+  const rem = userData.lastMineTime + MINE_INTERVAL - Date.now();
   const btn = document.getElementById("btnMine");
-  const timerText = document.getElementById("mineTimer");
-  const statusText = document.getElementById("miningStatus");
-  
   if (rem <= 0) {
-    btn.disabled = false;
-    btn.textContent = "⛏️ START MINING";
-    timerText.textContent = "Ready to mine!";
-    statusText.textContent = "✅ READY TO MINE";
-    statusText.className = "text-sm text-green-400 mb-1";
+    btn.disabled = false; btn.textContent = "⛏️ START MINING";
+    document.getElementById("mineTimer").textContent = "Ready!";
   } else {
     btn.disabled = true;
-    const h = Math.floor(rem / 3600000);
-    const m = Math.floor((rem % 3600000) / 60000);
-    const s = Math.floor((rem % 60000) / 1000);
-    timerText.textContent = `Next: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000);
+    document.getElementById("mineTimer").textContent = `Next: ${h}h ${m}m`;
     btn.textContent = "⏳ COOLDOWN";
-    statusText.textContent = "🔄 COOLDOWN";
-    statusText.className = "text-sm text-yellow-400 mb-1";
   }
 }
 setInterval(updateMineTimer, 1000);
 
-// ========== TAMPILAN UTAMA ==========
+// ===== UPDATE UI =====
 function updateUI() {
   document.getElementById("balance").textContent = userData.balance.toFixed(2) + " $MURSAL";
   document.getElementById("walletBalance").textContent = userData.balance.toFixed(2) + " $MURSAL";
-  document.getElementById("walletId").textContent = userId;
   document.getElementById("totalMined").textContent = userData.totalMined;
   document.getElementById("streak").textContent = userData.checkInStreak;
   document.getElementById("totalRefs").textContent = userData.referralCount || 0;
-  document.getElementById("refEarned").textContent = (userData.referralBonusTotal || 0) + " $MURSAL";
+  document.getElementById("refEarned").textContent = (userData.referralBonusTotal || 0);
   
-  // Daftar referal
-  const refListEl = document.getElementById("refList");
-  if (userData.referralList && userData.referralList.length > 0) {
-    refListEl.innerHTML = userData.referralList.map(r => `
-      <div class="ref-item">
-        <span class="text-yellow-400">${r.name}</span>
-        <span class="text-gray-500 text-xs block">${r.joined}</span>
-      </div>
-    `).join("");
+  const list = document.getElementById("refList");
+  if (userData.referralList?.length) {
+    list.innerHTML = userData.referralList.map(r => `<div class="py-2 border-b border-gray-700"><span class="text-yellow-400">${r.name}</span><span class="text-gray-500 text-xs block">${r.joined}</span></div>`).join("");
   } else {
-    refListEl.innerHTML = '<p class="text-sm text-gray-500">No referrals yet. Share your link!</p>';
+    list.innerHTML = '<p class="text-sm text-gray-500">No referrals yet</p>';
   }
   
-  // Status absen
   const today = new Date().toDateString();
   const btnAbsen = document.getElementById("btnAbsen");
-  if (userData.lastCheckIn === today) {
-    btnAbsen.disabled = true;
-    btnAbsen.textContent = "✅ ALREADY CHECKED IN";
-  } else {
-    btnAbsen.disabled = false;
-    btnAbsen.textContent = "✅ CHECK-IN TODAY";
-  }
+  btnAbsen.disabled = (userData.lastCheckIn === today);
+  btnAbsen.textContent = btnAbsen.disabled ? "✅ DONE TODAY" : "✅ CHECK-IN TODAY";
   document.getElementById("absenInfo").textContent = "Last: " + (userData.lastCheckIn || "First time!");
-  
-  // Status tugas
-  document.querySelectorAll("#taskList > div").forEach(card => {
-    const tid = card.dataset.task;
-    const btn = card.querySelector(".task-btn");
-    if (userData.tasksCompleted?.[tid]) {
-      btn.textContent = "✅ Done";
-      btn.disabled = true;
-      btn.classList.add("opacity-50");
-    }
-  });
   
   updateMineTimer();
 }
 
-// ========== TUGAS SOSMED — GANTI LINK DI SINI ==========
-const taskLinks = {
-  x: { url: "https://x.com/MursalToken", reward: 15 },
-  xpost: { url: "https://x.com/MursalToken", reward: 20 },
-  tg: { url: "https://t.me/MursalToken", reward: 15 },
-  tt: { url: "https://tiktok.com/@MursalToken", reward: 15 },
-  yt: { url: "https://youtube.com/@MursalToken", reward: 15 }
-};
-
-document.querySelectorAll(".task-btn").forEach(btn => {
-  btn.addEventListener("click", async e => {
-    const card = e.target.closest("[data-task]");
-    const tid = card.dataset.task;
-    
-    if (userData.tasksCompleted?.[tid]) return;
-    
-    window.open(taskLinks[tid].url, "_blank");
-    setTimeout(async () => {
-      if (confirm("Did you complete the task?")) {
-        if (!userData.tasksCompleted) userData.tasksCompleted = {};
-        userData.tasksCompleted[tid] = true;
-        userData.balance += taskLinks[tid].reward;
-        await saveData();
-        alert(`✅ +${taskLinks[tid].reward} $MURSAL claimed!`);
-      }
-    }, 1500);
-  });
-});
-
-// ========== SALIN LINK ==========
-document.getElementById("copyRef").addEventListener("click", () => {
-  navigator.clipboard.writeText(refLink).then(() => {
-    alert("✅ Referral link copied!");
-  });
-});
-
-// ========== NAVIGASI ==========
+// ===== NAVIGATION =====
 function switchPage(name) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(`[data-page="${name}"]`).forEach(t => t.classList.add("active"
+  document.querySelectorAll(`[data-page="${name}"]`).forEach(t => t.classList.add("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.querySelectorAll(`[data-nav="${name}"]`).forEach(n => n.classList.add("active"));
+  document.querySelectorAll(".page-content").forEach(p => p.classList.add("hidden"));
+  document.getElementById(`page-${name}`).classList.remove("hidden");
+}
+document.querySelectorAll(".tab, .nav-item").forEach(el => el.addEventListener("click", () => switchPage(el.dataset.page || el.dataset.nav)));
+
+// ===== COPY REF LINK =====
+document.getElementById("copyRef").addEventListener("click", () => {
+  navigator.clipboard.writeText(refLink).then(() => alert("✅ Link copied!"));
+});
+
+// ===== TASKS =====
+const taskLinks = {
+  x: { url: "https://x.com/MursalToken", reward: 15 },
+  tg: { url: "https://t.me/MursalToken", reward: 15 }
+};
+document.querySelectorAll(".task-btn").forEach(btn => {
+  btn.addEventListener("click", async e => {
+    const tid = e.target.closest("[data-task]").dataset.task;
+    if (userData.tasksCompleted?.[tid]) return;
+    window.open(taskLinks[tid].url, "_blank");
+    if (confirm("Did you complete the task?")) {
+      if (!userData.tasksCompleted) userData.tasksCompleted = {};
+      userData.tasksCompleted[tid] = true;
+      userData.balance += taskLinks[tid].reward;
+      await saveData();
+      alert(`✅ +${taskLinks[tid].reward} $MURSAL`);
+      e.target.textContent = "✅ Done"; e.target.disabled = true;
+    }
+  });
+});
+
+// ===== START =====
+loadData();
+</script>
+</body>
+</html>
