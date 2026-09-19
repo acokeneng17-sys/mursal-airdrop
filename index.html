@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +7,13 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
+            --bg-color: #0b0b0b;
+            --card-bg: #161616;
             --gold: #d4af37;
             --gold-light: #f3e5ab;
             --text-main: #ffffff;
-            --text-muted: #b0b0b0;
+            --text-muted: #999999;
+            --border-color: #2a2a2a;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -23,17 +24,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 90px;
         }
         .header {
             text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            padding: 15px;
+            background: linear-gradient(135deg, #111, #1f1f1f);
             width: 100%;
             border-bottom: 2px solid var(--gold);
+            box-sizing: border-box;
         }
         .logo {
-            width: 90px;
-            height: 90px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
             border: 2px solid var(--gold);
             object-fit: cover;
@@ -41,198 +44,405 @@
         }
         h1 {
             color: var(--gold);
-            font-size: 22px;
-            margin: 10px 0 5px;
+            font-size: 20px;
+            margin: 8px 0 2px;
         }
-        .balances {
-            display: flex;
-            justify-content: space-around;
-            width: 90%;
-            max-width: 400px;
-            margin: 15px 0;
-            background: var(--card-bg);
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--gold);
-        }
-        .balance-item span {
-            display: block;
-            font-size: 14px;
+        .sub-header {
+            font-size: 11px;
             color: var(--text-muted);
-        }
-        .balance-item b {
-            font-size: 16px;
-            color: var(--gold-light);
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
         .container {
-            width: 90%;
-            max-width: 400px;
-            margin-bottom: 80px;
+            width: 92%;
+            max-width: 450px;
+            margin-top: 15px;
+        }
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
         }
         .card {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 14px;
+            padding: 16px;
             margin-bottom: 15px;
-            border: 1px solid #333;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         .card h3 {
             margin-top: 0;
             color: var(--gold);
             font-size: 16px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
         }
         button {
             background: linear-gradient(135deg, #d4af37, #aa820a);
             color: #000;
             border: none;
-            padding: 10px 15px;
+            padding: 12px;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             width: 100%;
-            margin-top: 8px;
+            margin-top: 10px;
             transition: 0.2s;
+            font-size: 14px;
         }
-        button:active {
+        button:disabled {
+            background: #333;
+            color: #777;
+            cursor: not-allowed;
+        }
+        button:active:not(:disabled) {
             transform: scale(0.98);
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            background: #0f0f0f;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 13px;
+        }
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .wallet-box {
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 10px 5px;
+            text-align: center;
+        }
+        .wallet-box span {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .wallet-box b {
+            font-size: 13px;
+            color: var(--gold-light);
         }
         .nav-bar {
             position: fixed;
             bottom: 0;
             width: 100%;
-            background: #1a1a1a;
+            background: #121212;
             display: flex;
             justify-content: space-around;
             padding: 10px 0;
-            border-top: 1px solid #333;
+            border-top: 1px solid var(--border-color);
+            box-sizing: border-box;
+            z-index: 100;
         }
         .nav-item {
             color: var(--text-muted);
             text-decoration: none;
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
             cursor: pointer;
+            background: none;
+            border: none;
+            width: auto;
+            margin: 0;
+            padding: 0;
         }
         .nav-item.active {
             color: var(--gold);
         }
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            background: #2a2a2a;
-            border: 1px solid #444;
-            color: #fff;
-            border-radius: 6px;
-            box-sizing: border-box;
+        .streak-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+        }
+        .streak-box {
+            width: 38px;
+            height: 45px;
+            background: #111;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+        .streak-box.completed {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(212, 175, 55, 0.1);
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <!-- Menggunakan referensi visual logo mewah Anda -->
         <img src="Screenshot_20260916-205804.jpg" alt="Mursal Logo" class="logo">
         <h1>MURSAL TOKEN</h1>
-        <p style="font-size: 12px; color: var(--text-muted);">TON Blockchain Airdrop App</p>
+        <div class="sub-header">TON Blockchain Airdrop App</div>
     </div>
 
-    <div class="balances">
-        <div class="balance-item">
-            <span>Mursal Coin</span>
-            <b id="mursalBalance">0.00</b>
+    <div class="container">
+        
+        <!-- ==================== HOME PAGE ==================== -->
+        <div id="section-home" class="page-section active">
+            <div class="wallet-grid">
+                <div class="wallet-box">
+                    <span>$MURSAL</span>
+                    <b id="homeMursal">0.00</b>
+                </div>
+                <div class="wallet-box">
+                    <span>$USDT</span>
+                    <b id="homeUsdt">0.0000</b>
+                </div>
+                <div class="wallet-box">
+                    <span>$INSYAF</span>
+                    <b id="homeInsyaf">0.00</b>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚡ Mursal Mining (3x Daily)</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Claim 30 Mursal coins per session. Left today: <span id="miningCount">3</span>/3</p>
+                <button onclick="claimMining()">Start Mining Session</button>
+            </div>
+
+            <div class="card">
+                <h3>📅 Daily Check-In</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Keep your streak alive for daily rewards (+3 Mursal).</p>
+                <div class="streak-container" id="streakDisplay"></div>
+                <button id="checkinBtn" onclick="claimCheckIn()">Claim Daily Check-In</button>
+            </div>
         </div>
-        <div class="balance-item">
-            <span>USDT (BNB)</span>
-            <b id="usdtBalance">0.0000</b>
+
+        <!-- ==================== EARN (TASKS & SPIN) ==================== -->
+        <div id="section-earn" class="page-section">
+            <div class="card">
+                <h3>🎡 Lucky Spin (1x Daily)</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Win up to 0.1 USDT or 100 Mursal coins daily!</p>
+                <button id="spinBtn" onclick="spinWheel()">Spin Wheel Now</button>
+                <p id="spinResult" style="text-align:center; font-weight:bold; color:var(--gold); margin-top:10px;"></p>
+            </div>
+
+            <div class="card">
+                <h3>📋 Social Media Tasks</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Reward per task: +0.001 USDT & +20 Mursal.</p>
+                <select id="taskSelect">
+                    <option value="x">X (Twitter) Follow & Like</option>
+                    <option value="ig">Instagram Follow</option>
+                    <option value="tg">Telegram Channel Join</option>
+                    <option value="yt">YouTube Subscribe</option>
+                    <option value="tt">TikTok Follow</option>
+                </select>
+                <input type="text" id="socialUser" placeholder="Your Username (e.g. @username)">
+                <input type="text" id="proofLink" placeholder="Proof / Screenshot Link">
+                <button onclick="submitTask()">Submit Task Proof</button>
+            </div>
         </div>
+
+        <!-- ==================== MINING PAGE ==================== -->
+        <div id="section-mining" class="page-section">
+            <div class="card" style="text-align: center;">
+                <h3>⛏️ Mursal Mining Node</h3>
+                <img src="Screenshot_20260916-205804.jpg" alt="Node" style="width: 120px; height: 120px; border-radius: 50%; margin: 15px 0; border: 2px solid var(--gold);">
+                <p style="font-size: 13px; color: var(--text-muted);">Active mining sessions generate Mursal into your locked TGE balance.</p>
+                <button onclick="switchTab('home')">Go to Mining Hub</button>
+            </div>
+        </div>
+
+        <!-- ==================== INVITE PAGE ==================== -->
+        <div id="section-invite" class="page-section">
+            <div class="card">
+                <h3>🔗 Referral Program</h3>
+                <p style="font-size: 13px; color: var(--text-muted);">Earn 50 Mursal coins for every unique friend invited.</p>
+                <input type="text" id="refLink" readonly value="https://t.me/ast2komunitasmining_bot?start=ref_12345">
+                <button onclick="copyRef()">Copy Unique Link</button>
+            </div>
+        </div>
+
+        <!-- ==================== WALLET PAGE ==================== -->
+        <div id="section-wallet" class="page-section">
+            <div class="wallet-grid" style="grid-template-columns: 1fr; gap: 10px;">
+                <div class="wallet-box" style="text-align: left; padding: 12px;">
+                    <span>$MURSAL BALANCE (Locked 6 Mos TGE)</span>
+                    <b id="walletMursal" style="font-size: 18px;">0.00</b>
+                </div>
+                <div class="wallet-box" style="text-align: left; padding: 12px;">
+                    <span>$USDT BALANCE (Available)</span>
+                    <b id="walletUsdt" style="font-size: 18px;">0.0000</b>
+                </div>
+                <div class="wallet-box" style="text-align: left; padding: 12px;">
+                    <span>$INSYAF BALANCE (Locked)</span>
+                    <b id="walletInsyaf" style="font-size: 18px;">0.00</b>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>💸 Withdraw USDT (BEP-20)</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Minimum withdrawal: 1 USDT. Ensure network is BNB Smart Chain (BEP-20).</p>
+                <input type="text" id="withdrawAddress" placeholder="Paste USDT (BEP-20) Address">
+                <input type="number" id="withdrawAmount" placeholder="Amount in USDT (Min 1)">
+                <button onclick="processWithdraw()">Withdraw USDT</button>
+            </div>
+        </div>
+
     </div>
 
-    <div class="container" id="mainContent">
-        <!-- Bagian Mining -->
-        <div class="card">
-            <h3>⚡ Mining Mursal (3x Sehari)</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Klaim 30 Koin Mursal per sesi. Tersisa: <span id="miningCount">3</span>/3 hari ini</p>
-            <button onclick="claimMining()">Klaim Mining (+30 Mursal)</button>
-        </div>
-
-        <!-- Absen Harian -->
-        <div class="card">
-            <h3>📅 Absen Harian</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Dapatkan 3 Koin Mursal setiap hari.</p>
-            <button onclick="claimCheckIn()">Absen Sekarang (+3 Mursal)</button>
-        </div>
-
-        <!-- Spin Hadiah -->
-        <div class="card">
-            <h3>🎡 Spin Keberuntungan</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Hadiah maks: 0.1 USDT atau 100 Mursal!</p>
-            <button onclick="spinWheel()">Putar Spin</button>
-            <p id="spinResult" style="text-align:center; font-weight:bold; color:var(--gold); margin-top:8px;"></p>
-        </div>
-
-        <!-- Tugas Sosial Media -->
-        <div class="card">
-            <h3>📋 Misi Sosial Media</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Follow/Like X, IG, Telegram, YouTube, TikTok (+0.001 USDT & 20 Mursal per tugas).</p>
-            <select id="taskSelect">
-                <option value="x">X (Twitter) Follow & Like</option>
-                <option value="ig">Instagram Follow</option>
-                <option value="tg">Telegram Channel Join</option>
-                <option value="yt">YouTube Subscribe</option>
-                <option value="tt">TikTok Follow</option>
-            </select>
-            <input type="text" id="socialUser" placeholder="Masukkan Username Anda (cth: @username)">
-            <input type="text" id="proofLink" placeholder="Link/Bukti Konfirmasi Tugas">
-            <button onclick="submitTask()">Kirim Bukti Tugas</button>
-        </div>
-
-        <!-- Referral -->
-        <div class="card">
-            <h3>🔗 Program Referral</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Dapatkan 100 Koin Mursal per teman.</p>
-            <input type="text" id="refLink" readonly value="https://t.me/ast2komunitasmining_bot?start=ref_12345">
-            <button onclick="copyRef()">Salin Link Unik</button>
-        </div>
-
-        <!-- Withdraw -->
-        <div class="card">
-            <h3>💰 Penarikan (Withdraw)</h3>
-            <p style="font-size: 12px; color: #ff6b6b;">* Mursal terkunci 6 bulan masa TGE.</p>
-            <p style="font-size: 12px; color: var(--text-muted);">* Min WD USDT: 1 USDT (Jaringan BNB / BEP-20).</p>
-            <button onclick="alert('Penarikan USDT diproses via Jaringan BNB. Mursal terkunci 6 bulan TGE.')">Tarik Saldo</button>
-        </div>
+    <!-- ==================== BOTTOM NAVIGATION ==================== -->
+    <div class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('home')">🏠<br>Home</button>
+        <button class="nav-item" onclick="switchTab('earn')">⭐<br>Earn</button>
+        <button class="nav-item" onclick="switchTab('mining')">⛏️<br>Mining</button>
+        <button class="nav-item" onclick="switchTab('invite')">🔗<br>Invite</button>
+        <button class="nav-item" onclick="switchTab('wallet')">👛<br>Wallet</button>
     </div>
 
     <script>
-        let mursal = 0;
-        let usdt = 0;
-        let miningLeft = 3;
+        // Data State & LocalStorage Persistence
+        let appData = JSON.parse(localStorage.getItem('mursal_app_data')) || {
+            mursal: 0,
+            usdt: 0,
+            insyaf: 0,
+            miningLeft: 3,
+            lastMiningDate: '',
+            lastCheckInDate: '',
+            lastSpinDate: '',
+            spinClaimedToday: false,
+            checkInClaimedToday: false
+        };
+
+        function saveData() {
+            localStorage.setItem('mursal_app_data', JSON.stringify(appData));
+        }
+
+        function getTodayDateStr() {
+            const d = new Date();
+            return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        }
+
+        function checkDailyResets() {
+            const today = getTodayDateStr();
+            if (appData.lastMiningDate !== today) {
+                appData.miningLeft = 3;
+                appData.lastMiningDate = today;
+            }
+            if (appData.lastCheckInDate !== today) {
+                appData.checkInClaimedToday = false;
+            }
+            if (appData.lastSpinDate !== today) {
+                appData.spinClaimedToday = false;
+            }
+            saveData();
+        }
 
         function updateUI() {
-            document.getElementById('mursalBalance').innerText = mursal.toFixed(2);
-            document.getElementById('usdtBalance').innerText = usdt.toFixed(4);
-            document.getElementById('miningCount').innerText = miningLeft;
+            checkDailyResets();
+            // Balances
+            document.getElementById('homeMursal').innerText = appData.mursal.toFixed(2);
+            document.getElementById('homeUsdt').innerText = appData.usdt.toFixed(4);
+            document.getElementById('homeInsyaf').innerText = appData.insyaf.toFixed(2);
+
+            document.getElementById('walletMursal').innerText = appData.mursal.toFixed(2) + " MURSAL";
+            document.getElementById('walletUsdt').innerText = appData.usdt.toFixed(4) + " USDT";
+            document.getElementById('walletInsyaf').innerText = appData.insyaf.toFixed(2) + " INSYAF";
+
+            // Mining
+            document.getElementById('miningCount').innerText = appData.miningLeft;
+
+            // Check-in button state
+            let checkBtn = document.getElementById('checkinBtn');
+            if (appData.checkInClaimedToday) {
+                checkBtn.innerText = "Already Claimed Today";
+                checkBtn.disabled = true;
+            } else {
+                checkBtn.innerText = "Claim Daily Check-In (+3 Mursal)";
+                checkBtn.disabled = false;
+            }
+
+            // Spin button state
+            let spinBtn = document.getElementById('spinBtn');
+            if (appData.spinClaimedToday) {
+                spinBtn.innerText = "Spin Already Used Today";
+                spinBtn.disabled = true;
+                document.getElementById('spinResult').innerText = "Come back tomorrow for your next spin!";
+            } else {
+                spinBtn.innerText = "Spin Wheel Now";
+                spinBtn.disabled = false;
+            }
+
+            renderStreakDays();
+        }
+
+        function renderStreakDays() {
+            let container = document.getElementById('streakDisplay');
+            container.innerHTML = '';
+            for (let i = 1; i <= 7; i++) {
+                let box = document.createElement('div');
+                box.className = 'streak-box' + (appData.checkInClaimedToday && i <= 2 ? ' completed' : '');
+                box.innerHTML = `<span>D${i}</span><b>${i <= 2 && appData.checkInClaimedToday ? '✓' : '○'}</b>`;
+                container.appendChild(box);
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+
+            document.getElementById('section-' + tabId).classList.add('active');
+            
+            // Find nav item index
+            const tabs = ['home', 'earn', 'mining', 'invite', 'wallet'];
+            let idx = tabs.indexOf(tabId);
+            if(idx !== -1) {
+                document.querySelectorAll('.nav-item')[idx].classList.add('active');
+            }
         }
 
         function claimMining() {
-            if(miningLeft > 0) {
-                mursal += 30;
-                miningLeft--;
+            checkDailyResets();
+            if (appData.miningLeft > 0) {
+                appData.mursal += 30;
+                appData.miningLeft--;
+                saveData();
                 updateUI();
-                alert("Berhasil klaim 30 Mursal!");
+                alert("Successfully claimed 30 Mursal coins!");
             } else {
-                alert("Sesi mining hari ini sudah habis. Silakan kembali besok!");
+                alert("Daily mining limit reached (3/3). Please come back tomorrow!");
             }
         }
 
         function claimCheckIn() {
-            mursal += 3;
-            updateUI();
-            alert("Absen harian berhasil! +3 Mursal");
+            checkDailyResets();
+            if (!appData.checkInClaimedToday) {
+                appData.mursal += 3;
+                appData.checkInClaimedToday = true;
+                appData.lastCheckInDate = getTodayDateStr();
+                saveData();
+                updateUI();
+                alert("Daily check-in successful! +3 Mursal added.");
+            } else {
+                alert("You have already checked in today!");
+            }
         }
 
         function spinWheel() {
+            checkDailyResets();
+            if (appData.spinClaimedToday) {
+                alert("You have already used your daily spin today. Come back tomorrow!");
+                return;
+            }
+
             let prizes = [
                 {type: 'mursal', val: 50}, 
                 {type: 'mursal', val: 100}, 
@@ -240,27 +450,33 @@
                 {type: 'usdt', val: 0.1}
             ];
             let prize = prizes[Math.floor(Math.random() * prizes.length)];
-            if(prize.type === 'mursal') {
-                mursal += prize.val;
-                document.getElementById('spinResult').innerText = `Selamat! Anda Mendapat ${prize.val} Mursal`;
+
+            if (prize.type === 'mursal') {
+                appData.mursal += prize.val;
+                document.getElementById('spinResult').innerText = `🎉 You Won ${prize.val} Mursal Coins!`;
             } else {
-                usdt += prize.val;
-                document.getElementById('spinResult').innerText = `Selamat! Anda Mendapat ${prize.val} USDT`;
+                appData.usdt += prize.val;
+                document.getElementById('spinResult').innerText = `🎉 You Won ${prize.val} USDT!`;
             }
+
+            appData.spinClaimedToday = true;
+            appData.lastSpinDate = getTodayDateStr();
+            saveData();
             updateUI();
         }
 
         function submitTask() {
             let user = document.getElementById('socialUser').value;
             let proof = document.getElementById('proofLink').value;
-            if(!user || !proof) {
-                alert("Harap isi username dan bukti tugas!");
+            if (!user || !proof) {
+                alert("Please fill in your username and proof link!");
                 return;
             }
-            mursal += 20;
-            usdt += 0.001;
+            appData.mursal += 20;
+            appData.usdt += 0.001;
+            saveData();
             updateUI();
-            alert("Tugas dikirim! Reward sementara ditambahkan (+0.001 USDT & 20 Mursal) setelah diverifikasi admin.");
+            alert("Task proof submitted! Rewards (+0.001 USDT & 20 Mursal) recorded.");
             document.getElementById('socialUser').value = '';
             document.getElementById('proofLink').value = '';
         }
@@ -269,9 +485,35 @@
             let refInput = document.getElementById('refLink');
             refInput.select();
             navigator.clipboard.writeText(refInput.value);
-            alert("Link referral unik berhasil disalin!");
+            alert("Unique referral link copied to clipboard!");
         }
 
+        function processWithdraw() {
+            let address = document.getElementById('withdrawAddress').value;
+            let amount = parseFloat(document.getElementById('withdrawAmount').value);
+
+            if (!address || address.length < 10) {
+                alert("Please enter a valid USDT (BEP-20) withdrawal address!");
+                return;
+            }
+            if (isNaN(amount) || amount < 1) {
+                alert("Minimum withdrawal amount is 1 USDT!");
+                return;
+            }
+            if (amount > appData.usdt) {
+                alert("Insufficient USDT balance!");
+                return;
+            }
+
+            appData.usdt -= amount;
+            saveData();
+            updateUI();
+            alert(`Withdrawal request of ${amount} USDT via BNB Smart Chain (BEP-20) submitted successfully!`);
+            document.getElementById('withdrawAddress').value = '';
+            document.getElementById('withdrawAmount').value = '';
+        }
+
+        // Initialize UI on load
         updateUI();
     </script>
 </body>
