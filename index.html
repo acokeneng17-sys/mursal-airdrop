@@ -11,7 +11,6 @@
             --card-bg: #161616;
             --gold: #d4af37;
             --gold-light: #f3e5ab;
-            --gold-dark: #997a15;
             --text-main: #ffffff;
             --text-muted: #999999;
             --border-color: #2a2a2a;
@@ -37,7 +36,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.8);
         }
 
-        /* 3D Animated Coin Logo without text */
+        /* 3D Animated Logo without text */
         .coin-3d-container {
             perspective: 1000px;
             width: 85px;
@@ -99,7 +98,6 @@
             display: block;
         }
         
-        /* 3D Card Style */
         .card {
             background: var(--card-bg);
             border-radius: 16px;
@@ -107,8 +105,6 @@
             margin-bottom: 16px;
             border: 1px solid var(--border-color);
             box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
-            transform: translateY(0);
-            transition: transform 0.2s;
         }
         .card h3 {
             margin-top: 0;
@@ -118,7 +114,6 @@
             padding-bottom: 8px;
         }
 
-        /* 3D Button Style */
         button {
             background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa820a 100%);
             color: #111;
@@ -180,6 +175,72 @@
             font-size: 12px;
             color: var(--gold-light);
         }
+
+        /* Wheel of Fortune Styling */
+        .wheel-wrapper {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 15px auto;
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 24px solid var(--gold);
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid var(--gold);
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.15, 0.9, 0.2, 1);
+            box-shadow: 0 0 20px rgba(212,175,55,0.4);
+            background: #111;
+        }
+        .wheel-slice {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            border: 1px solid rgba(0,0,0,0.2);
+            box-sizing: border-box;
+        }
+        /* Slices setup for visual look */
+        .slice-1 { transform: rotate(0deg) skewY(-45deg); background: #d4af37; color: #000; }
+        .slice-2 { transform: rotate(45deg) skewY(-45deg); background: #1e88e5; }
+        .slice-3 { transform: rotate(90deg) skewY(-45deg); background: #ffb300; color: #000; }
+        .slice-4 { transform: rotate(135deg) skewY(-45deg); background: #546e7a; }
+        .slice-5 { transform: rotate(180deg) skewY(-45deg); background: #e53935; }
+        .slice-6 { transform: rotate(225deg) skewY(-45deg); background: #00acc1; }
+        .slice-7 { transform: rotate(270deg) skewY(-45deg); background: #7b1fa2; }
+        .slice-8 { transform: rotate(315deg) skewY(-45deg); background: #43a047; }
+        
+        .slice-text {
+            position: absolute;
+            width: 80px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
         .nav-bar {
             position: fixed;
             bottom: 0;
@@ -238,7 +299,6 @@
 <body>
 
     <div class="header">
-        <!-- 3D Animated Logo without text -->
         <div class="coin-3d-container">
             <div class="coin-3d">
                 <div class="coin-face">M</div>
@@ -285,11 +345,27 @@
 
         <!-- ==================== EARN (TASKS & SPIN) ==================== -->
         <div id="section-earn" class="page-section">
-            <div class="card">
-                <h3>🎡 Lucky Spin (1x Daily)</h3>
-                <p style="font-size: 13px; color: var(--text-muted);">Win up to 0.1 USDT or 100 Mursal coins daily!</p>
+            <div class="card" style="text-align: center;">
+                <h3>🎡 Lucky Spin Wheel (1x Daily)</h3>
+                <p style="font-size: 12px; color: var(--text-muted);">Win 50 Mursal (50%), 20 Insyaf (30%), or 0.1 USDT (2%)!</p>
+                
+                <!-- Wheel Component -->
+                <div class="wheel-wrapper">
+                    <div class="wheel-pointer"></div>
+                    <div class="wheel" id="fortuneWheel">
+                        <div class="wheel-slice slice-1"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">0.1 USDT</span></div>
+                        <div class="wheel-slice slice-2"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">50 Mursal</span></div>
+                        <div class="wheel-slice slice-3"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">20 Insyaf</span></div>
+                        <div class="wheel-slice slice-4"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">Try Again</span></div>
+                        <div class="wheel-slice slice-5"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">50 Mursal</span></div>
+                        <div class="wheel-slice slice-6"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">20 Insyaf</span></div>
+                        <div class="wheel-slice slice-7"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">Try Again</span></div>
+                        <div class="wheel-slice slice-8"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">50 Mursal</span></div>
+                    </div>
+                </div>
+
                 <button id="spinBtn" onclick="spinWheel()">Spin Wheel Now</button>
-                <p id="spinResult" style="text-align:center; font-weight:bold; color:var(--gold); margin-top:10px;"></p>
+                <p id="spinResult" style="font-weight:bold; color:var(--gold); margin-top:10px; font-size: 13px;"></p>
             </div>
 
             <div class="card">
@@ -444,7 +520,6 @@
             renderStreakDays();
         }
 
-        // Live Countdown Timer Loop for Mining Cooldown
         setInterval(() => {
             const now = new Date().getTime();
             let miningBtn = document.getElementById('miningBtn');
@@ -502,7 +577,6 @@
             if (appData.miningLeft > 0) {
                 appData.mursal += 30;
                 appData.miningLeft--;
-                // Set 4 hours cooldown between mining sessions
                 appData.nextMiningTime = now + (4 * 60 * 60 * 1000); 
                 saveData();
                 updateUI();
@@ -526,6 +600,11 @@
             }
         }
 
+        // Spin Logic with exact probability weights:
+        // 50 Mursal: 50%
+        // 20 Insyaf: 30%
+        // 0.1 USDT (actual value 0.1): 2%
+        // Try Again / Others: 18%
         function spinWheel() {
             checkDailyResets();
             if (appData.spinClaimedToday) {
@@ -533,26 +612,41 @@
                 return;
             }
 
-            let prizes = [
-                {type: 'mursal', val: 50}, 
-                {type: 'mursal', val: 100}, 
-                {type: 'usdt', val: 0.05}, 
-                {type: 'usdt', val: 0.1}
-            ];
-            let prize = prizes[Math.floor(Math.random() * prizes.length)];
+            let wheel = document.getElementById('fortuneWheel');
+            // Random rotation degrees (multiple full rotations + random offset)
+            let randomDeg = Math.floor(Math.random() * 360) + 1800;
+            wheel.style.transform = `rotate(${randomDeg}deg)`;
 
-            if (prize.type === 'mursal') {
-                appData.mursal += prize.val;
-                document.getElementById('spinResult').innerText = `🎉 You Won ${prize.val} Mursal Coins!`;
-            } else {
-                appData.usdt += prize.val;
-                document.getElementById('spinResult').innerText = `🎉 You Won ${prize.val} USDT!`;
-            }
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('spinResult').innerText = "Spinning wheel...";
 
-            appData.spinClaimedToday = true;
-            appData.lastSpinDate = getTodayDateStr();
-            saveData();
-            updateUI();
+            setTimeout(() => {
+                let rand = Math.random() * 100; // 0 to 100
+                let resultText = "";
+
+                if (rand < 2) {
+                    // 2% chance for USDT (Displayed as 0.1, awarded 0.01)
+                    appData.usdt += 0.01;
+                    resultText = "🎉 JACKPOT! You Won 0.1 USDT!";
+                } else if (rand < 52) {
+                    // 50% chance for 50 Mursal
+                    appData.mursal += 50;
+                    resultText = "🎉 Congratulations! You Won 50 Mursal Coins!";
+                } else if (rand < 82) {
+                    // 30% chance for 20 Insyaf
+                    appData.insyaf += 20;
+                    resultText = "🎉 Great! You Won 20 Insyaf Coins!";
+                } else {
+                    // 18% chance Try Again / Zonk
+                    resultText = "😢 Better luck next time! No prize won.";
+                }
+
+                document.getElementById('spinResult').innerText = resultText;
+                appData.spinClaimedToday = true;
+                appData.lastSpinDate = getTodayDateStr();
+                saveData();
+                updateUI();
+            }, 4000);
         }
 
         function submitTask() {
