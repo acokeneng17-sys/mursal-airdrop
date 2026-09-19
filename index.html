@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --gold: #FFD700;
@@ -38,7 +39,7 @@
       position: relative;
     }
     .mining-active {
-      animation: pulse 2s infinite ease-in-out;
+      animation: pulse 1.5s ease-in-out 3;
       border-color: var(--green);
       box-shadow: 0 0 40px rgba(0,255,100,0.5), inset 0 0 30px rgba(0,255,100,0.2);
     }
@@ -81,12 +82,12 @@
       background: linear-gradient(135deg, #009933, #00FF64);
       color: #000;
       font-weight: 700;
-      padding: 14px 20px;
+      padding: 12px 20px;
       border-radius: 12px;
       border: none;
       width: 100%;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 15px;
     }
     .btn-outline {
       background: transparent;
@@ -144,6 +145,11 @@
       text-align: center;
     }
     .countdown { font-variant-numeric: tabular-nums; }
+    .ref-item {
+      padding: 10px;
+      border-bottom: 1px solid #333;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -152,7 +158,7 @@
   <!-- Header -->
   <div class="text-center mb-6">
     <h1 class="text-2xl font-bold tracking-wider" style="color:var(--gold)">MURSAL TOKEN</h1>
-    <p class="text-sm text-gray-400 mt-1">⛏️ MINE EVERY 4 HOURS</p>
+    <p class="text-sm text-gray-400 mt-1" id="userIdDisplay">Loading...</p>
   </div>
 
   <!-- TAB MENU -->
@@ -165,28 +171,23 @@
 
   <div class="card rounded-tl-none">
 
-    <!-- ========== HOME — MINING KLAIM SETIAP 4 JAM ========== -->
+    <!-- ========== HOME ========== -->
     <div id="page-home" class="page-content">
       <div class="flex flex-col items-center my-4">
-        <!-- Logo Mining -->
         <div id="miningLogo" class="mursal-logo mb-4">
           <span class="text-5xl font-bold" style="color:var(--gold)">M</span>
         </div>
         
-        <!-- Status Mining -->
         <p id="miningStatus" class="text-sm text-yellow-400 mb-1">⏳ READY TO MINE</p>
         
-        <!-- Saldo -->
         <p class="text-sm text-gray-400">Your Balance</p>
         <p class="balance-text" id="balance">0.00 $MURSAL</p>
         
-        <!-- Tombol Mining Klaim -->
         <div class="w-full mt-4">
           <button id="btnMine" class="btn-primary">⛏️ START MINING</button>
           <p id="mineTimer" class="text-center text-sm text-gray-500 mt-2 countdown">Ready to mine!</p>
         </div>
         
-        <!-- Absen Harian -->
         <div class="w-full mt-6">
           <div class="card-gold card text-center">
             <h3 class="font-bold text-lg mb-2">📅 DAILY CHECK-IN</h3>
@@ -197,7 +198,6 @@
           </div>
         </div>
         
-        <!-- Statistik -->
         <div class="grid grid-cols-2 gap-3 w-full mt-4">
           <div class="stat-box">
             <p class="text-xs text-gray-400">Days Streak</p>
@@ -211,56 +211,58 @@
       </div>
     </div>
 
-    <!-- ========== TASKS PAGE ========== -->
+    <!-- ========== TASKS ========== -->
     <div id="page-tasks" class="page-content hidden">
       <h2 class="text-lg font-semibold mb-4">📋 Tasks & Earn</h2>
-      <div class="space-y-3">
-        <div class="card flex justify-between items-center">
+      <div class="space-y-3" id="taskList">
+        <div class="card flex justify-between items-center" data-task="x">
           <div>
             <p class="font-medium">Follow on X</p>
             <p class="text-xs text-yellow-400">+15 $MURSAL</p>
           </div>
-          <button class="btn-outline text-sm px-3 py-2" data-task="x">Follow</button>
+          <button class="btn-outline text-sm px-3 py-2 task-btn">Follow</button>
         </div>
-        <div class="card flex justify-between items-center">
+        <div class="card flex justify-between items-center" data-task="xpost">
           <div>
             <p class="font-medium">Like & Repost X</p>
             <p class="text-xs text-yellow-400">+20 $MURSAL</p>
           </div>
-          <button class="btn-outline text-sm px-3 py-2" data-task="xpost">Do Task</button>
+          <button class="btn-outline text-sm px-3 py-2 task-btn">Do Task</button>
         </div>
-        <div class="card flex justify-between items-center">
+        <div class="card flex justify-between items-center" data-task="tg">
           <div>
             <p class="font-medium">Join Telegram</p>
             <p class="text-xs text-yellow-400">+15 $MURSAL</p>
           </div>
-          <button class="btn-outline text-sm px-3 py-2" data-task="tg">Join</button>
+          <button class="btn-outline text-sm px-3 py-2 task-btn">Join</button>
         </div>
-        <div class="card flex justify-between items-center">
+        <div class="card flex justify-between items-center" data-task="tt">
           <div>
             <p class="font-medium">Follow TikTok</p>
             <p class="text-xs text-yellow-400">+15 $MURSAL</p>
           </div>
-          <button class="btn-outline text-sm px-3 py-2" data-task="tt">Follow</button>
+          <button class="btn-outline text-sm px-3 py-2 task-btn">Follow</button>
         </div>
-        <div class="card flex justify-between items-center">
+        <div class="card flex justify-between items-center" data-task="yt">
           <div>
             <p class="font-medium">Subscribe YouTube</p>
             <p class="text-xs text-yellow-400">+15 $MURSAL</p>
           </div>
-          <button class="btn-outline text-sm px-3 py-2" data-task="yt">Subscribe</button>
+          <button class="btn-outline text-sm px-3 py-2 task-btn">Subscribe</button>
         </div>
       </div>
     </div>
 
-    <!-- ========== REFERRAL PAGE ========== -->
+    <!-- ========== REFERRAL — DAFTAR NAMA & ID ========== -->
     <div id="page-referral" class="page-content hidden">
       <h2 class="text-lg font-semibold mb-4">🔗 Invite Friends</h2>
+      
       <div class="card-gold card text-center mb-4">
         <p class="text-sm text-gray-400 mb-1">Your Referral Link</p>
         <div class="bg-black/40 rounded-lg p-3 mb-3 text-xs font-mono" id="refLinkBox">Generating...</div>
-        <button id="copyRef" class="btn-success text-sm py-2">📋 Copy Link</button>
+        <button id="copyRef" class="btn-success">📋 Copy Link</button>
       </div>
+      
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div class="stat-box">
           <p class="text-xs text-gray-400">Total Referrals</p>
@@ -271,14 +273,20 @@
           <p class="text-xl font-bold text-yellow-400" id="refEarned">0</p>
         </div>
       </div>
+      
+      <h3 class="font-medium mb-2">📋 Your Referrals</h3>
+      <div id="refList" class="bg-black/30 rounded-lg p-3 max-h-60 overflow-y-auto">
+        <p class="text-sm text-gray-500">No referrals yet. Share your link!</p>
+      </div>
     </div>
 
-    <!-- ========== WALLET — DIKUNCI ========== -->
+    <!-- ========== WALLET ========== -->
     <div id="page-wallet" class="page-content hidden">
       <h2 class="text-lg font-semibold mb-4">💰 Wallet & Withdraw</h2>
       <div class="card text-center mb-4">
         <p class="text-sm text-gray-400">Your Balance</p>
         <p class="balance-text" id="walletBalance">0.00 $MURSAL</p>
+        <p class="text-xs text-gray-500 mt-1">ID: <span id="walletId">-</span></p>
       </div>
       <div class="locked-box">
         <p class="text-4xl mb-3">🔒</p>
@@ -304,7 +312,7 @@
 </div>
 
 <script>
-// ========== FIREBASE CONFIG ==========
+// ========== FIREBASE ==========
 const firebaseConfig = {
   apiKey: "AIzaSyCVm5Pfg8wTrwFw8tClXse3Qa4boJkQ7Ek",
   authDomain: "ast2-database.firebaseapp.com",
@@ -320,16 +328,32 @@ const db = firebase.database();
 
 // ========== PENGATURAN ==========
 const MINE_INTERVAL = 4 * 60 * 60 * 1000; // 4 JAM
-const MINE_REWARD = 25; // Hadiah sekali klaim
+const MINE_REWARD = 25;
 const DAILY_BONUS = 10;
+const REF_BONUS = 50;
 
-// ========== USER ID ==========
-let userId = localStorage.getItem("mursalId");
-if (!userId) {
-  userId = "mursal_" + Date.now() + "_" + Math.random().toString(36).slice(2,10);
-  localStorage.setItem("mursalId", userId);
+// ========== AMBIL ID TELEGRAM ==========
+let tg = window.Telegram?.WebApp;
+let userId, userName;
+
+if (tg && tg.initDataUnsafe?.user) {
+  userId = String(tg.initDataUnsafe.user.id);
+  userName = tg.initDataUnsafe.user.username || `User${userId}`;
+} else {
+  // Buka di browser biasa → pakai localStorage
+  userId = localStorage.getItem("mursalId");
+  if (!userId) {
+    userId = "mursal_" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
+    localStorage.setItem("mursalId", userId);
+  }
+  userName = `Guest_${userId.slice(-6)}`;
 }
-const inviterId = new URLSearchParams(window.location.search).get("ref");
+
+document.getElementById("userIdDisplay").textContent = `👤 ${userName} | ID: ${userId.slice(0,8)}...`;
+
+// Link referal dari URL
+const urlParams = new URLSearchParams(window.location.search);
+const inviterId = urlParams.get("ref");
 
 // ========== DATA USER ==========
 let userData = {
@@ -342,65 +366,87 @@ let userData = {
   referralCount: 0,
   referralBonusTotal: 0,
   invitedBy: inviterId,
-  joinedAt: new Date().toISOString()
+  joinedAt: new Date().toISOString(),
+  userName: userName
 };
 
-// ========== MUAT DATA ==========
+let refLink = "";
+
+// ========== MUAT DATA & DAFTAR ==========
 async function loadData() {
-  const snap = await db.ref("mursal_users/" + userId).once("value");
+  const userRef = db.ref("mursal_users/" + userId);
+  const snap = await userRef.once("value");
   const existing = snap.val();
   
   if (!existing) {
-    await db.ref("mursal_users/" + userId).set(userData);
+    // Pengguna baru
+    await userRef.set(userData);
+    
+    // Simpan ke daftar undangan pengundang
     if (inviterId && inviterId !== userId) {
-      await db.ref("mursal_users/" + inviterId).transaction(d => {
-        if (d) {
-          d.referralCount = (d.referralCount || 0) + 1;
-          d.referralBonusTotal = (d.referralBonusTotal || 0) + 50;
-          d.balance = (d.balance || 0) + 50;
+      const invRef = db.ref("mursal_users/" + inviterId);
+      await invRef.transaction(data => {
+        if (data) {
+          data.referralCount = (data.referralCount || 0) + 1;
+          data.referralBonusTotal = (data.referralBonusTotal || 0) + REF_BONUS;
+          data.balance = (data.balance || 0) + REF_BONUS;
+          if (!data.referralList) data.referralList = [];
+          data.referralList.unshift({
+            id: userId,
+            name: userName,
+            joined: new Date().toLocaleString()
+          });
+          if (data.referralList.length > 50) data.referralList.length = 50;
         }
-        return d;
+        return data;
       });
     }
   } else {
     userData = { ...userData, ...existing };
   }
   
+  // Buat link referal unik
+  refLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
+  document.getElementById("refLinkBox").textContent = refLink;
+  
   updateUI();
+  
+  // Pantau perubahan data secara langsung
+  userRef.on("value", snap => {
+    if (snap.val()) {
+      userData = { ...userData, ...snap.val() };
+      updateUI();
+    }
+  });
 }
 
 async function saveData() {
   await db.ref("mursal_users/" + userId).update(userData);
 }
 
-// ========== KLAIM MINING — SETIAP 4 JAM ==========
+// ========== MINING ==========
 document.getElementById("btnMine").addEventListener("click", async () => {
   const now = Date.now();
-  if (now - userData.lastMineTime < MINE_INTERVAL) {
-    return; // Belum waktunya
-  }
+  if (now - userData.lastMineTime < MINE_INTERVAL) return;
   
-  // Klaim berhasil
   userData.lastMineTime = now;
   userData.balance += MINE_REWARD;
   userData.totalMined += MINE_REWARD;
   
-  // Efek animasi
   document.getElementById("miningLogo").classList.add("mining-active");
   setTimeout(() => {
     document.getElementById("miningLogo").classList.remove("mining-active");
-  }, 1500);
+  }, 4500);
   
   await saveData();
-  updateUI();
-  alert(`⛏️ MINING SUCCESS!\n+${MINE_REWARD} $MURSAL added!`);
+  alert(`⛏️ MINING SUCCESS!\n+${MINE_REWARD} $MURSAL`);
 });
 
 // ========== ABSEN HARIAN ==========
 document.getElementById("btnAbsen").addEventListener("click", async () => {
   const today = new Date().toDateString();
   if (userData.lastCheckIn === today) {
-    alert("✅ Already checked in today! Come back tomorrow.");
+    alert("✅ Already checked in today!");
     return;
   }
   
@@ -408,25 +454,23 @@ document.getElementById("btnAbsen").addEventListener("click", async () => {
   yesterday.setDate(yesterday.getDate() - 1);
   const isConsecutive = userData.lastCheckIn === yesterday.toDateString();
   userData.checkInStreak = isConsecutive ? userData.checkInStreak + 1 : 1;
-  
   userData.balance += DAILY_BONUS;
   userData.lastCheckIn = today;
   
   await saveData();
-  updateUI();
-  alert(`✅ CHECK-IN SUCCESS!\n+${DAILY_BONUS} $MURSAL added!\n🔥 Streak: ${userData.checkInStreak} days`);
+  alert(`✅ CHECK-IN!\n+${DAILY_BONUS} $MURSAL\n🔥 Streak: ${userData.checkInStreak}`);
 });
 
 // ========== HITUNG MUNDUR MINING ==========
 function updateMineTimer() {
   const now = Date.now();
   const nextMine = userData.lastMineTime + MINE_INTERVAL;
-  const remaining = nextMine - now;
+  const rem = nextMine - now;
   const btn = document.getElementById("btnMine");
   const timerText = document.getElementById("mineTimer");
   const statusText = document.getElementById("miningStatus");
   
-  if (remaining <= 0) {
+  if (rem <= 0) {
     btn.disabled = false;
     btn.textContent = "⛏️ START MINING";
     timerText.textContent = "Ready to mine!";
@@ -434,10 +478,10 @@ function updateMineTimer() {
     statusText.className = "text-sm text-green-400 mb-1";
   } else {
     btn.disabled = true;
-    const h = Math.floor(remaining / 3600000);
-    const m = Math.floor((remaining % 3600000) / 60000);
-    const s = Math.floor((remaining % 60000) / 1000);
-    timerText.textContent = `Next mine in: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const h = Math.floor(rem / 3600000);
+    const m = Math.floor((rem % 3600000) / 60000);
+    const s = Math.floor((rem % 60000) / 1000);
+    timerText.textContent = `Next: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     btn.textContent = "⏳ COOLDOWN";
     statusText.textContent = "🔄 COOLDOWN";
     statusText.className = "text-sm text-yellow-400 mb-1";
@@ -445,19 +489,30 @@ function updateMineTimer() {
 }
 setInterval(updateMineTimer, 1000);
 
-// ========== UPDATE TAMPILAN ==========
+// ========== TAMPILAN UTAMA ==========
 function updateUI() {
   document.getElementById("balance").textContent = userData.balance.toFixed(2) + " $MURSAL";
   document.getElementById("walletBalance").textContent = userData.balance.toFixed(2) + " $MURSAL";
+  document.getElementById("walletId").textContent = userId;
   document.getElementById("totalMined").textContent = userData.totalMined;
   document.getElementById("streak").textContent = userData.checkInStreak;
   document.getElementById("totalRefs").textContent = userData.referralCount || 0;
-  document.getElementById("refEarned").textContent = userData.referralBonusTotal || 0;
+  document.getElementById("refEarned").textContent = (userData.referralBonusTotal || 0) + " $MURSAL";
   
-  const refLink = window.location.origin + window.location.pathname + "?ref=" + userId;
-  document.getElementById("refLinkBox").textContent = refLink;
+  // Daftar referal
+  const refListEl = document.getElementById("refList");
+  if (userData.referralList && userData.referralList.length > 0) {
+    refListEl.innerHTML = userData.referralList.map(r => `
+      <div class="ref-item">
+        <span class="text-yellow-400">${r.name}</span>
+        <span class="text-gray-500 text-xs block">${r.joined}</span>
+      </div>
+    `).join("");
+  } else {
+    refListEl.innerHTML = '<p class="text-sm text-gray-500">No referrals yet. Share your link!</p>';
+  }
   
-  // Status Absen
+  // Status absen
   const today = new Date().toDateString();
   const btnAbsen = document.getElementById("btnAbsen");
   if (userData.lastCheckIn === today) {
@@ -469,10 +524,21 @@ function updateUI() {
   }
   document.getElementById("absenInfo").textContent = "Last: " + (userData.lastCheckIn || "First time!");
   
+  // Status tugas
+  document.querySelectorAll("#taskList > div").forEach(card => {
+    const tid = card.dataset.task;
+    const btn = card.querySelector(".task-btn");
+    if (userData.tasksCompleted?.[tid]) {
+      btn.textContent = "✅ Done";
+      btn.disabled = true;
+      btn.classList.add("opacity-50");
+    }
+  });
+  
   updateMineTimer();
 }
 
-// ========== TUGAS SOSMED — GANTI LINK KAMU ==========
+// ========== TUGAS SOSMED — GANTI LINK DI SINI ==========
 const taskLinks = {
   x: { url: "https://x.com/MursalToken", reward: 15 },
   xpost: { url: "https://x.com/MursalToken", reward: 20 },
@@ -481,10 +547,13 @@ const taskLinks = {
   yt: { url: "https://youtube.com/@MursalToken", reward: 15 }
 };
 
-document.querySelectorAll("[data-task]").forEach(btn => {
-  btn.addEventListener("click", async () => {
-    const tid = btn.dataset.task;
-    if (userData.tasksCompleted?.[tid]) { alert("✅ Already done!"); return; }
+document.querySelectorAll(".task-btn").forEach(btn => {
+  btn.addEventListener("click", async e => {
+    const card = e.target.closest("[data-task]");
+    const tid = card.dataset.task;
+    
+    if (userData.tasksCompleted?.[tid]) return;
+    
     window.open(taskLinks[tid].url, "_blank");
     setTimeout(async () => {
       if (confirm("Did you complete the task?")) {
@@ -492,10 +561,7 @@ document.querySelectorAll("[data-task]").forEach(btn => {
         userData.tasksCompleted[tid] = true;
         userData.balance += taskLinks[tid].reward;
         await saveData();
-        updateUI();
         alert(`✅ +${taskLinks[tid].reward} $MURSAL claimed!`);
-        btn.textContent = "✅ Done";
-        btn.disabled = true;
       }
     }, 1500);
   });
@@ -503,26 +569,12 @@ document.querySelectorAll("[data-task]").forEach(btn => {
 
 // ========== SALIN LINK ==========
 document.getElementById("copyRef").addEventListener("click", () => {
-  navigator.clipboard.writeText(document.getElementById("refLinkBox").textContent)
-    .then(() => alert("✅ Referral link copied!"));
+  navigator.clipboard.writeText(refLink).then(() => {
+    alert("✅ Referral link copied!");
+  });
 });
 
 // ========== NAVIGASI ==========
 function switchPage(name) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(`[data-page="${name}"]`).forEach(t => t.classList.add("active"));
-  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-  document.querySelectorAll(`[data-nav="${name}"]`).forEach(n => n.classList.add("active"));
-  document.querySelectorAll(".page-content").forEach(p => p.classList.add("hidden"));
-  document.getElementById(`page-${name}`).classList.remove("hidden");
-}
-document.querySelectorAll(".tab, .nav-item").forEach(el => {
-  el.addEventListener("click", () => switchPage(el.dataset.page || el.dataset.nav));
-});
-
-// ========== MULAI ==========
-loadData();
-</script>
-
-</body>
-</html>
+  document.querySelectorAll(`[data-page="${name}"]`).forEach(t => t.classList.add("active"
