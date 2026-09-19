@@ -1,385 +1,278 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MURSAL TOKEN — Mining</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --gold: #FFD700;
-      --green: #00FF64;
-      --dark: #0A0A0A;
-      --card: #1A1A1A;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: linear-gradient(180deg, #000 0%, #1A1A1A 50%, #000 100%);
-      min-height: 100vh; color: white;
-      font-family: system-ui; padding-bottom: 90px;
-    }
-    .mursal-logo {
-      width: 180px; height: 180px; border-radius: 50%;
-      background: radial-gradient(circle, #2A2A2A, #0A0A0A);
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto; border: 4px solid var(--gold);
-      box-shadow: 0 0 35px rgba(255,215,0,0.4);
-    }
-    .mining-active {
-      animation: pulse 1.5s ease-in-out 3;
-      border-color: var(--green);
-      box-shadow: 0 0 40px rgba(0,255,100,0.5);
-    }
-    @keyframes pulse {
-      0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)}
-    }
-    .card {
-      background: var(--card); border: 1px solid rgba(255,215,0,0.25);
-      border-radius: 16px; padding: 18px; margin-bottom: 12px;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #B8860B, #FFD700);
-      color: #000; font-weight: 700; padding: 14px;
-      border-radius: 12px; border: none; width: 100%;
-      font-size: 16px; cursor: pointer; transition: 0.2s;
-    }
-    .btn-primary:disabled { background: #333; color: #777; cursor: not-allowed; }
-    .btn-success {
-      background: linear-gradient(135deg, #009933, #00FF64);
-      color: #000; font-weight: 700; padding: 12px;
-      border-radius: 12px; border: none; width: 100%; cursor: pointer;
-    }
-    .btn-outline {
-      background: transparent; border: 1px solid var(--gold);
-      color: var(--gold); padding: 10px 14px; border-radius: 10px;
-      cursor: pointer;
-    }
-    .tab {
-      padding: 10px 12px; border-radius: 10px 10px 0 0;
-      background: transparent; color: #777; border: none;
-      cursor: pointer; font-size: 14px;
-    }
-    .tab.active { background: var(--card); color: var(--gold); border-bottom: 2px solid var(--gold); font-weight: 600; }
-    .nav-item {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 4px; color: #666; font-size: 11px; cursor: pointer;
-    }
-    .nav-item.active { color: var(--gold); }
-    .hidden { display: none !important; }
-    .balance-text {
-      font-size: 36px; font-weight: 900;
-      background: linear-gradient(90deg, #FFD700, #FFF200);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .stat-box {
-      background: #222; border-radius: 10px; padding: 12px; text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mursal Token Airdrop</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --gold: #d4af37;
+            --gold-light: #f3e5ab;
+            --text-main: #ffffff;
+            --text-muted: #b0b0b0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            width: 100%;
+            border-bottom: 2px solid var(--gold);
+        }
+        .logo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        h1 {
+            color: var(--gold);
+            font-size: 22px;
+            margin: 10px 0 5px;
+        }
+        .balances {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            max-width: 400px;
+            margin: 15px 0;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--gold);
+        }
+        .balance-item span {
+            display: block;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        .balance-item b {
+            font-size: 16px;
+            color: var(--gold-light);
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 80px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: var(--gold);
+            font-size: 16px;
+        }
+        button {
+            background: linear-gradient(135deg, #d4af37, #aa820a);
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 8px;
+            transition: 0.2s;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #1a1a1a;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+        }
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: var(--gold);
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
 
-<div class="px-4 pt-6 max-w-md mx-auto">
-  <div class="text-center mb-6">
-    <h1 class="text-2xl font-bold" style="color:var(--gold)">MURSAL TOKEN</h1>
-    <p class="text-sm text-gray-400 mt-1" id="userInfo">Loading...</p>
-  </div>
-
-  <div class="flex gap-1 mb-0">
-    <button class="tab active" data-page="home">Home</button>
-    <button class="tab" data-page="tasks">Tasks</button>
-    <button class="tab" data-page="referral">Referral</button>
-    <button class="tab" data-page="wallet">Wallet</button>
-  </div>
-
-  <div class="card rounded-tl-none">
-    <!-- HOME -->
-    <div id="page-home" class="page-content">
-      <div class="flex flex-col items-center">
-        <div id="miningLogo" class="mursal-logo mb-4">
-          <span class="text-5xl font-bold" style="color:var(--gold)">M</span>
-        </div>
-        <p id="miningStatus" class="text-sm text-green-400 mb-1">✅ READY TO MINE</p>
-        <p class="text-sm text-gray-400">Your Balance</p>
-        <p class="balance-text" id="balance">0.00 $MURSAL</p>
-        <div class="w-full mt-4">
-          <button id="btnMine" class="btn-primary">⛏️ START MINING</button>
-          <p id="mineTimer" class="text-center text-sm text-gray-500 mt-2">Ready!</p>
-        </div>
-        <div class="w-full mt-6">
-          <div class="card text-center" style="border-color:rgba(255,215,0,0.5)">
-            <h3 class="font-bold text-lg mb-2">📅 DAILY CHECK-IN</h3>
-            <p class="text-sm text-gray-400 mb-2">Claim +10 $MURSAL/day</p>
-            <button id="btnAbsen" class="btn-primary">✅ CHECK-IN TODAY</button>
-            <p id="absenInfo" class="text-xs text-gray-500 mt-2">Last: —</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3 w-full mt-4">
-          <div class="stat-box">
-            <p class="text-xs text-gray-400">Streak</p>
-            <p class="text-lg font-bold text-yellow-400" id="streak">0</p>
-          </div>
-          <div class="stat-box">
-            <p class="text-xs text-gray-400">Total Mined</p>
-            <p class="text-lg font-bold text-green-400" id="totalMined">0</p>
-          </div>
-        </div>
-      </div>
+    <div class="header">
+        <!-- Menggunakan referensi visual logo mewah Anda -->
+        <img src="Screenshot_20260916-205804.jpg" alt="Mursal Logo" class="logo">
+        <h1>MURSAL TOKEN</h1>
+        <p style="font-size: 12px; color: var(--text-muted);">TON Blockchain Airdrop App</p>
     </div>
 
-    <!-- TASKS -->
-    <div id="page-tasks" class="page-content hidden">
-      <h2 class="text-lg font-semibold mb-4">📋 Tasks & Earn</h2>
-      <div class="space-y-3">
-        <div class="card flex justify-between items-center" data-task="x">
-          <div><p class="font-medium">Follow X</p><p class="text-xs text-yellow-400">+15</p></div>
-          <button class="btn-outline task-btn">Follow</button>
+    <div class="balances">
+        <div class="balance-item">
+            <span>Mursal Coin</span>
+            <b id="mursalBalance">0.00</b>
         </div>
-        <div class="card flex justify-between items-center" data-task="tg">
-          <div><p class="font-medium">Join Telegram</p><p class="text-xs text-yellow-400">+15</p></div>
-          <button class="btn-outline task-btn">Join</button>
+        <div class="balance-item">
+            <span>USDT (BNB)</span>
+            <b id="usdtBalance">0.0000</b>
         </div>
-      </div>
     </div>
 
-    <!-- REFERRAL -->
-    <div id="page-referral" class="page-content hidden">
-      <h2 class="text-lg font-semibold mb-4">🔗 Invite Friends</h2>
-      <div class="card text-center mb-4" style="border-color:rgba(255,215,0,0.5)">
-        <p class="text-sm text-gray-400 mb-1">Your Referral Link</p>
-        <div class="bg-black/40 rounded-lg p-3 mb-3 text-xs font-mono" id="refLinkBox">Generating...</div>
-        <button id="copyRef" class="btn-success">📋 Copy Link</button>
-      </div>
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <div class="stat-box">
-          <p class="text-xs text-gray-400">Total Refs</p>
-          <p class="text-xl font-bold text-yellow-400" id="totalRefs">0</p>
+    <div class="container" id="mainContent">
+        <!-- Bagian Mining -->
+        <div class="card">
+            <h3>⚡ Mining Mursal (3x Sehari)</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Klaim 30 Koin Mursal per sesi. Tersisa: <span id="miningCount">3</span>/3 hari ini</p>
+            <button onclick="claimMining()">Klaim Mining (+30 Mursal)</button>
         </div>
-        <div class="stat-box">
-          <p class="text-xs text-gray-400">Bonus</p>
-          <p class="text-xl font-bold text-yellow-400" id="refEarned">0</p>
+
+        <!-- Absen Harian -->
+        <div class="card">
+            <h3>📅 Absen Harian</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Dapatkan 3 Koin Mursal setiap hari.</p>
+            <button onclick="claimCheckIn()">Absen Sekarang (+3 Mursal)</button>
         </div>
-      </div>
-      <h3 class="font-medium mb-2">📋 Your Referrals</h3>
-      <div id="refList" class="bg-black/30 rounded-lg p-3 max-h-60 overflow-y-auto">
-        <p class="text-sm text-gray-500">No referrals yet</p>
-      </div>
+
+        <!-- Spin Hadiah -->
+        <div class="card">
+            <h3>🎡 Spin Keberuntungan</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Hadiah maks: 0.1 USDT atau 100 Mursal!</p>
+            <button onclick="spinWheel()">Putar Spin</button>
+            <p id="spinResult" style="text-align:center; font-weight:bold; color:var(--gold); margin-top:8px;"></p>
+        </div>
+
+        <!-- Tugas Sosial Media -->
+        <div class="card">
+            <h3>📋 Misi Sosial Media</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Follow/Like X, IG, Telegram, YouTube, TikTok (+0.001 USDT & 20 Mursal per tugas).</p>
+            <select id="taskSelect">
+                <option value="x">X (Twitter) Follow & Like</option>
+                <option value="ig">Instagram Follow</option>
+                <option value="tg">Telegram Channel Join</option>
+                <option value="yt">YouTube Subscribe</option>
+                <option value="tt">TikTok Follow</option>
+            </select>
+            <input type="text" id="socialUser" placeholder="Masukkan Username Anda (cth: @username)">
+            <input type="text" id="proofLink" placeholder="Link/Bukti Konfirmasi Tugas">
+            <button onclick="submitTask()">Kirim Bukti Tugas</button>
+        </div>
+
+        <!-- Referral -->
+        <div class="card">
+            <h3>🔗 Program Referral</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Dapatkan 100 Koin Mursal per teman.</p>
+            <input type="text" id="refLink" readonly value="https://t.me/ast2komunitasmining_bot?start=ref_12345">
+            <button onclick="copyRef()">Salin Link Unik</button>
+        </div>
+
+        <!-- Withdraw -->
+        <div class="card">
+            <h3>💰 Penarikan (Withdraw)</h3>
+            <p style="font-size: 12px; color: #ff6b6b;">* Mursal terkunci 6 bulan masa TGE.</p>
+            <p style="font-size: 12px; color: var(--text-muted);">* Min WD USDT: 1 USDT (Jaringan BNB / BEP-20).</p>
+            <button onclick="alert('Penarikan USDT diproses via Jaringan BNB. Mursal terkunci 6 bulan TGE.')">Tarik Saldo</button>
+        </div>
     </div>
 
-    <!-- WALLET -->
-    <div id="page-wallet" class="page-content hidden">
-      <h2 class="text-lg font-semibold mb-4">💰 Wallet</h2>
-      <div class="card text-center mb-4">
-        <p class="text-sm text-gray-400">Balance</p>
-        <p class="balance-text" id="walletBalance">0.00 $MURSAL</p>
-      </div>
-      <div class="text-center p-6 border-2 border-dashed rounded-xl">
-        <p class="text-4xl mb-2">🔒</p>
-        <p class="text-yellow-400 font-bold">Coming Soon</p>
-        <p class="text-sm text-gray-400 mt-2">Withdrawal will open after listing</p>
-      </div>
-    </div>
-  </div>
-</div>
+    <script>
+        let mursal = 0;
+        let usdt = 0;
+        let miningLeft = 3;
 
-<!-- BOTTOM NAV -->
-<div class="fixed bottom-0 left-0 right-0 bg-black/90 border-t border-gray-800 px-6 py-3">
-  <div class="flex justify-between max-w-md mx-auto">
-    <div class="nav-item active" data-nav="home"><span>⛏️</span>Mining</div>
-    <div class="nav-item" data-nav="tasks"><span>✅</span>Tasks</div>
-    <div class="nav-item" data-nav="referral"><span>🔗</span>Referral</div>
-    <div class="nav-item" data-nav="wallet"><span>💰</span>Wallet</div>
-  </div>
-</div>
-
-<script>
-// ===== FIREBASE =====
-const firebaseConfig = {
-  apiKey: "AIzaSyCVm5Pfg8wTrwFw8tClXse3Qa4boJkQ7Ek",
-  authDomain: "ast2-database.firebaseapp.com",
-  databaseURL: "https://ast2-database-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "ast2-database"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// ===== SETTINGS =====
-const MINE_INTERVAL = 4 * 60 * 60 * 1000;
-const MINE_REWARD = 25;
-const DAILY_BONUS = 10;
-const REF_BONUS = 50;
-
-// ===== GET USER ID =====
-let tg = window.Telegram?.WebApp;
-let userId, userName;
-
-if (tg && tg.initDataUnsafe?.user) {
-  userId = String(tg.initDataUnsafe.user.id);
-  userName = tg.initDataUnsafe.user.first_name || `User${userId}`;
-} else {
-  userId = localStorage.getItem("mursalId");
-  if (!userId) {
-    userId = "mursal_" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
-    localStorage.setItem("mursalId", userId);
-  }
-  userName = `Guest_${userId.slice(-6)}`;
-}
-document.getElementById("userInfo").textContent = `👤 ${userName} | ID: ${userId.slice(0,8)}`;
-
-const inviterId = new URLSearchParams(window.location.search).get("ref");
-let refLink = "";
-
-// ===== USER DATA =====
-let userData = {
-  balance: 0, totalMined: 0, lastMineTime: 0,
-  lastCheckIn: null, checkInStreak: 0,
-  tasksCompleted: {}, referralCount: 0,
-  referralBonusTotal: 0, invitedBy: inviterId,
-  joinedAt: new Date().toISOString(), userName
-};
-
-// ===== LOAD DATA =====
-async function loadData() {
-  const userRef = db.ref("mursal_users/" + userId);
-  const snap = await userRef.once("value");
-  const existing = snap.val();
-  
-  if (!existing) {
-    await userRef.set(userData);
-    if (inviterId && inviterId !== userId) {
-      const invRef = db.ref("mursal_users/" + inviterId);
-      await invRef.transaction(d => {
-        if (d) {
-          d.referralCount = (d.referralCount || 0) + 1;
-          d.referralBonusTotal = (d.referralBonusTotal || 0) + REF_BONUS;
-          d.balance = (d.balance || 0) + REF_BONUS;
-          if (!d.referralList) d.referralList = [];
-          d.referralList.unshift({ id: userId, name: userName, joined: new Date().toLocaleString() });
-          if (d.referralList.length > 50) d.referralList.length = 50;
+        function updateUI() {
+            document.getElementById('mursalBalance').innerText = mursal.toFixed(2);
+            document.getElementById('usdtBalance').innerText = usdt.toFixed(4);
+            document.getElementById('miningCount').innerText = miningLeft;
         }
-        return d;
-      });
-    }
-  } else {
-    userData = { ...userData, ...existing };
-  }
-  
-  refLink = `${window.location.origin}${window.location.pathname}?ref=${userId}`;
-  document.getElementById("refLinkBox").textContent = refLink;
-  
-  updateUI();
-  userRef.on("value", s => { if (s.val()) { userData = { ...userData, ...s.val() }; updateUI(); } });
-}
 
-async function saveData() { await db.ref("mursal_users/" + userId).update(userData); }
+        function claimMining() {
+            if(miningLeft > 0) {
+                mursal += 30;
+                miningLeft--;
+                updateUI();
+                alert("Berhasil klaim 30 Mursal!");
+            } else {
+                alert("Sesi mining hari ini sudah habis. Silakan kembali besok!");
+            }
+        }
 
-// ===== MINING =====
-document.getElementById("btnMine").addEventListener("click", async () => {
-  const now = Date.now();
-  if (now - userData.lastMineTime < MINE_INTERVAL) return;
-  userData.lastMineTime = now;
-  userData.balance += MINE_REWARD;
-  userData.totalMined += MINE_REWARD;
-  document.getElementById("miningLogo").classList.add("mining-active");
-  setTimeout(() => document.getElementById("miningLogo").classList.remove("mining-active"), 4500);
-  await saveData();
-  alert(`⛏️ SUCCESS! +${MINE_REWARD} $MURSAL`);
-});
+        function claimCheckIn() {
+            mursal += 3;
+            updateUI();
+            alert("Absen harian berhasil! +3 Mursal");
+        }
 
-// ===== CHECK-IN =====
-document.getElementById("btnAbsen").addEventListener("click", async () => {
-  const today = new Date().toDateString();
-  if (userData.lastCheckIn === today) { alert("✅ Already checked in!"); return; }
-  const yest = new Date(); yest.setDate(yest.getDate() - 1);
-  userData.checkInStreak = userData.lastCheckIn === yest.toDateString() ? userData.checkInStreak + 1 : 1;
-  userData.balance += DAILY_BONUS;
-  userData.lastCheckIn = today;
-  await saveData();
-  alert(`✅ +${DAILY_BONUS} $MURSAL | Streak: ${userData.checkInStreak}`);
-});
+        function spinWheel() {
+            let prizes = [
+                {type: 'mursal', val: 50}, 
+                {type: 'mursal', val: 100}, 
+                {type: 'usdt', val: 0.05}, 
+                {type: 'usdt', val: 0.1}
+            ];
+            let prize = prizes[Math.floor(Math.random() * prizes.length)];
+            if(prize.type === 'mursal') {
+                mursal += prize.val;
+                document.getElementById('spinResult').innerText = `Selamat! Anda Mendapat ${prize.val} Mursal`;
+            } else {
+                usdt += prize.val;
+                document.getElementById('spinResult').innerText = `Selamat! Anda Mendapat ${prize.val} USDT`;
+            }
+            updateUI();
+        }
 
-// ===== TIMER =====
-function updateMineTimer() {
-  const rem = userData.lastMineTime + MINE_INTERVAL - Date.now();
-  const btn = document.getElementById("btnMine");
-  if (rem <= 0) {
-    btn.disabled = false; btn.textContent = "⛏️ START MINING";
-    document.getElementById("mineTimer").textContent = "Ready!";
-  } else {
-    btn.disabled = true;
-    const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000);
-    document.getElementById("mineTimer").textContent = `Next: ${h}h ${m}m`;
-    btn.textContent = "⏳ COOLDOWN";
-  }
-}
-setInterval(updateMineTimer, 1000);
+        function submitTask() {
+            let user = document.getElementById('socialUser').value;
+            let proof = document.getElementById('proofLink').value;
+            if(!user || !proof) {
+                alert("Harap isi username dan bukti tugas!");
+                return;
+            }
+            mursal += 20;
+            usdt += 0.001;
+            updateUI();
+            alert("Tugas dikirim! Reward sementara ditambahkan (+0.001 USDT & 20 Mursal) setelah diverifikasi admin.");
+            document.getElementById('socialUser').value = '';
+            document.getElementById('proofLink').value = '';
+        }
 
-// ===== UPDATE UI =====
-function updateUI() {
-  document.getElementById("balance").textContent = userData.balance.toFixed(2) + " $MURSAL";
-  document.getElementById("walletBalance").textContent = userData.balance.toFixed(2) + " $MURSAL";
-  document.getElementById("totalMined").textContent = userData.totalMined;
-  document.getElementById("streak").textContent = userData.checkInStreak;
-  document.getElementById("totalRefs").textContent = userData.referralCount || 0;
-  document.getElementById("refEarned").textContent = (userData.referralBonusTotal || 0);
-  
-  const list = document.getElementById("refList");
-  if (userData.referralList?.length) {
-    list.innerHTML = userData.referralList.map(r => `<div class="py-2 border-b border-gray-700"><span class="text-yellow-400">${r.name}</span><span class="text-gray-500 text-xs block">${r.joined}</span></div>`).join("");
-  } else {
-    list.innerHTML = '<p class="text-sm text-gray-500">No referrals yet</p>';
-  }
-  
-  const today = new Date().toDateString();
-  const btnAbsen = document.getElementById("btnAbsen");
-  btnAbsen.disabled = (userData.lastCheckIn === today);
-  btnAbsen.textContent = btnAbsen.disabled ? "✅ DONE TODAY" : "✅ CHECK-IN TODAY";
-  document.getElementById("absenInfo").textContent = "Last: " + (userData.lastCheckIn || "First time!");
-  
-  updateMineTimer();
-}
+        function copyRef() {
+            let refInput = document.getElementById('refLink');
+            refInput.select();
+            navigator.clipboard.writeText(refInput.value);
+            alert("Link referral unik berhasil disalin!");
+        }
 
-// ===== NAVIGATION =====
-function switchPage(name) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(`[data-page="${name}"]`).forEach(t => t.classList.add("active"));
-  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-  document.querySelectorAll(`[data-nav="${name}"]`).forEach(n => n.classList.add("active"));
-  document.querySelectorAll(".page-content").forEach(p => p.classList.add("hidden"));
-  document.getElementById(`page-${name}`).classList.remove("hidden");
-}
-document.querySelectorAll(".tab, .nav-item").forEach(el => el.addEventListener("click", () => switchPage(el.dataset.page || el.dataset.nav)));
-
-// ===== COPY REF LINK =====
-document.getElementById("copyRef").addEventListener("click", () => {
-  navigator.clipboard.writeText(refLink).then(() => alert("✅ Link copied!"));
-});
-
-// ===== TASKS =====
-const taskLinks = {
-  x: { url: "https://x.com/MursalToken", reward: 15 },
-  tg: { url: "https://t.me/MursalToken", reward: 15 }
-};
-document.querySelectorAll(".task-btn").forEach(btn => {
-  btn.addEventListener("click", async e => {
-    const tid = e.target.closest("[data-task]").dataset.task;
-    if (userData.tasksCompleted?.[tid]) return;
-    window.open(taskLinks[tid].url, "_blank");
-    if (confirm("Did you complete the task?")) {
-      if (!userData.tasksCompleted) userData.tasksCompleted = {};
-      userData.tasksCompleted[tid] = true;
-      userData.balance += taskLinks[tid].reward;
-      await saveData();
-      alert(`✅ +${taskLinks[tid].reward} $MURSAL`);
-      e.target.textContent = "✅ Done"; e.target.disabled = true;
-    }
-  });
-});
-
-// ===== START =====
-loadData();
-</script>
+        updateUI();
+    </script>
 </body>
 </html>
