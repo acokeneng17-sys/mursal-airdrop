@@ -75,6 +75,7 @@
       background: #333;
       color: #777;
       cursor: not-allowed;
+      opacity: 0.6;
     }
     .btn-success {
       background: linear-gradient(135deg, #009933, #00FF64);
@@ -142,15 +143,7 @@
       padding: 12px;
       text-align: center;
     }
-    input {
-      background: #0F0F0F;
-      border: 1px solid #333;
-      color: white;
-      padding: 10px 12px;
-      border-radius: 8px;
-      width: 100%;
-      margin-top: 6px;
-    }
+    .countdown { font-variant-numeric: tabular-nums; }
   </style>
 </head>
 <body>
@@ -159,7 +152,7 @@
   <!-- Header -->
   <div class="text-center mb-6">
     <h1 class="text-2xl font-bold tracking-wider" style="color:var(--gold)">MURSAL TOKEN</h1>
-    <p class="text-sm text-gray-400 mt-1">⛏️ AUTO MINING • EARN 24/7</p>
+    <p class="text-sm text-gray-400 mt-1">⛏️ MINE EVERY 4 HOURS</p>
   </div>
 
   <!-- TAB MENU -->
@@ -172,7 +165,7 @@
 
   <div class="card rounded-tl-none">
 
-    <!-- ========== HOME — MINING & ABSEN ========== -->
+    <!-- ========== HOME — MINING KLAIM SETIAP 4 JAM ========== -->
     <div id="page-home" class="page-content">
       <div class="flex flex-col items-center my-4">
         <!-- Logo Mining -->
@@ -181,12 +174,17 @@
         </div>
         
         <!-- Status Mining -->
-        <p id="miningStatus" class="text-sm text-green-400 mb-1">🟢 MINING ACTIVE</p>
-        <p class="text-xs text-gray-500 mb-4">Earning: <span id="rate">0.01</span> $MURSAL/sec</p>
+        <p id="miningStatus" class="text-sm text-yellow-400 mb-1">⏳ READY TO MINE</p>
         
         <!-- Saldo -->
         <p class="text-sm text-gray-400">Your Balance</p>
         <p class="balance-text" id="balance">0.00 $MURSAL</p>
+        
+        <!-- Tombol Mining Klaim -->
+        <div class="w-full mt-4">
+          <button id="btnMine" class="btn-primary">⛏️ START MINING</button>
+          <p id="mineTimer" class="text-center text-sm text-gray-500 mt-2 countdown">Ready to mine!</p>
+        </div>
         
         <!-- Absen Harian -->
         <div class="w-full mt-6">
@@ -195,7 +193,7 @@
             <p class="text-sm text-gray-400 mb-2">Claim bonus every day!</p>
             <p class="text-xs text-yellow-400 mb-3">+10 $MURSAL per day</p>
             <button id="btnAbsen" class="btn-primary">✅ CHECK-IN TODAY</button>
-            <p id="absenInfo" class="text-xs text-gray-500 mt-2">Last check-in: —</p>
+            <p id="absenInfo" class="text-xs text-gray-500 mt-2">Last: —</p>
           </div>
         </div>
         
@@ -320,9 +318,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ========== KONFIGURASI MINING ==========
-const MINING_RATE = 0.01; // $MURSAL per detik
-const DAILY_BONUS = 10;   // Bonus absen harian
+// ========== PENGATURAN ==========
+const MINE_INTERVAL = 4 * 60 * 60 * 1000; // 4 JAM
+const MINE_REWARD = 25; // Hadiah sekali klaim
+const DAILY_BONUS = 10;
 
 // ========== USER ID ==========
 let userId = localStorage.getItem("mursalId");
@@ -336,7 +335,7 @@ const inviterId = new URLSearchParams(window.location.search).get("ref");
 let userData = {
   balance: 0,
   totalMined: 0,
-  lastMiningUpdate: Date.now(),
+  lastMineTime: 0,
   lastCheckIn: null,
   checkInStreak: 0,
   tasksCompleted: {},
@@ -346,14 +345,13 @@ let userData = {
   joinedAt: new Date().toISOString()
 };
 
-// ========== MUAT DATA DARI FIREBASE ==========
+// ========== MUAT DATA ==========
 async function loadData() {
   const snap = await db.ref("mursal_users/" + userId).once("value");
   const existing = snap.val();
   
   if (!existing) {
     await db.ref("mursal_users/" + userId).set(userData);
-    // Beri bonus ke pengundang
     if (inviterId && inviterId !== userId) {
       await db.ref("mursal_users/" + inviterId).transaction(d => {
         if (d) {
@@ -366,35 +364,37 @@ async function loadData() {
     }
   } else {
     userData = { ...userData, ...existing };
-    // Hitung pendapatan offline
-    const now = Date.now();
-    const offlineSeconds = Math.floor((now - userData.lastMiningUpdate) / 1000);
-    if (offlineSeconds > 0) {
-      const offlineEarning = offlineSeconds * MINING_RATE;
-      userData.balance += offlineEarning;
-      userData.totalMined += offlineEarning;
-      userData.lastMiningUpdate = now;
-      await saveData();
-    }
   }
   
   updateUI();
 }
 
 async function saveData() {
-  userData.lastMiningUpdate = Date.now();
   await db.ref("mursal_users/" + userId).update(userData);
 }
 
-// ========== MINING OTOMATIS ==========
-setInterval(async () => {
-  userData.balance += MINING_RATE;
-  userData.totalMined += MINING_RATE;
-  updateUI();
+// ========== KLAIM MINING — SETIAP 4 JAM ==========
+document.getElementById("btnMine").addEventListener("click", async () => {
+  const now = Date.now();
+  if (now - userData.lastMineTime < MINE_INTERVAL) {
+    return; // Belum waktunya
+  }
   
-  // Simpan setiap 10 detik
-  if (Date.now() % 10000 < 1000) await saveData();
-}, 1000);
+  // Klaim berhasil
+  userData.lastMineTime = now;
+  userData.balance += MINE_REWARD;
+  userData.totalMined += MINE_REWARD;
+  
+  // Efek animasi
+  document.getElementById("miningLogo").classList.add("mining-active");
+  setTimeout(() => {
+    document.getElementById("miningLogo").classList.remove("mining-active");
+  }, 1500);
+  
+  await saveData();
+  updateUI();
+  alert(`⛏️ MINING SUCCESS!\n+${MINE_REWARD} $MURSAL added!`);
+});
 
 // ========== ABSEN HARIAN ==========
 document.getElementById("btnAbsen").addEventListener("click", async () => {
@@ -404,7 +404,6 @@ document.getElementById("btnAbsen").addEventListener("click", async () => {
     return;
   }
   
-  // Cek berurutan
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const isConsecutive = userData.lastCheckIn === yesterday.toDateString();
@@ -418,36 +417,62 @@ document.getElementById("btnAbsen").addEventListener("click", async () => {
   alert(`✅ CHECK-IN SUCCESS!\n+${DAILY_BONUS} $MURSAL added!\n🔥 Streak: ${userData.checkInStreak} days`);
 });
 
+// ========== HITUNG MUNDUR MINING ==========
+function updateMineTimer() {
+  const now = Date.now();
+  const nextMine = userData.lastMineTime + MINE_INTERVAL;
+  const remaining = nextMine - now;
+  const btn = document.getElementById("btnMine");
+  const timerText = document.getElementById("mineTimer");
+  const statusText = document.getElementById("miningStatus");
+  
+  if (remaining <= 0) {
+    btn.disabled = false;
+    btn.textContent = "⛏️ START MINING";
+    timerText.textContent = "Ready to mine!";
+    statusText.textContent = "✅ READY TO MINE";
+    statusText.className = "text-sm text-green-400 mb-1";
+  } else {
+    btn.disabled = true;
+    const h = Math.floor(remaining / 3600000);
+    const m = Math.floor((remaining % 3600000) / 60000);
+    const s = Math.floor((remaining % 60000) / 1000);
+    timerText.textContent = `Next mine in: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    btn.textContent = "⏳ COOLDOWN";
+    statusText.textContent = "🔄 COOLDOWN";
+    statusText.className = "text-sm text-yellow-400 mb-1";
+  }
+}
+setInterval(updateMineTimer, 1000);
+
 // ========== UPDATE TAMPILAN ==========
 function updateUI() {
   document.getElementById("balance").textContent = userData.balance.toFixed(2) + " $MURSAL";
   document.getElementById("walletBalance").textContent = userData.balance.toFixed(2) + " $MURSAL";
-  document.getElementById("totalMined").textContent = userData.totalMined.toFixed(1);
+  document.getElementById("totalMined").textContent = userData.totalMined;
   document.getElementById("streak").textContent = userData.checkInStreak;
   document.getElementById("totalRefs").textContent = userData.referralCount || 0;
   document.getElementById("refEarned").textContent = userData.referralBonusTotal || 0;
   
-  // Link referal
   const refLink = window.location.origin + window.location.pathname + "?ref=" + userId;
   document.getElementById("refLinkBox").textContent = refLink;
   
-  // Status absen
+  // Status Absen
   const today = new Date().toDateString();
   const btnAbsen = document.getElementById("btnAbsen");
   if (userData.lastCheckIn === today) {
     btnAbsen.disabled = true;
     btnAbsen.textContent = "✅ ALREADY CHECKED IN";
-    btnAbsen.classList.add("opacity-50");
   } else {
     btnAbsen.disabled = false;
     btnAbsen.textContent = "✅ CHECK-IN TODAY";
-    btnAbsen.classList.remove("opacity-50");
   }
-  document.getElementById("absenInfo").textContent = 
-    "Last: " + (userData.lastCheckIn || "First time!");
+  document.getElementById("absenInfo").textContent = "Last: " + (userData.lastCheckIn || "First time!");
+  
+  updateMineTimer();
 }
 
-// ========== TUGAS SOSMED — GANTI LINK MILIKMU ==========
+// ========== TUGAS SOSMED — GANTI LINK KAMU ==========
 const taskLinks = {
   x: { url: "https://x.com/MursalToken", reward: 15 },
   xpost: { url: "https://x.com/MursalToken", reward: 20 },
@@ -497,7 +522,6 @@ document.querySelectorAll(".tab, .nav-item").forEach(el => {
 
 // ========== MULAI ==========
 loadData();
-document.getElementById("miningLogo").classList.add("mining-active");
 </script>
 
 </body>
