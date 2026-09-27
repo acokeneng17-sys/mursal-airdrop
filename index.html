@@ -1,703 +1,701 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mursal Token Airdrop</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg-color: #0b0b0b;
-            --card-bg: #161616;
-            --gold: #d4af37;
-            --gold-light: #f3e5ab;
-            --text-main: #ffffff;
-            --text-muted: #999999;
-            --border-color: #2a2a2a;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 90px;
-        }
-        .header {
-            text-align: center;
-            padding: 20px 15px;
-            background: linear-gradient(135deg, #111, #1f1f1f);
-            width: 100%;
-            border-bottom: 2px solid var(--gold);
-            box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>$MURSAL Mini App</title>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg-color: #0b0c10;
+      --card-bg: #15181e;
+      --gold-main: #d4af37;
+      --gold-light: #f7d070;
+      --text-color: #e0e0e0;
+      --text-muted: #8c93a0;
+      --green-candle: #26a69a;
+      --border-color: #2b303c;
+    }
 
-        /* 3D Animated Logo without text */
-        .coin-3d-container {
-            perspective: 1000px;
-            width: 85px;
-            height: 85px;
-            margin: 0 auto 10px auto;
-        }
-        .coin-3d {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: spin3d 6s infinite linear;
-        }
-        .coin-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle, #f3e5ab 0%, #d4af37 60%, #8a6f1d 100%);
-            border: 3px solid #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: #1a1a1a;
-            box-shadow: inset 0 0 12px rgba(0,0,0,0.6), 0 5px 15px rgba(212,175,55,0.4);
-            backface-visibility: hidden;
-        }
-        .coin-face-back {
-            transform: rotateY(180deg);
-        }
-        @keyframes spin3d {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(360deg); }
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        h1 {
-            color: var(--gold);
-            font-size: 20px;
-            margin: 5px 0 2px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .sub-header {
-            font-size: 11px;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .container {
-            width: 92%;
-            max-width: 450px;
-            margin-top: 15px;
-        }
-        .page-section {
-            display: none;
-        }
-        .page-section.active {
-            display: block;
-        }
-        
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
-        }
-        .card h3 {
-            margin-top: 0;
-            color: var(--gold);
-            font-size: 16px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-        button {
-            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa820a 100%);
-            color: #111;
-            border: none;
-            padding: 13px;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: 0.15s;
-            font-size: 14px;
-            box-shadow: 0 5px 15px rgba(212,175,55,0.3), inset 0 2px 3px rgba(255,255,255,0.4);
-        }
-        button:disabled {
-            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-            color: #666;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-        button:active:not(:disabled) {
-            transform: translateY(3px);
-            box-shadow: 0 2px 5px rgba(212,175,55,0.3);
-        }
+    /* Header Profile & Balances */
+    header {
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, rgba(21, 24, 30, 0) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
 
-        input, select {
-            width: 100%;
-            padding: 11px;
-            margin-top: 8px;
-            background: #0f0f0f;
-            border: 1px solid var(--border-color);
-            color: #fff;
-            border-radius: 10px;
-            box-sizing: border-box;
-            font-size: 13px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .wallet-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-        .wallet-box {
-            background: var(--card-bg);
-            border: 1px solid var(--gold);
-            border-radius: 12px;
-            padding: 12px 6px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,175,55,0.2);
-        }
-        .wallet-box span {
-            font-size: 10px;
-            color: var(--text-muted);
-            display: block;
-            margin-bottom: 4px;
-        }
-        .wallet-box b {
-            font-size: 12px;
-            color: var(--gold-light);
-        }
+    .brand-logo {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 2px solid var(--gold-main);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+      object-fit: cover;
+    }
 
-        /* Wheel of Fortune Styling */
-        .wheel-wrapper {
-            position: relative;
-            width: 240px;
-            height: 240px;
-            margin: 15px auto;
-        }
-        .wheel-pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-bottom: 24px solid var(--gold);
-            z-index: 10;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-        }
-        .wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 5px solid var(--gold);
-            position: relative;
-            overflow: hidden;
-            transition: transform 4s cubic-bezier(0.15, 0.9, 0.2, 1);
-            box-shadow: 0 0 20px rgba(212,175,55,0.4);
-            background: #111;
-        }
-        .wheel-slice {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: 100% 100%;
-            left: 0;
-            top: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            color: #fff;
-            border: 1px solid rgba(0,0,0,0.2);
-            box-sizing: border-box;
-        }
-        /* Slices setup for visual look */
-        .slice-1 { transform: rotate(0deg) skewY(-45deg); background: #d4af37; color: #000; }
-        .slice-2 { transform: rotate(45deg) skewY(-45deg); background: #1e88e5; }
-        .slice-3 { transform: rotate(90deg) skewY(-45deg); background: #ffb300; color: #000; }
-        .slice-4 { transform: rotate(135deg) skewY(-45deg); background: #546e7a; }
-        .slice-5 { transform: rotate(180deg) skewY(-45deg); background: #e53935; }
-        .slice-6 { transform: rotate(225deg) skewY(-45deg); background: #00acc1; }
-        .slice-7 { transform: rotate(270deg) skewY(-45deg); background: #7b1fa2; }
-        .slice-8 { transform: rotate(315deg) skewY(-45deg); background: #43a047; }
-        
-        .slice-text {
-            position: absolute;
-            width: 80px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-        }
+    .balance-card {
+      display: flex;
+      gap: 20px;
+      background: var(--card-bg);
+      padding: 10px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
 
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #121212;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid var(--border-color);
-            box-sizing: border-box;
-            z-index: 100;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.9);
-        }
-        .nav-item {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 11px;
-            text-align: center;
-            cursor: pointer;
-            background: none;
-            border: none;
-            width: auto;
-            margin: 0;
-            padding: 0;
-            box-shadow: none;
-        }
-        .nav-item.active {
-            color: var(--gold);
-            text-shadow: 0 0 8px rgba(212,175,55,0.5);
-        }
-        .streak-container {
-            display: flex;
-            justify-content: space-between;
-            margin: 12px 0;
-        }
-        .streak-box {
-            width: 38px;
-            height: 45px;
-            background: #111;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .streak-box.completed {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: rgba(212, 175, 55, 0.1);
-        }
-    </style>
+    .bal-item {
+      text-align: center;
+    }
+
+    .bal-item span {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .bal-item h3 {
+      font-size: 18px;
+      color: var(--gold-light);
+      margin-top: 2px;
+    }
+
+    .bal-item h3.usdt-val {
+      color: var(--green-candle);
+    }
+
+    /* Main Container Views */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+
+    .tab-view {
+      display: none;
+    }
+
+    .tab-view.active {
+      display: block;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 14px;
+    }
+
+    .card h4 {
+      margin-bottom: 12px;
+      color: var(--gold-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Buttons */
+    .btn {
+      background: linear-gradient(135deg, var(--gold-main), #aa820a);
+      color: #0b0c10;
+      border: none;
+      padding: 12px 18px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: opacity 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #20242d;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Mining Progress Circle / Box */
+    .mining-box {
+      text-align: center;
+      padding: 24px 10px;
+    }
+
+    .mining-timer {
+      font-size: 26px;
+      font-weight: bold;
+      color: var(--gold-light);
+      margin: 10px 0;
+      letter-spacing: 1px;
+    }
+
+    /* Task List */
+    .task-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-meta p {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .task-meta span {
+      font-size: 12px;
+      color: var(--green-candle);
+    }
+
+    .btn-task {
+      padding: 6px 14px;
+      font-size: 12px;
+      width: auto;
+      border-radius: 6px;
+    }
+
+    /* Wallet Form */
+    .input-group {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 70px 12px 12px;
+      background: #0e1014;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .paste-btn {
+      position: absolute;
+      right: 8px;
+      bottom: 6px;
+      padding: 6px 10px;
+      background: var(--gold-main);
+      color: #000;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Data Tables */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #101217;
+      color: var(--text-muted);
+      padding: 10px 8px;
+    }
+
+    td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .badge-status {
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .status-completed { background: rgba(38, 166, 154, 0.2); color: #26a69a; }
+    .status-pending { background: rgba(212, 175, 55, 0.2); color: #d4af37; }
+
+    /* Bottom Navigation Bar */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65px;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 11px;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .nav-btn.active {
+      color: var(--gold-main);
+      font-weight: bold;
+    }
+
+    .nav-icon {
+      font-size: 18px;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="coin-3d-container">
-            <div class="coin-3d">
-                <div class="coin-face">M</div>
-                <div class="coin-face coin-face-back">🪙</div>
-            </div>
-        </div>
-        <h1>MURSAL TOKEN</h1>
-        <div class="sub-header">TON Blockchain Airdrop App</div>
+  <!-- Header -->
+  <header>
+    <img src="mursal_logo.png" alt="$MURSAL Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/80/15181e/d4af37?text=MURSAL'" />
+    <div class="balance-card">
+      <div class="bal-item">
+        <span>$MURSAL Points</span>
+        <h3 id="display-points">0</h3>
+      </div>
+      <div class="bal-item">
+        <span>USDT Balance</span>
+        <h3 class="usdt-val" id="display-usdt">0.0000</h3>
+      </div>
     </div>
+  </header>
 
-    <div class="container">
-        
-        <!-- ==================== HOME PAGE ==================== -->
-        <div id="section-home" class="page-section active">
-            <div class="wallet-grid">
-                <div class="wallet-box">
-                    <span>$MURSAL</span>
-                    <b id="homeMursal">0.00</b>
-                </div>
-                <div class="wallet-box">
-                    <span>$USDT</span>
-                    <b id="homeUsdt">0.0000</b>
-                </div>
-                <div class="wallet-box">
-                    <span>$INSYAF</span>
-                    <b id="homeInsyaf">0.00</b>
-                </div>
-            </div>
+  <!-- Main Viewports -->
+  <main>
+    <!-- TAB 1: MINING & CHECKIN -->
+    <section id="view-mine" class="tab-view active">
+      <div class="card">
+        <h4>Daily Check-in <span id="streak-info">Day 1</span></h4>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+          Claim daily rewards. Points increase daily up to Day 30!
+        </p>
+        <button class="btn" id="checkin-btn" onclick="claimDaily()">Claim Daily Points (+<span id="checkin-reward">10</span>)</button>
+      </div>
 
-            <div class="card">
-                <h3>⚡ Mursal Mining (3x Daily)</h3>
-                <p style="font-size: 13px; color: var(--text-muted);">Claim 30 Mursal coins per session. Left today: <span id="miningCount">3</span>/3</p>
-                <div id="miningTimerBox" style="font-size: 12px; color: var(--gold); margin-bottom: 8px; font-weight: bold; text-align: center;"></div>
-                <button id="miningBtn" onclick="claimMining()">Start Mining Session</button>
-            </div>
+      <div class="card mining-box">
+        <h4>4-Hour Mining Engine</h4>
+        <p style="font-size: 13px; color: var(--text-muted);">Activate rig every 4 hours to receive 20 $MURSAL Points.</p>
+        <div class="mining-timer" id="mining-timer">04:00:00</div>
+        <button class="btn" id="mining-btn" onclick="startMining()">Start Mining (20 Points)</button>
+      </div>
+    </section>
 
-            <div class="card">
-                <h3>📅 Daily Check-In</h3>
-                <p style="font-size: 13px; color: var(--text-muted);">Keep your streak alive for daily rewards (+3 Mursal).</p>
-                <div class="streak-container" id="streakDisplay"></div>
-                <button id="checkinBtn" onclick="claimCheckIn()">Claim Daily Check-In</button>
-            </div>
+    <!-- TAB 2: TASKS -->
+    <section id="view-tasks" class="tab-view">
+      <div class="card">
+        <h4>Available Tasks</h4>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Reward per task: <strong>+20 Points & +0.001 USDT</strong>. Verification verification delay applies to prevent fraud.
+        </p>
+
+        <div class="task-item">
+          <div class="task-meta">
+            <p>Join Official Telegram Channel</p>
+            <span>+20 Points, +0.001 USDT</span>
+          </div>
+          <button class="btn btn-task" id="task-btn-1" onclick="performTask(1, 'https://t.me/MursalOfficial')">Start</button>
         </div>
 
-        <!-- ==================== EARN (TASKS & SPIN) ==================== -->
-        <div id="section-earn" class="page-section">
-            <div class="card" style="text-align: center;">
-                <h3>🎡 Lucky Spin Wheel (1x Daily)</h3>
-                <p style="font-size: 12px; color: var(--text-muted);">Win 50 Mursal , 20 Insyaf , or 0.05 USDT (30%)!</p>
-                
-                <!-- Wheel Component -->
-                <div class="wheel-wrapper">
-                    <div class="wheel-pointer"></div>
-                    <div class="wheel" id="fortuneWheel">
-                        <div class="wheel-slice slice-1"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">0.1 USDT</span></div>
-                        <div class="wheel-slice slice-2"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">50 Mursal</span></div>
-                        <div class="wheel-slice slice-3"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">20 Insyaf</span></div>
-                        <div class="wheel-slice slice-4"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">Try Again</span></div>
-                        <div class="wheel-slice slice-5"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">50 Mursal</span></div>
-                        <div class="wheel-slice slice-6"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">20 Insyaf</span></div>
-                        <div class="wheel-slice slice-7"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">Try Again</span></div>
-                        <div class="wheel-slice slice-8"><span style="transform: rotate(45deg); position: absolute; font-size:10px;">50 Mursal</span></div>
-                    </div>
-                </div>
-
-                <button id="spinBtn" onclick="spinWheel()">Spin Wheel Now</button>
-                <p id="spinResult" style="font-weight:bold; color:var(--gold); margin-top:10px; font-size: 13px;"></p>
-            </div>
-
-            <div class="card">
-                <h3>📋 Social Media Tasks</h3>
-                <p style="font-size: 13px; color: var(--text-muted);">Reward per task: +0.001 USDT & +20 Mursal.</p>
-                <select id="taskSelect">
-                    <option value="x">X (Twitter) Follow & Like</option>
-                    <option value="ig">Instagram Follow</option>
-                    <option value="tg">Telegram Channel Join</option>
-                    <option value="yt">YouTube Subscribe</option>
-                    <option value="tt">TikTok Follow</option>
-                </select>
-                <input type="text" id="socialUser" placeholder="Your Username (e.g. @username)">
-                <input type="text" id="proofLink" placeholder="Proof / Screenshot Link">
-                <button onclick="submitTask()">Submit Task Proof</button>
-            </div>
+        <div class="task-item">
+          <div class="task-meta">
+            <p>Follow Twitter / X</p>
+            <span>+20 Points, +0.001 USDT</span>
+          </div>
+          <button class="btn btn-task" id="task-btn-2" onclick="performTask(2, 'https://twitter.com')">Start</button>
         </div>
 
-        <!-- ==================== MINING PAGE ==================== -->
-        <div id="section-mining" class="page-section">
-            <div class="card" style="text-align: center;">
-                <h3>⛏️ Mursal Mining Node</h3>
-                <div class="coin-3d-container" style="width: 100px; height: 100px; margin: 20px auto;">
-                    <div class="coin-3d" style="animation-duration: 4s;">
-                        <div class="coin-face" style="font-size: 40px;">⛏️</div>
-                        <div class="coin-face coin-face-back" style="font-size: 40px;">💎</div>
-                    </div>
-                </div>
-                <p style="font-size: 13px; color: var(--text-muted);">Active mining sessions generate Mursal into your locked TGE balance.</p>
-                <button onclick="switchTab('home')">Return to Mining Hub</button>
-            </div>
+        <div class="task-item">
+          <div class="task-meta">
+            <p>Subscribe YouTube Channel</p>
+            <span>+20 Points, +0.001 USDT</span>
+          </div>
+          <button class="btn btn-task" id="task-btn-3" onclick="performTask(3, 'https://youtube.com')">Start</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: REFERRAL -->
+    <section id="view-referral" class="tab-view">
+      <div class="card">
+        <h4>Invite Friends</h4>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+          Earn <strong>50 Points</strong> for every qualified invited friend!
+        </p>
+        <div class="input-group">
+          <input type="text" class="input-field" id="ref-link" readonly value="https://t.me/ast2komunitasmining_bot?start=ref_user123" />
+          <button class="paste-btn" onclick="copyRefLink()">Copy</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>Referral Records</h4>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Reward</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="ref-history-body">
+              <tr>
+                <td>@crypto_warrior</td>
+                <td>+50 Pts</td>
+                <td>2026-09-25</td>
+              </tr>
+              <tr>
+                <td>@web3_hunter</td>
+                <td>+50 Pts</td>
+                <td>2026-09-26</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: WALLET & WITHDRAW -->
+    <section id="view-wallet" class="tab-view">
+      <div class="card">
+        <h4>$MURSAL Listing Airdrop</h4>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+          Total accrued points will be converted to <strong>$MURSAL Token</strong> upon public DEX/CEX listing. Keep mining and holding points.
+        </p>
+      </div>
+
+      <div class="card">
+        <h4>Withdraw USDT (BEP20)</h4>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Minimum withdrawal: <strong>1.0000 USDT</strong>
+        </p>
+
+        <div class="input-group">
+          <label>BEP20 Wallet Address</label>
+          <input type="text" id="wallet-address" class="input-field" placeholder="0x..." />
+          <button class="paste-btn" onclick="pasteWalletAddress()">Paste</button>
         </div>
 
-        <!-- ==================== INVITE PAGE ==================== -->
-        <div id="section-invite" class="page-section">
-            <div class="card">
-                <h3>🔗 Referral Program</h3>
-                <p style="font-size: 13px; color: var(--text-muted);">Earn 50 Mursal coins for every unique friend invited.</p>
-                <input type="text" id="refLink" readonly value="https://t.me/mursalmining_bot?start=ref_12345">
-                <button onclick="copyRef()">Copy Unique Link</button>
-            </div>
+        <div class="input-group">
+          <label>Withdrawal Amount (USDT)</label>
+          <input type="number" id="withdraw-amount" class="input-field" placeholder="Min. 1.0" step="0.001" />
         </div>
 
-        <!-- ==================== WALLET PAGE ==================== -->
-        <div id="section-wallet" class="page-section">
-            <div class="wallet-grid" style="grid-template-columns: 1fr; gap: 10px;">
-                <div class="wallet-box" style="text-align: left; padding: 14px;">
-                    <span>$MURSAL BALANCE (Locked 6 Mos TGE)</span>
-                    <b id="walletMursal" style="font-size: 18px;">0.00</b>
-                </div>
-                <div class="wallet-box" style="text-align: left; padding: 14px;">
-                    <span>$USDT BALANCE (Available)</span>
-                    <b id="walletUsdt" style="font-size: 18px;">0.0000</b>
-                </div>
-                <div class="wallet-box" style="text-align: left; padding: 14px;">
-                    <span>$INSYAF BALANCE (Locked)</span>
-                    <b id="walletInsyaf" style="font-size: 18px;">0.00</b>
-                </div>
-            </div>
+        <button class="btn" onclick="submitWithdrawal()">Request Withdrawal</button>
+      </div>
 
-            <div class="card">
-                <h3>💸 Withdraw USDT (BEP-20)</h3>
-                <p style="font-size: 12px; color: var(--text-muted);">Minimum withdrawal: 1 USDT. Ensure network is BNB Smart Chain (BEP-20).</p>
-                <input type="text" id="withdrawAddress" placeholder="Paste USDT (BEP-20) Address">
-                <input type="number" id="withdrawAmount" placeholder="Amount in USDT (Min 1)">
-                <button onclick="processWithdraw()">Withdraw USDT</button>
-            </div>
+      <div class="card">
+        <h4>Withdrawal History</h4>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Address</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="withdraw-history-body">
+              <tr>
+                <td>0x81b...4a12</td>
+                <td>1.5 USDT</td>
+                <td><span class="badge-status status-completed">Completed</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
+    </section>
+  </main>
 
-    </div>
+  <!-- Navigation -->
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('mine', this)">
+      <span class="nav-icon">⛏️</span>
+      <span>Mine</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('tasks', this)">
+      <span class="nav-icon">📋</span>
+      <span>Tasks</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('referral', this)">
+      <span class="nav-icon">👥</span>
+      <span>Friends</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('wallet', this)">
+      <span class="nav-icon">💼</span>
+      <span>Wallet</span>
+    </button>
+  </nav>
 
-    <!-- ==================== BOTTOM NAVIGATION ==================== -->
-    <div class="nav-bar">
-        <button class="nav-item active" onclick="switchTab('home')">🏠<br>Home</button>
-        <button class="nav-item" onclick="switchTab('earn')">⭐<br>Earn</button>
-        <button class="nav-item" onclick="switchTab('mining')">⛏️<br>Mining</button>
-        <button class="nav-item" onclick="switchTab('invite')">🔗<br>Invite</button>
-        <button class="nav-item" onclick="switchTab('wallet')">👛<br>Wallet</button>
-    </div>
+  <script>
+    // Initialize WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.expand();
+      tg.ready();
+    }
 
-    <script>
-        let appData = JSON.parse(localStorage.getItem('mursal_app_data')) || {
-            mursal: 0,
-            usdt: 0,
-            insyaf: 0,
-            miningLeft: 3,
-            nextMiningTime: 0,
-            lastMiningDate: '',
-            lastCheckInDate: '',
-            lastSpinDate: '',
-            spinClaimedToday: false,
-            checkInClaimedToday: false
-        };
+    // App State
+    let points = parseFloat(localStorage.getItem('mursal_pts')) || 0;
+    let usdt = parseFloat(localStorage.getItem('mursal_usdt')) || 0.0000;
+    let checkinDay = parseInt(localStorage.getItem('mursal_streak')) || 1;
+    let lastCheckinTime = parseInt(localStorage.getItem('mursal_last_checkin')) || 0;
+    let miningEndTime = parseInt(localStorage.getItem('mursal_mining_end')) || 0;
 
-        function saveData() {
-            localStorage.setItem('mursal_app_data', JSON.stringify(appData));
+    // Task Fraud Prevention: stores task initiation timestamps
+    const taskStatus = JSON.parse(localStorage.getItem('mursal_tasks') || '{}');
+
+    function updateUI() {
+      document.getElementById('display-points').innerText = points.toLocaleString();
+      document.getElementById('display-usdt').innerText = usdt.toFixed(4);
+      document.getElementById('streak-info').innerText = `Day ${checkinDay} of 30`;
+      document.getElementById('checkin-reward').innerText = checkinDay * 10;
+      
+      localStorage.setItem('mursal_pts', points);
+      localStorage.setItem('mursal_usdt', usdt);
+      localStorage.setItem('mursal_streak', checkinDay);
+    }
+
+    // Switch Navigation Tabs
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-view').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      
+      document.getElementById(`view-${tabId}`).classList.add('active');
+      el.classList.add('active');
+    }
+
+    // Daily Check-in Mechanism
+    function claimDaily() {
+      const now = Date.now();
+      const oneDay = 24 * 60 * 60 * 1000;
+      
+      if (now - lastCheckinTime < oneDay) {
+        alert("You have already claimed today's reward! Come back tomorrow.");
+        return;
+      }
+
+      const reward = checkinDay * 10;
+      points += reward;
+      lastCheckinTime = now;
+      checkinDay = checkinDay >= 30 ? 1 : checkinDay + 1;
+
+      localStorage.setItem('mursal_last_checkin', lastCheckinTime);
+      updateUI();
+      alert(`Success! Claimed +${reward} Points.`);
+    }
+
+    // 4-Hour Mining Engine
+    function startMining() {
+      const now = Date.now();
+      if (miningEndTime > now) return;
+
+      miningEndTime = now + (4 * 60 * 60 * 1000);
+      localStorage.setItem('mursal_mining_end', miningEndTime);
+      runMiningLoop();
+    }
+
+    function runMiningLoop() {
+      const btn = document.getElementById('mining-btn');
+      const timerEl = document.getElementById('mining-timer');
+
+      const interval = setInterval(() => {
+        const remaining = miningEndTime - Date.now();
+
+        if (remaining <= 0) {
+          clearInterval(interval);
+          timerEl.innerText = "04:00:00";
+          btn.disabled = false;
+          btn.innerText = "Claim 20 Points";
+          btn.onclick = () => {
+            points += 20;
+            miningEndTime = 0;
+            localStorage.removeItem('mursal_mining_end');
+            updateUI();
+            btn.innerText = "Start Mining (20 Points)";
+            btn.onclick = startMining;
+          };
+        } else {
+          btn.disabled = true;
+          const h = String(Math.floor(remaining / 3600000)).padStart(2, '0');
+          const m = String(Math.floor((remaining % 3600000) / 60000)).padStart(2, '0');
+          const s = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+          timerEl.innerText = `${h}:${m}:${s}`;
+          btn.innerText = "Mining in Progress...";
         }
+      }, 1000);
+    }
 
-        function getTodayDateStr() {
-            const d = new Date();
-            return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-        }
+    // Task Execution with Anti-Cheat Delay Verification
+    function performTask(taskId, targetUrl) {
+      const btn = document.getElementById(`task-btn-${taskId}`);
+      
+      if (taskStatus[taskId] === 'completed') {
+        alert("This task has already been completed.");
+        return;
+      }
 
-        function checkDailyResets() {
-            const today = getTodayDateStr();
-            if (appData.lastMiningDate !== today) {
-                appData.miningLeft = 3;
-                appData.lastMiningDate = today;
-                appData.nextMiningTime = 0;
-            }
-            if (appData.lastCheckInDate !== today) {
-                appData.checkInClaimedToday = false;
-            }
-            if (appData.lastSpinDate !== today) {
-                appData.spinClaimedToday = false;
-            }
-            saveData();
-        }
+      if (!taskStatus[taskId]) {
+        // Step 1: Open Link & Start Verification Timer (Anti-Cheat)
+        window.open(targetUrl, '_blank');
+        taskStatus[taskId] = { status: 'pending', start: Date.now() };
+        localStorage.setItem('mursal_tasks', JSON.stringify(taskStatus));
 
-        function updateUI() {
-            checkDailyResets();
-            
-            document.getElementById('homeMursal').innerText = appData.mursal.toFixed(2);
-            document.getElementById('homeUsdt').innerText = appData.usdt.toFixed(4);
-            document.getElementById('homeInsyaf').innerText = appData.insyaf.toFixed(2);
+        btn.innerText = "Verifying (15s)...";
+        btn.disabled = true;
 
-            document.getElementById('walletMursal').innerText = appData.mursal.toFixed(2) + " MURSAL";
-            document.getElementById('walletUsdt').innerText = appData.usdt.toFixed(4) + " USDT";
-            document.getElementById('walletInsyaf').innerText = appData.insyaf.toFixed(2) + " INSYAF";
-
-            document.getElementById('miningCount').innerText = appData.miningLeft;
-
-            let checkBtn = document.getElementById('checkinBtn');
-            if (appData.checkInClaimedToday) {
-                checkBtn.innerText = "Already Claimed Today";
-                checkBtn.disabled = true;
-            } else {
-                checkBtn.innerText = "Claim Daily Check-In (+3 Mursal)";
-                checkBtn.disabled = false;
-            }
-
-            let spinBtn = document.getElementById('spinBtn');
-            if (appData.spinClaimedToday) {
-                spinBtn.innerText = "Spin Already Used Today";
-                spinBtn.disabled = true;
-                document.getElementById('spinResult').innerText = "Come back tomorrow for your next spin!";
-            } else {
-                spinBtn.innerText = "Spin Wheel Now";
-                spinBtn.disabled = false;
-            }
-
-            renderStreakDays();
-        }
-
-        setInterval(() => {
-            const now = new Date().getTime();
-            let miningBtn = document.getElementById('miningBtn');
-            let timerBox = document.getElementById('miningTimerBox');
-
-            if (appData.nextMiningTime > now) {
-                let distance = appData.nextMiningTime - now;
-                let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                
-                timerBox.innerText = `⏳ Next session available in: ${hours}h ${minutes}m ${seconds}s`;
-                miningBtn.disabled = true;
-            } else {
-                timerBox.innerText = '';
-                if (appData.miningLeft > 0) {
-                    miningBtn.disabled = false;
-                    miningBtn.innerText = "Start Mining Session";
-                } else {
-                    miningBtn.disabled = true;
-                    miningBtn.innerText = "Daily Limit Reached (0/3)";
-                }
-            }
+        let countdown = 15;
+        const checkTimer = setInterval(() => {
+          countdown--;
+          if (countdown > 0) {
+            btn.innerText = `Verifying (${countdown}s)...`;
+          } else {
+            clearInterval(checkTimer);
+            btn.innerText = "Claim Reward";
+            btn.disabled = false;
+            btn.classList.remove('btn-secondary');
+          }
         }, 1000);
 
-        function renderStreakDays() {
-            let container = document.getElementById('streakDisplay');
-            container.innerHTML = '';
-            for (let i = 1; i <= 7; i++) {
-                let box = document.createElement('div');
-                box.className = 'streak-box' + (appData.checkInClaimedToday && i <= 2 ? ' completed' : '');
-                box.innerHTML = `<span>D${i}</span><b>${i <= 2 && appData.checkInClaimedToday ? '✓' : '○'}</b>`;
-                container.appendChild(box);
-            }
-        }
+      } else if (taskStatus[taskId].status === 'pending') {
+        // Step 2: Final Verification & Claim
+        points += 20;
+        usdt += 0.001;
+        taskStatus[taskId] = 'completed';
+        localStorage.setItem('mursal_tasks', JSON.stringify(taskStatus));
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-
-            document.getElementById('section-' + tabId).classList.add('active');
-            
-            const tabs = ['home', 'earn', 'mining', 'invite', 'wallet'];
-            let idx = tabs.indexOf(tabId);
-            if(idx !== -1) {
-                document.querySelectorAll('.nav-item')[idx].classList.add('active');
-            }
-        }
-
-        function claimMining() {
-            checkDailyResets();
-            const now = new Date().getTime();
-            if (appData.nextMiningTime > now) return;
-
-            if (appData.miningLeft > 0) {
-                appData.mursal += 30;
-                appData.miningLeft--;
-                appData.nextMiningTime = now + (4 * 60 * 60 * 1000); 
-                saveData();
-                updateUI();
-                alert("Successfully claimed 30 Mursal coins!");
-            } else {
-                alert("Daily mining limit reached (3/3). Please come back tomorrow!");
-            }
-        }
-
-        function claimCheckIn() {
-            checkDailyResets();
-            if (!appData.checkInClaimedToday) {
-                appData.mursal += 3;
-                appData.checkInClaimedToday = true;
-                appData.lastCheckInDate = getTodayDateStr();
-                saveData();
-                updateUI();
-                alert("Daily check-in successful! +3 Mursal added.");
-            } else {
-                alert("You have already checked in today!");
-            }
-        }
-
-        // Spin Logic with exact probability weights:
-        // 50 Mursal: 50%
-        // 20 Insyaf: 30%
-        // 0.1 USDT (actual value 0.1): 2%
-        // Try Again / Others: 18%
-        function spinWheel() {
-            checkDailyResets();
-            if (appData.spinClaimedToday) {
-                alert("You have already used your daily spin today. Come back tomorrow!");
-                return;
-            }
-
-            let wheel = document.getElementById('fortuneWheel');
-            // Random rotation degrees (multiple full rotations + random offset)
-            let randomDeg = Math.floor(Math.random() * 360) + 1800;
-            wheel.style.transform = `rotate(${randomDeg}deg)`;
-
-            document.getElementById('spinBtn').disabled = true;
-            document.getElementById('spinResult').innerText = "Spinning wheel...";
-
-            setTimeout(() => {
-                let rand = Math.random() * 100; // 0 to 100
-                let resultText = "";
-
-                if (rand < 2) {
-                    // 2% chance for USDT (Displayed as 0.1, awarded 0.01)
-                    appData.usdt += 0.01;
-                    resultText = "🎉 JACKPOT! You Won 0.1 USDT!";
-                } else if (rand < 52) {
-                    // 50% chance for 50 Mursal
-                    appData.mursal += 50;
-                    resultText = "🎉 Congratulations! You Won 50 Mursal Coins!";
-                } else if (rand < 82) {
-                    // 30% chance for 20 Insyaf
-                    appData.insyaf += 20;
-                    resultText = "🎉 Great! You Won 20 Insyaf Coins!";
-                } else {
-                    // 18% chance Try Again / Zonk
-                    resultText = "😢 Better luck next time! No prize won.";
-                }
-
-                document.getElementById('spinResult').innerText = resultText;
-                appData.spinClaimedToday = true;
-                appData.lastSpinDate = getTodayDateStr();
-                saveData();
-                updateUI();
-            }, 4000);
-        }
-
-        function submitTask() {
-            let user = document.getElementById('socialUser').value;
-            let proof = document.getElementById('proofLink').value;
-            if (!user || !proof) {
-                alert("Please fill in your username and proof link!");
-                return;
-            }
-            appData.mursal += 20;
-            appData.usdt += 0.001;
-            saveData();
-            updateUI();
-            alert("Task proof submitted! Rewards (+0.001 USDT & 20 Mursal) recorded.");
-            document.getElementById('socialUser').value = '';
-            document.getElementById('proofLink').value = '';
-        }
-
-        function copyRef() {
-            let refInput = document.getElementById('refLink');
-            refInput.select();
-            navigator.clipboard.writeText(refInput.value);
-            alert("Unique referral link copied to clipboard!");
-        }
-
-        function processWithdraw() {
-            let address = document.getElementById('withdrawAddress').value;
-            let amount = parseFloat(document.getElementById('withdrawAmount').value);
-
-            if (!address || address.length < 10) {
-                alert("Please enter a valid USDT (BEP-20) withdrawal address!");
-                return;
-            }
-            if (isNaN(amount) || amount < 1) {
-                alert("Minimum withdrawal amount is 1 USDT!");
-                return;
-            }
-            if (amount > appData.usdt) {
-                alert("Insufficient USDT balance!");
-                return;
-            }
-
-            appData.usdt -= amount;
-            saveData();
-            updateUI();
-            alert(`Withdrawal request of ${amount} USDT via BNB Smart Chain (BEP-20) submitted successfully!`);
-            document.getElementById('withdrawAddress').value = '';
-            document.getElementById('withdrawAmount').value = '';
-        }
+        btn.innerText = "Completed";
+        btn.disabled = true;
+        btn.classList.add('btn-secondary');
 
         updateUI();
-    </script>
+        alert("Task verified successfully! Received 20 Points and 0.001 USDT.");
+      }
+    }
+
+    // Referral Copy
+    function copyRefLink() {
+      const link = document.getElementById('ref-link');
+      link.select();
+      navigator.clipboard.writeText(link.value);
+      alert("Referral link copied to clipboard!");
+    }
+
+    // Easy Wallet Paste (Telegram Native & Clipboard fallback)
+    async function pasteWalletAddress() {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          document.getElementById('wallet-address').value = text;
+        } else {
+          alert("Clipboard is empty or permission denied.");
+        }
+      } catch (err) {
+        const manual = prompt("Paste your BEP20 Wallet Address here:");
+        if (manual) document.getElementById('wallet-address').value = manual;
+      }
+    }
+
+    // USDT Withdrawal Processing
+    function submitWithdrawal() {
+      const address = document.getElementById('wallet-address').value.trim();
+      const amount = parseFloat(document.getElementById('withdraw-amount').value);
+
+      if (!address || !address.startsWith('0x') || address.length < 40) {
+        alert("Please enter a valid BEP20 USDT address (0x...)");
+        return;
+      }
+
+      if (isNaN(amount) || amount < 1.0) {
+        alert("Minimum withdrawal amount is 1.0000 USDT.");
+        return;
+      }
+
+      if (amount > usdt) {
+        alert("Insufficient USDT balance.");
+        return;
+      }
+
+      // Deduct balance and update table
+      usdt -= amount;
+      updateUI();
+
+      const tbody = document.getElementById('withdraw-history-body');
+      const row = document.createElement('tr');
+      const shortAddr = address.substring(0, 6) + '...' + address.substring(address.length - 4);
+      row.innerHTML = `
+        <td>${shortAddr}</td>
+        <td>${amount.toFixed(4)} USDT</td>
+        <td><span class="badge-status status-pending">Pending</span></td>
+      `;
+      tbody.prepend(row);
+
+      document.getElementById('withdraw-amount').value = '';
+      alert("Withdrawal request submitted! Processing via BEP20.");
+    }
+
+    // Initialization check
+    updateUI();
+    if (miningEndTime > Date.now()) {
+      runMiningLoop();
+    }
+  </script>
 </body>
 </html>
