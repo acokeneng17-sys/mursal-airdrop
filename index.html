@@ -148,7 +148,7 @@
       color: var(--candle-green);
     }
 
-    /* Scrollable Container */
+    /* Scrollable Content */
     main {
       flex: 1;
       overflow-y: auto;
@@ -253,6 +253,7 @@
     .btn-blue {
       background: linear-gradient(135deg, #29b6f6, #0288d1);
       color: #fff;
+      margin-top: 8px;
     }
 
     .btn-action-small {
@@ -262,7 +263,7 @@
       border-radius: 6px;
     }
 
-    /* Daily Streaks */
+    /* Streaks */
     .streak-container {
       display: flex;
       gap: 6px;
@@ -293,7 +294,7 @@
     .streak-day { font-size: 9px; color: var(--text-sub); }
     .streak-pts { font-size: 10px; font-weight: bold; color: var(--gold-glow); margin-top: 2px; }
 
-    /* Mining */
+    /* Mining Display */
     .mining-display {
       text-align: center;
       padding: 10px 0;
@@ -308,7 +309,7 @@
       margin: 6px 0;
     }
 
-    /* Task List */
+    /* Tasks */
     .task-row {
       display: flex;
       justify-content: space-between;
@@ -410,7 +411,7 @@
     .badge.confirmed { background: rgba(0, 230, 118, 0.2); color: var(--candle-green); }
     .badge.rejected { background: rgba(255, 51, 102, 0.2); color: var(--admin-red); }
 
-    /* Admin Dashboard Cards */
+    /* Admin Panel Dashboard */
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -437,7 +438,7 @@
       margin-top: 4px;
     }
 
-    /* Navigation */
+    /* Bottom Navigation Bar */
     nav {
       position: fixed;
       bottom: 0;
@@ -472,7 +473,7 @@
 
     .nav-item.admin-tab {
       color: var(--admin-red);
-      display: none;
+      display: none; /* Strictly hidden until authenticated */
     }
 
     .nav-item.admin-tab.active {
@@ -483,7 +484,7 @@
       font-size: 18px;
     }
 
-    /* Modal */
+    /* Backdoor Modal */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -546,7 +547,7 @@
       <div class="card" style="padding: 10px;">
         <div class="coin-viewport" id="coin-viewport">
           <canvas id="three-canvas"></canvas>
-          <div class="tap-hint">Interactive 3D Coin • Drag to rotate</div>
+          <div class="tap-hint">Interactive 3D $MURSAL • Drag to rotate</div>
         </div>
       </div>
 
@@ -589,7 +590,7 @@
       <div class="card">
         <h3>Your Referral Link (+50 PTS / Friend)</h3>
         <p style="font-size:11px; color:var(--text-sub); margin-bottom: 10px;">
-          Invite friends to earn 50 $MURSAL points instantly when they launch the app!
+          Invite friends to earn 50 $MURSAL points instantly when they open your direct link!
         </p>
         <div class="field-group">
           <input type="text" id="ref-link" class="input-box" readonly />
@@ -695,7 +696,7 @@
         <input type="hidden" id="task-edit-id" value="" />
         <div class="field-group">
           <label>Task Title</label>
-          <input type="text" id="task-title-input" class="input-box" placeholder="e.g. Join Community Chat" />
+          <input type="text" id="task-title-input" class="input-box" placeholder="e.g. Join Official Telegram" />
         </div>
         <div class="field-group">
           <label>Target URL</label>
@@ -761,7 +762,7 @@
   <!-- Navigation -->
   <nav>
     <button class="nav-item active" onclick="switchNav('mine', this)">
-      <span class="nav-icon">⛏️️</span>
+      <span class="nav-icon">⛏️</span>
       <span>Mine</span>
     </button>
     <button class="nav-item" onclick="switchNav('tasks', this)">
@@ -815,7 +816,8 @@
        ========================================================= */
     const AUTHORIZED_ADMIN_BOT_ID = "7797850782";
     const MASTER_PIN = "1234";
-    const BOT_USERNAME = "ast2komunitasmining_bot";
+    // Direct Mini App URL format resmi Telegram
+    const DIRECT_APP_URL = "https://t.me/playmursalairdrop_bot/miningon_bot";
 
     const tg = window.Telegram?.WebApp;
     if (tg) {
@@ -823,7 +825,7 @@
       tg.ready();
     }
 
-    // Determine persistent User ID
+    // Mendapatkan ID Telegram resmi member atau fallback ID unik lokal
     let currentUserId = tg?.initDataUnsafe?.user?.id?.toString();
     if (!currentUserId) {
       currentUserId = localStorage.getItem('mursal_saved_uid');
@@ -833,7 +835,6 @@
       }
     }
 
-    // Load or initialize persistent database
     function getStoredData(key, defaultVal) {
       const saved = localStorage.getItem(`${key}_${currentUserId}`);
       return saved !== null ? JSON.parse(saved) : defaultVal;
@@ -856,23 +857,27 @@
       withdrawals: getStoredData('mursal_withdrawals', [])
     };
 
-    // Global Task Pool (Shared)
+    // Global Task Pool
     let globalTasks = JSON.parse(localStorage.getItem('mursal_global_tasks')) || [
-      { id: 1, title: 'Join Official Telegram Community', rewardPts: 20, rewardUsdt: 0.001, url: 'https://t.me/ast2komunitasmining_bot' },
+      { id: 1, title: 'Join Official Telegram Community', rewardPts: 20, rewardUsdt: 0.001, url: 'https://t.me/playmursalairdrop_bot' },
       { id: 2, title: 'Follow $MURSAL on Twitter / X', rewardPts: 20, rewardUsdt: 0.001, url: 'https://twitter.com' },
       { id: 3, title: 'Subscribe Official YouTube Channel', rewardPts: 20, rewardUsdt: 0.001, url: 'https://youtube.com' }
     ];
 
     /* =========================================================
-       2. REFERRAL LINK ENGINE
+       2. REFERRAL LINK ENGINE (DIRECT MINI APP URL)
        ========================================================= */
     function initReferralSystem() {
-      const myRefLink = `https://t.me/${BOT_USERNAME}?start=ref_${state.uid}`;
-      document.getElementById('ref-link').value = myRefLink;
+      // Membuat link referral dinamis menggunakan format ?startapp=ref_ID
+      const myRefLink = `${DIRECT_APP_URL}?startapp=ref_${state.uid}`;
+      const refInput = document.getElementById('ref-link');
+      if (refInput) {
+        refInput.value = myRefLink;
+      }
 
-      // Check if user came from a referrer
+      // Deteksi parameter undangan saat user lain membuka link
       const urlParams = new URLSearchParams(window.location.search);
-      let referrer = urlParams.get('start') || tg?.initDataUnsafe?.start_param || "";
+      let referrer = tg?.initDataUnsafe?.start_param || urlParams.get('startapp') || urlParams.get('start') || "";
 
       if (referrer.startsWith('ref_')) {
         const inviterId = referrer.replace('ref_', '');
@@ -881,12 +886,12 @@
         if (!alreadyReferred && inviterId !== state.uid) {
           localStorage.setItem(`mursal_referred_by_${state.uid}`, inviterId);
 
-          // Give +50 reward to the inviter
+          // Tambah +50 Poin ke saldo pengundang
           let inviterPts = parseFloat(localStorage.getItem(`mursal_pts_${inviterId}`)) || 0;
           inviterPts += 50;
           localStorage.setItem(`mursal_pts_${inviterId}`, inviterPts);
 
-          // Add to inviter's referral history
+          // Simpan ke riwayat referral pengundang
           let inviterRefs = JSON.parse(localStorage.getItem(`mursal_referrals_${inviterId}`)) || [];
           inviterRefs.unshift({
             uid: `@${state.uid}`,
@@ -902,12 +907,13 @@
       const el = document.getElementById('ref-link');
       el.select();
       navigator.clipboard.writeText(el.value);
-      alert("Referral link copied!");
+      alert("Referral link copied to clipboard!");
     }
 
     function shareRefOnTelegram() {
       const link = document.getElementById('ref-link').value;
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("Join $MURSAL Airdrop and Mine free crypto points now!")}`;
+      const shareText = "Join $MURSAL Airdrop, mine free crypto points & USDT on Telegram now!";
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
       if (tg?.openTelegramLink) {
         tg.openTelegramLink(shareUrl);
       } else {
@@ -1028,9 +1034,8 @@
       document.getElementById('ui-usdt').innerText = state.usdt.toFixed(4);
       document.getElementById('ui-streak-day').innerText = `Day ${state.streakDay} of 30`;
       document.getElementById('ui-checkin-val').innerText = state.streakDay * 10;
-      document.getElementById('user-display-tag').innerText = `ID: #${state.uid.substring(0, 10)}`;
+      document.getElementById('user-display-tag').innerText = `User ID: #${state.uid.substring(0, 10)}`;
 
-      // Save user persistent state
       localStorage.setItem(`mursal_pts_${state.uid}`, state.points);
       localStorage.setItem(`mursal_usdt_${state.uid}`, state.usdt);
       localStorage.setItem(`mursal_streak_${state.uid}`, state.streakDay);
@@ -1381,7 +1386,6 @@
       }
 
       if (editId) {
-        // Edit existing task
         const task = globalTasks.find(t => t.id == editId);
         if (task) {
           task.title = title;
@@ -1391,7 +1395,6 @@
         }
         adminCancelEditTask();
       } else {
-        // Create new task
         globalTasks.push({
           id: Date.now(),
           title: title,
@@ -1457,7 +1460,7 @@
       const item = state.withdrawals.find(w => w.id === id);
       if (item) {
         item.status = 'rejected';
-        state.usdt += item.amount; // Refund to balance
+        state.usdt += item.amount;
         syncUI();
       }
     }
