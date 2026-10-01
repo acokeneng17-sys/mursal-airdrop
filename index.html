@@ -2,700 +2,1268 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>$MURSAL Mini App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>$MURSAL Mini App - 3D Airdrop & Mining</title>
+
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Three.js 3D Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <style>
     :root {
-      --bg-color: #0b0c10;
-      --card-bg: #15181e;
-      --gold-main: #d4af37;
-      --gold-light: #f7d070;
-      --text-color: #e0e0e0;
-      --text-muted: #8c93a0;
-      --green-candle: #26a69a;
-      --border-color: #2b303c;
+      --bg-dark: #07090c;
+      --card-bg: rgba(18, 22, 30, 0.82);
+      --gold-primary: #e5b93b;
+      --gold-glow: #ffdf6d;
+      --gold-dark: #8c6a12;
+      --candle-green: #00e676;
+      --border-color: rgba(229, 185, 59, 0.22);
+      --text-main: #f0f3f8;
+      --text-sub: #8d98aa;
+      --admin-red: #ff3366;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(229, 185, 59, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 80% 90%, rgba(0, 230, 118, 0.04) 0%, transparent 50%);
+      color: var(--text-main);
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 100vh;
       overflow: hidden;
     }
 
-    /* Header Profile & Balances */
-    header {
-      padding: 16px;
-      background: linear-gradient(180deg, rgba(212, 175, 55, 0.1) 0%, rgba(21, 24, 30, 0) 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-logo {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      border: 2px solid var(--gold-main);
-      box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-      object-fit: cover;
-    }
-
-    .balance-card {
-      display: flex;
-      gap: 20px;
-      background: var(--card-bg);
-      padding: 10px 20px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-    }
-
-    .bal-item {
-      text-align: center;
-    }
-
-    .bal-item span {
+    /* Broadcast Bar */
+    #broadcast-ticker {
+      background: linear-gradient(90deg, #1f1704, #362908, #1f1704);
+      border-bottom: 1px solid var(--border-color);
+      color: var(--gold-glow);
       font-size: 11px;
-      color: var(--text-muted);
+      padding: 4px 10px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* Header */
+    header {
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(10, 12, 16, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: radial-gradient(circle, var(--gold-glow), var(--gold-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: 900;
+      font-size: 14px;
+      box-shadow: 0 0 10px rgba(229, 185, 59, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--gold-primary);
+    }
+
+    .brand-text span {
+      font-size: 10px;
+      color: var(--text-sub);
+    }
+
+    .admin-status-badge {
+      display: none;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: rgba(255, 51, 102, 0.15);
+      border: 1px solid var(--admin-red);
+      color: var(--admin-red);
+      font-weight: 700;
+    }
+
+    /* Balances Summary */
+    .balance-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 10px 16px 4px 16px;
+    }
+
+    .bal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 8px 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .bal-card span {
+      font-size: 10px;
+      color: var(--text-sub);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
-    .bal-item h3 {
+    .bal-card h2 {
       font-size: 18px;
-      color: var(--gold-light);
+      color: var(--gold-primary);
       margin-top: 2px;
     }
 
-    .bal-item h3.usdt-val {
-      color: var(--green-candle);
+    .bal-card.usdt h2 {
+      color: var(--candle-green);
     }
 
-    /* Main Container Views */
+    /* Scrollable Container */
     main {
       flex: 1;
       overflow-y: auto;
-      padding: 16px;
-      padding-bottom: 80px;
+      padding: 10px 16px 85px 16px;
     }
 
-    .tab-view {
+    .tab-content {
       display: none;
     }
 
-    .tab-view.active {
+    .tab-content.active {
       display: block;
-      animation: fadeIn 0.25s ease-in-out;
+      animation: fadeIn 0.2s ease-out;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .card {
-      background-color: var(--card-bg);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
       border-radius: 14px;
       padding: 16px;
-      border: 1px solid var(--border-color);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
 
-    .card h4 {
-      margin-bottom: 12px;
-      color: var(--gold-main);
+    .card h3 {
+      font-size: 14px;
+      color: var(--gold-primary);
+      margin-bottom: 10px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 3D Coin Canvas Box */
+    .coin-viewport {
+      width: 100%;
+      height: 190px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    #three-canvas {
+      width: 100% !important;
+      height: 100% !important;
+      outline: none;
+    }
+
+    .tap-hint {
+      position: absolute;
+      bottom: 4px;
+      font-size: 10px;
+      color: var(--text-sub);
+      letter-spacing: 0.5px;
+      background: rgba(0,0,0,0.5);
+      padding: 2px 8px;
+      border-radius: 10px;
     }
 
     /* Buttons */
     .btn {
-      background: linear-gradient(135deg, var(--gold-main), #aa820a);
-      color: #0b0c10;
-      border: none;
-      padding: 12px 18px;
-      font-weight: 700;
-      border-radius: 10px;
-      cursor: pointer;
       width: 100%;
-      text-align: center;
-      transition: opacity 0.2s;
+      padding: 13px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      background: linear-gradient(135deg, var(--gold-glow), var(--gold-dark));
+      color: #0b0c10;
+      box-shadow: 0 0 15px rgba(229, 185, 59, 0.3);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
     }
 
     .btn:disabled {
-      opacity: 0.45;
+      opacity: 0.4;
+      filter: grayscale(1);
       cursor: not-allowed;
+      box-shadow: none;
     }
 
-    .btn-secondary {
-      background: #20242d;
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
+    .btn-admin {
+      background: linear-gradient(135deg, #ff4d6d, #800f2f);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(255, 77, 109, 0.4);
     }
 
-    /* Mining Progress Circle / Box */
-    .mining-box {
+    .btn-action-small {
+      width: auto;
+      padding: 6px 12px;
+      font-size: 11px;
+      border-radius: 6px;
+    }
+
+    /* Daily Streaks Strip */
+    .streak-container {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .streak-box {
+      min-width: 48px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 6px 2px;
       text-align: center;
-      padding: 24px 10px;
     }
 
-    .mining-timer {
+    .streak-box.done {
+      border-color: var(--candle-green);
+      background: rgba(0, 230, 118, 0.08);
+    }
+
+    .streak-box.current {
+      border-color: var(--gold-primary);
+      background: rgba(229, 185, 59, 0.15);
+    }
+
+    .streak-day { font-size: 9px; color: var(--text-sub); }
+    .streak-pts { font-size: 10px; font-weight: bold; color: var(--gold-glow); margin-top: 2px; }
+
+    /* Mining Countdown */
+    .mining-display {
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    .timer-text {
       font-size: 26px;
-      font-weight: bold;
-      color: var(--gold-light);
-      margin: 10px 0;
-      letter-spacing: 1px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--gold-glow);
+      text-shadow: 0 0 15px rgba(229, 185, 59, 0.4);
+      margin: 6px 0;
     }
 
-    /* Task List */
-    .task-item {
+    /* Tasks */
+    .task-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border-color);
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .task-item:last-child {
+    .task-row:last-child {
       border-bottom: none;
     }
 
-    .task-meta p {
-      font-size: 14px;
+    .task-info h4 {
+      font-size: 13px;
       font-weight: 600;
     }
 
-    .task-meta span {
-      font-size: 12px;
-      color: var(--green-candle);
+    .task-info p {
+      font-size: 11px;
+      color: var(--candle-green);
+      margin-top: 2px;
     }
 
-    .btn-task {
-      padding: 6px 14px;
-      font-size: 12px;
-      width: auto;
-      border-radius: 6px;
-    }
-
-    /* Wallet Form */
-    .input-group {
+    /* Inputs */
+    .field-group {
       position: relative;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
-    .input-group label {
+    .field-group label {
       display: block;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-bottom: 4px;
     }
 
-    .input-field {
+    .input-box {
       width: 100%;
-      padding: 12px 70px 12px 12px;
-      background: #0e1014;
+      background: #090b0e;
       border: 1px solid var(--border-color);
       border-radius: 8px;
+      padding: 10px 65px 10px 10px;
       color: #fff;
-      font-size: 14px;
+      font-size: 13px;
     }
 
-    .paste-btn {
+    .input-box:focus {
+      outline: none;
+      border-color: var(--gold-glow);
+    }
+
+    .btn-paste {
       position: absolute;
-      right: 8px;
+      right: 6px;
       bottom: 6px;
-      padding: 6px 10px;
-      background: var(--gold-main);
-      color: #000;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
+      background: var(--gold-primary);
       border: none;
+      color: #000;
+      padding: 5px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
-    /* Data Tables */
-    .table-container {
+    /* Tables */
+    .table-wrap {
       overflow-x: auto;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 12px;
-      text-align: left;
+      font-size: 11px;
     }
 
     th {
-      background: #101217;
-      color: var(--text-muted);
-      padding: 10px 8px;
+      text-align: left;
+      padding: 8px 6px;
+      color: var(--text-sub);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     td {
-      padding: 10px 8px;
-      border-bottom: 1px solid var(--border-color);
+      padding: 8px 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
 
-    .badge-status {
-      padding: 3px 6px;
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
       border-radius: 4px;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: bold;
     }
 
-    .status-completed { background: rgba(38, 166, 154, 0.2); color: #26a69a; }
-    .status-pending { background: rgba(212, 175, 55, 0.2); color: #d4af37; }
+    .badge.pending { background: rgba(229, 185, 59, 0.2); color: var(--gold-primary); }
+    .badge.confirmed { background: rgba(0, 230, 118, 0.2); color: var(--candle-green); }
+    .badge.rejected { background: rgba(255, 51, 102, 0.2); color: var(--admin-red); }
 
-    /* Bottom Navigation Bar */
+    /* Navigation Bar */
     nav {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      height: 65px;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border-color);
+      height: 64px;
+      background: rgba(14, 17, 24, 0.92);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
       display: flex;
       justify-content: space-around;
       align-items: center;
       z-index: 100;
     }
 
-    .nav-btn {
+    .nav-item {
       background: none;
       border: none;
-      color: var(--text-muted);
+      color: var(--text-sub);
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-size: 11px;
-      gap: 4px;
+      gap: 3px;
+      font-size: 10px;
       cursor: pointer;
+      position: relative;
     }
 
-    .nav-btn.active {
-      color: var(--gold-main);
+    .nav-item.active {
+      color: var(--gold-primary);
       font-weight: bold;
+    }
+
+    .nav-item.admin-tab {
+      color: var(--admin-red);
+      display: none; /* Strictly hidden until authenticated */
+    }
+
+    .nav-item.admin-tab.active {
+      color: #ff6b8b;
     }
 
     .nav-icon {
       font-size: 18px;
     }
+
+    /* Backdoor Pin Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 999;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-box {
+      background: #151821;
+      border: 1px solid var(--admin-red);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 330px;
+      padding: 18px;
+      box-shadow: 0 0 30px rgba(255, 51, 102, 0.25);
+    }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Top Announcement Bar -->
+  <div id="broadcast-ticker">
+    ⚡ Welcome to $MURSAL Airdrop: Mine points & prepare for listing distribution!
+  </div>
+
+  <!-- App Header -->
   <header>
-    <img src="mursal_logo.png" alt="$MURSAL Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/80/15181e/d4af37?text=MURSAL'" />
-    <div class="balance-card">
-      <div class="bal-item">
-        <span>$MURSAL Points</span>
-        <h3 id="display-points">0</h3>
-      </div>
-      <div class="bal-item">
-        <span>USDT Balance</span>
-        <h3 class="usdt-val" id="display-usdt">0.0000</h3>
+    <div class="brand" id="brand-trigger" onclick="handleBrandTap()">
+      <div class="brand-icon">$M</div>
+      <div class="brand-text">
+        <h1>$MURSAL AIRDROP</h1>
+        <span>Official Community Hub</span>
       </div>
     </div>
+    <div class="admin-status-badge" id="admin-badge">ROOT ADMIN</div>
   </header>
+
+  <!-- Live Balances -->
+  <div class="balance-bar">
+    <div class="bal-card">
+      <span>$MURSAL Points</span>
+      <h2 id="ui-pts">0</h2>
+    </div>
+    <div class="bal-card usdt">
+      <span>USDT Balance</span>
+      <h2 id="ui-usdt">0.0000</h2>
+    </div>
+  </div>
 
   <!-- Main Viewports -->
   <main>
-    <!-- TAB 1: MINING & CHECKIN -->
-    <section id="view-mine" class="tab-view active">
-      <div class="card">
-        <h4>Daily Check-in <span id="streak-info">Day 1</span></h4>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          Claim daily rewards. Points increase daily up to Day 30!
-        </p>
-        <button class="btn" id="checkin-btn" onclick="claimDaily()">Claim Daily Points (+<span id="checkin-reward">10</span>)</button>
+    <!-- TAB 1: MINE & STREAK -->
+    <section id="tab-mine" class="tab-content active">
+      <!-- 3D Gold Coin Viewport -->
+      <div class="card" style="padding: 10px;">
+        <div class="coin-viewport" id="coin-viewport">
+          <canvas id="three-canvas"></canvas>
+          <div class="tap-hint">Tap coin for feedback & spin</div>
+        </div>
       </div>
 
-      <div class="card mining-box">
-        <h4>4-Hour Mining Engine</h4>
-        <p style="font-size: 13px; color: var(--text-muted);">Activate rig every 4 hours to receive 20 $MURSAL Points.</p>
-        <div class="mining-timer" id="mining-timer">04:00:00</div>
-        <button class="btn" id="mining-btn" onclick="startMining()">Start Mining (20 Points)</button>
+      <!-- Daily Streak -->
+      <div class="card">
+        <h3>
+          Daily Attendance
+          <span id="ui-streak-day" style="font-size:11px; color:var(--text-sub);">Day 1 of 30</span>
+        </h3>
+        <div class="streak-container" id="streak-strip"></div>
+        <button class="btn" id="btn-checkin" onclick="claimDailyAttendance()">
+          Claim Today (+<span id="ui-checkin-val">10</span> Points)
+        </button>
+      </div>
+
+      <!-- 4h Mining Station -->
+      <div class="card">
+        <h3>4-Hour Core Mining Station</h3>
+        <div class="mining-display">
+          <p style="font-size:12px; color:var(--text-sub);">Mine 20 $MURSAL points every 4-hour cycle</p>
+          <div class="timer-text" id="mining-clock">04:00:00</div>
+        </div>
+        <button class="btn" id="btn-mining" onclick="triggerMining()">Start Mining Engine (+20 PTS)</button>
       </div>
     </section>
 
     <!-- TAB 2: TASKS -->
-    <section id="view-tasks" class="tab-view">
+    <section id="tab-tasks" class="tab-content">
       <div class="card">
-        <h4>Available Tasks</h4>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
-          Reward per task: <strong>+20 Points & +0.001 USDT</strong>. Verification verification delay applies to prevent fraud.
+        <h3>Community Tasks</h3>
+        <p style="font-size:11px; color:var(--text-sub); margin-bottom: 12px;">
+          Complete verified missions. 15-second fraud prevention lock enforced before claiming.
         </p>
-
-        <div class="task-item">
-          <div class="task-meta">
-            <p>Join Official Telegram Channel</p>
-            <span>+20 Points, +0.001 USDT</span>
-          </div>
-          <button class="btn btn-task" id="task-btn-1" onclick="performTask(1, 'https://t.me/MursalOfficial')">Start</button>
-        </div>
-
-        <div class="task-item">
-          <div class="task-meta">
-            <p>Follow Twitter / X</p>
-            <span>+20 Points, +0.001 USDT</span>
-          </div>
-          <button class="btn btn-task" id="task-btn-2" onclick="performTask(2, 'https://twitter.com')">Start</button>
-        </div>
-
-        <div class="task-item">
-          <div class="task-meta">
-            <p>Subscribe YouTube Channel</p>
-            <span>+20 Points, +0.001 USDT</span>
-          </div>
-          <button class="btn btn-task" id="task-btn-3" onclick="performTask(3, 'https://youtube.com')">Start</button>
-        </div>
+        <div id="tasks-list"></div>
       </div>
     </section>
 
-    <!-- TAB 3: REFERRAL -->
-    <section id="view-referral" class="tab-view">
+    <!-- TAB 3: FRIENDS -->
+    <section id="tab-friends" class="tab-content">
       <div class="card">
-        <h4>Invite Friends</h4>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          Earn <strong>50 Points</strong> for every qualified invited friend!
+        <h3>Referral Link (+50 PTS / Invite)</h3>
+        <p style="font-size:11px; color:var(--text-sub); margin-bottom: 10px;">
+          Share your custom link to earn 50 points per active recruit.
         </p>
-        <div class="input-group">
-          <input type="text" class="input-field" id="ref-link" readonly value="https://t.me/ast2komunitasmining_bot?start=ref_user123" />
-          <button class="paste-btn" onclick="copyRefLink()">Copy</button>
+        <div class="field-group">
+          <input type="text" id="ref-link" class="input-box" readonly value="https://t.me/ast2komunitasmining_bot?start=ref_7797850782" />
+          <button class="btn-paste" onclick="copyRefLink()">COPY</button>
         </div>
       </div>
 
       <div class="card">
-        <h4>Referral Records</h4>
-        <div class="table-container">
+        <h3>Referral History (<span id="ref-count">2</span> Friends)</h3>
+        <div class="table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>User</th>
-                <th>Reward</th>
-                <th>Date</th>
-              </tr>
+              <tr><th>Username</th><th>Reward</th><th>Date</th></tr>
             </thead>
-            <tbody id="ref-history-body">
-              <tr>
-                <td>@crypto_warrior</td>
-                <td>+50 Pts</td>
-                <td>2026-09-25</td>
-              </tr>
-              <tr>
-                <td>@web3_hunter</td>
-                <td>+50 Pts</td>
-                <td>2026-09-26</td>
-              </tr>
+            <tbody id="ref-tbody">
+              <tr><td>@crypto_warrior</td><td>+50 PTS</td><td>2026-09-28</td></tr>
+              <tr><td>@web3_enthusiast</td><td>+50 PTS</td><td>2026-09-29</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- TAB 4: WALLET & WITHDRAW -->
-    <section id="view-wallet" class="tab-view">
+    <!-- TAB 4: WALLET -->
+    <section id="tab-wallet" class="tab-content">
       <div class="card">
-        <h4>$MURSAL Listing Airdrop</h4>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
-          Total accrued points will be converted to <strong>$MURSAL Token</strong> upon public DEX/CEX listing. Keep mining and holding points.
+        <h3>$MURSAL Listing Allocation</h3>
+        <p style="font-size:12px; color:var(--text-sub); line-height: 1.4;">
+          Your accumulated points will be directly converted into official <strong>$MURSAL</strong> tokens upon DEX/CEX listing. Keep mining and completing tasks!
         </p>
       </div>
 
       <div class="card">
-        <h4>Withdraw USDT (BEP20)</h4>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+        <h3>Withdraw USDT (BEP-20)</h3>
+        <p style="font-size:11px; color:var(--text-sub); margin-bottom: 10px;">
           Minimum withdrawal: <strong>1.0000 USDT</strong>
         </p>
 
-        <div class="input-group">
-          <label>BEP20 Wallet Address</label>
-          <input type="text" id="wallet-address" class="input-field" placeholder="0x..." />
-          <button class="paste-btn" onclick="pasteWalletAddress()">Paste</button>
+        <div class="field-group">
+          <label>USDT BEP-20 Address</label>
+          <input type="text" id="withdraw-addr" class="input-box" placeholder="0x..." />
+          <button class="btn-paste" onclick="pasteClipboardTo('withdraw-addr')">PASTE</button>
         </div>
 
-        <div class="input-group">
+        <div class="field-group">
           <label>Withdrawal Amount (USDT)</label>
-          <input type="number" id="withdraw-amount" class="input-field" placeholder="Min. 1.0" step="0.001" />
+          <input type="number" id="withdraw-val" class="input-box" placeholder="Min. 1.0000" step="0.001" />
         </div>
 
-        <button class="btn" onclick="submitWithdrawal()">Request Withdrawal</button>
+        <button class="btn" onclick="submitWithdraw()">Confirm USDT Withdrawal</button>
       </div>
 
       <div class="card">
-        <h4>Withdrawal History</h4>
-        <div class="table-container">
+        <h3>Withdrawal History</h3>
+        <div class="table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>Address</th>
-                <th>Amount</th>
-                <th>Status</th>
-              </tr>
+              <tr><th>Address</th><th>Amount</th><th>Status</th></tr>
             </thead>
-            <tbody id="withdraw-history-body">
-              <tr>
-                <td>0x81b...4a12</td>
-                <td>1.5 USDT</td>
-                <td><span class="badge-status status-completed">Completed</span></td>
-              </tr>
-            </tbody>
+            <tbody id="withdraw-tbody"></tbody>
           </table>
         </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: ADMIN PANEL (HIDDEN BY DEFAULT) -->
+    <section id="tab-admin" class="tab-content">
+      <div class="card" style="border-color: var(--admin-red);">
+        <h3 style="color: var(--admin-red);">Admin Master Console</h3>
+        <p style="font-size:11px; color:var(--text-sub); margin-bottom: 10px;">
+          Authorized Admin ID: <strong>7797850782</strong>
+        </p>
+
+        <div class="field-group">
+          <label>Broadcast Marquee Announcement</label>
+          <input type="text" id="admin-broadcast-input" class="input-box" placeholder="Update live marquee..." />
+        </div>
+        <button class="btn btn-admin btn-action-small" onclick="adminSetBroadcast()">Push Broadcast</button>
+      </div>
+
+      <!-- Add New Task -->
+      <div class="card" style="border-color: var(--admin-red);">
+        <h3 style="color: var(--admin-red);">Add New Task</h3>
+        <div class="field-group">
+          <label>Task Title</label>
+          <input type="text" id="task-title-input" class="input-box" placeholder="e.g. Retweet Announcement" />
+        </div>
+        <div class="field-group">
+          <label>Target URL</label>
+          <input type="text" id="task-url-input" class="input-box" placeholder="https://..." />
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+          <div class="field-group">
+            <label>Points Reward</label>
+            <input type="number" id="task-pts-input" class="input-box" value="20" />
+          </div>
+          <div class="field-group">
+            <label>USDT Reward</label>
+            <input type="number" id="task-usdt-input" class="input-box" value="0.001" step="0.001" />
+          </div>
+        </div>
+        <button class="btn btn-admin" onclick="adminAddTask()">Create Task</button>
+      </div>
+
+      <!-- Withdrawal Approvals -->
+      <div class="card" style="border-color: var(--admin-red);">
+        <h3 style="color: var(--admin-red);">Withdrawal Approvals</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Address</th><th>Amount</th><th>Action</th></tr>
+            </thead>
+            <tbody id="admin-withdraw-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Balance Override -->
+      <div class="card" style="border-color: var(--admin-red);">
+        <h3 style="color: var(--admin-red);">Override User Balance (Testing)</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+          <div class="field-group">
+            <label>Points</label>
+            <input type="number" id="admin-set-pts" class="input-box" />
+          </div>
+          <div class="field-group">
+            <label>USDT</label>
+            <input type="number" id="admin-set-usdt" class="input-box" step="0.1" />
+          </div>
+        </div>
+        <button class="btn btn-admin btn-action-small" onclick="adminOverrideBalances()">Update Balance</button>
       </div>
     </section>
   </main>
 
   <!-- Navigation -->
   <nav>
-    <button class="nav-btn active" onclick="switchTab('mine', this)">
+    <button class="nav-item active" onclick="switchNav('mine', this)">
       <span class="nav-icon">⛏️</span>
       <span>Mine</span>
     </button>
-    <button class="nav-btn" onclick="switchTab('tasks', this)">
+    <button class="nav-item" onclick="switchNav('tasks', this)">
       <span class="nav-icon">📋</span>
       <span>Tasks</span>
     </button>
-    <button class="nav-btn" onclick="switchTab('referral', this)">
+    <button class="nav-item" onclick="switchNav('friends', this)">
       <span class="nav-icon">👥</span>
       <span>Friends</span>
     </button>
-    <button class="nav-btn" onclick="switchTab('wallet', this)">
+    <button class="nav-item" onclick="switchNav('wallet', this)">
       <span class="nav-icon">💼</span>
       <span>Wallet</span>
     </button>
+    <!-- Hidden Admin Button -->
+    <button class="nav-item admin-tab" id="admin-nav-item" onclick="switchNav('admin', this)">
+      <span class="nav-icon">🛡️</span>
+      <span>Admin</span>
+    </button>
   </nav>
 
+  <!-- Hidden Backdoor Modal -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="modal-box">
+      <h3 style="color: var(--admin-red); font-size:14px; margin-bottom:8px;">Root Clearance Login</h3>
+      <p style="font-size:11px; color:var(--text-sub); margin-bottom: 12px;">
+        Provide Authorized Admin Bot ID or Master Wallet
+      </p>
+
+      <div class="field-group">
+        <label>Admin ID / Master Wallet</label>
+        <input type="text" id="admin-id-input" class="input-box" placeholder="e.g. 7797850782" />
+        <button class="btn-paste" onclick="pasteClipboardTo('admin-id-input')">PASTE</button>
+      </div>
+
+      <div class="field-group">
+        <label>Security PIN (Default: 1234)</label>
+        <input type="password" id="admin-pin-input" class="input-box" placeholder="PIN..." />
+      </div>
+
+      <div style="display:flex; gap: 8px; margin-top: 14px;">
+        <button class="btn" style="background:#222; color:#bbb;" onclick="closeAdminModal()">Cancel</button>
+        <button class="btn btn-admin" onclick="verifyAdminClearance()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Initialize WebApp
+    /* =========================================================
+       1. APP CONFIGURATION & STATE
+       ========================================================= */
+    const AUTHORIZED_ADMIN_BOT_ID = "7797850782";
+    const MASTER_PIN = "1234";
+
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.expand();
       tg.ready();
     }
 
-    // App State
-    let points = parseFloat(localStorage.getItem('mursal_pts')) || 0;
-    let usdt = parseFloat(localStorage.getItem('mursal_usdt')) || 0.0000;
-    let checkinDay = parseInt(localStorage.getItem('mursal_streak')) || 1;
-    let lastCheckinTime = parseInt(localStorage.getItem('mursal_last_checkin')) || 0;
-    let miningEndTime = parseInt(localStorage.getItem('mursal_mining_end')) || 0;
+    let state = {
+      points: parseFloat(localStorage.getItem('mursal_pts')) || 0,
+      usdt: parseFloat(localStorage.getItem('mursal_usdt')) || 0.0000,
+      streakDay: parseInt(localStorage.getItem('mursal_streak')) || 1,
+      lastCheckinTime: parseInt(localStorage.getItem('mursal_last_checkin')) || 0,
+      miningEndTime: parseInt(localStorage.getItem('mursal_mining_end')) || 0,
+      isAdmin: localStorage.getItem('mursal_is_admin') === 'true',
+      tasks: JSON.parse(localStorage.getItem('mursal_task_list')) || [
+        { id: 1, title: 'Join Official Telegram Community', rewardPts: 20, rewardUsdt: 0.001, url: 'https://t.me/ast2komunitasmining_bot', status: 'idle' },
+        { id: 2, title: 'Follow $MURSAL on Twitter / X', rewardPts: 20, rewardUsdt: 0.001, url: 'https://twitter.com', status: 'idle' },
+        { id: 3, title: 'Subscribe Official YouTube Channel', rewardPts: 20, rewardUsdt: 0.001, url: 'https://youtube.com', status: 'idle' }
+      ],
+      withdrawals: JSON.parse(localStorage.getItem('mursal_withdraw_list')) || []
+    };
 
-    // Task Fraud Prevention: stores task initiation timestamps
-    const taskStatus = JSON.parse(localStorage.getItem('mursal_tasks') || '{}');
+    /* =========================================================
+       2. THREE.JS 3D GOLD COIN RENDERER
+       ========================================================= */
+    let scene, camera, renderer, coinGroup;
 
-    function updateUI() {
-      document.getElementById('display-points').innerText = points.toLocaleString();
-      document.getElementById('display-usdt').innerText = usdt.toFixed(4);
-      document.getElementById('streak-info').innerText = `Day ${checkinDay} of 30`;
-      document.getElementById('checkin-reward').innerText = checkinDay * 10;
-      
-      localStorage.setItem('mursal_pts', points);
-      localStorage.setItem('mursal_usdt', usdt);
-      localStorage.setItem('mursal_streak', checkinDay);
+    function init3DCoin() {
+      const container = document.getElementById('coin-viewport');
+      const canvas = document.getElementById('three-canvas');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+      camera.position.z = 5.2;
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+      scene.add(ambientLight);
+
+      const pointLight1 = new THREE.PointLight(0xffdf6d, 2.0, 50);
+      pointLight1.position.set(4, 4, 5);
+      scene.add(pointLight1);
+
+      const pointLight2 = new THREE.PointLight(0x00e676, 1.2, 50);
+      pointLight2.position.set(-4, -3, 3);
+      scene.add(pointLight2);
+
+      // 3D Coin Assembly
+      coinGroup = new THREE.Group();
+
+      // Main Coin Cylinder
+      const coinGeo = new THREE.CylinderGeometry(1.8, 1.8, 0.22, 64);
+      const goldMat = new THREE.MeshStandardMaterial({
+        color: 0xd4af37,
+        metalness: 0.85,
+        roughness: 0.25
+      });
+      const coinMesh = new THREE.Mesh(coinGeo, goldMat);
+      coinMesh.rotation.x = Math.PI / 2;
+      coinGroup.add(coinMesh);
+
+      // Gold Outer Ring Bevel
+      const ringGeo = new THREE.TorusGeometry(1.82, 0.06, 16, 64);
+      const ringMat = new THREE.MeshStandardMaterial({
+        color: 0xffe082,
+        metalness: 0.95,
+        roughness: 0.15
+      });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      coinGroup.add(ringMesh);
+
+      // Emissive Candlestick Pillars (Green Candlesticks as on Logo)
+      const candleMat = new THREE.MeshStandardMaterial({
+        color: 0x00e676,
+        emissive: 0x00e676,
+        emissiveIntensity: 0.6,
+        roughness: 0.2
+      });
+
+      const heights = [0.45, 0.7, 0.9, 1.15];
+      heights.forEach((h, i) => {
+        const barGeo = new THREE.BoxGeometry(0.12, h, 0.1);
+        const barMesh = new THREE.Mesh(barGeo, candleMat);
+        barMesh.position.set(-0.45 + (i * 0.3), -0.2 + (i * 0.18), 0.14);
+        coinGroup.add(barMesh);
+
+        // Candle Wick Line
+        const wickGeo = new THREE.CylinderGeometry(0.015, 0.015, h + 0.3, 8);
+        const wickMesh = new THREE.Mesh(wickGeo, candleMat);
+        wickMesh.position.set(-0.45 + (i * 0.3), -0.2 + (i * 0.18), 0.14);
+        coinGroup.add(wickMesh);
+      });
+
+      scene.add(coinGroup);
+
+      // Interactive Tap & Drag rotation
+      let isDragging = false;
+      let prevMouseX = 0;
+
+      container.addEventListener('pointerdown', (e) => {
+        isDragging = true;
+        prevMouseX = e.clientX;
+        coinGroup.scale.set(0.94, 0.94, 0.94);
+        if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - prevMouseX;
+        coinGroup.rotation.y += deltaX * 0.012;
+        prevMouseX = e.clientX;
+      });
+
+      window.addEventListener('pointerup', () => {
+        isDragging = false;
+        coinGroup.scale.set(1.0, 1.0, 1.0);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        if (!isDragging) {
+          coinGroup.rotation.y += 0.012;
+        }
+        renderer.render(scene, camera);
+      }
+      animate();
     }
 
-    // Switch Navigation Tabs
-    function switchTab(tabId, el) {
-      document.querySelectorAll('.tab-view').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-      
-      document.getElementById(`view-${tabId}`).classList.add('active');
+    /* =========================================================
+       3. NAVIGATION & UI UPDATES
+       ========================================================= */
+    function syncUI() {
+      document.getElementById('ui-pts').innerText = state.points.toLocaleString();
+      document.getElementById('ui-usdt').innerText = state.usdt.toFixed(4);
+      document.getElementById('ui-streak-day').innerText = `Day ${state.streakDay} of 30`;
+      document.getElementById('ui-checkin-val').innerText = state.streakDay * 10;
+
+      localStorage.setItem('mursal_pts', state.points);
+      localStorage.setItem('mursal_usdt', state.usdt);
+      localStorage.setItem('mursal_streak', state.streakDay);
+      localStorage.setItem('mursal_task_list', JSON.stringify(state.tasks));
+      localStorage.setItem('mursal_withdraw_list', JSON.stringify(state.withdrawals));
+
+      renderStreakStrip();
+      renderTasks();
+      renderWithdrawTables();
+    }
+
+    function switchNav(tabKey, el) {
+      document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(`tab-${tabKey}`).classList.add('active');
       el.classList.add('active');
     }
 
-    // Daily Check-in Mechanism
-    function claimDaily() {
+    /* =========================================================
+       4. DAILY STREAK (DAY 1 - 30)
+       ========================================================= */
+    function renderStreakStrip() {
+      const container = document.getElementById('streak-strip');
+      container.innerHTML = '';
+      for (let day = 1; day <= 30; day++) {
+        const div = document.createElement('div');
+        div.className = `streak-box ${day < state.streakDay ? 'done' : ''} ${day === state.streakDay ? 'current' : ''}`;
+        div.innerHTML = `
+          <div class="streak-day">D${day}</div>
+          <div class="streak-pts">+${day * 10}</div>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function claimDailyAttendance() {
       const now = Date.now();
-      const oneDay = 24 * 60 * 60 * 1000;
-      
-      if (now - lastCheckinTime < oneDay) {
-        alert("You have already claimed today's reward! Come back tomorrow.");
+      const oneDayMs = 24 * 60 * 60 * 1000;
+      if (now - state.lastCheckinTime < oneDayMs) {
+        alert("Daily reward already claimed today. Please return tomorrow!");
         return;
       }
 
-      const reward = checkinDay * 10;
-      points += reward;
-      lastCheckinTime = now;
-      checkinDay = checkinDay >= 30 ? 1 : checkinDay + 1;
+      const reward = state.streakDay * 10;
+      state.points += reward;
+      state.lastCheckinTime = now;
+      state.streakDay = state.streakDay >= 30 ? 1 : state.streakDay + 1;
+      localStorage.setItem('mursal_last_checkin', state.lastCheckinTime);
 
-      localStorage.setItem('mursal_last_checkin', lastCheckinTime);
-      updateUI();
-      alert(`Success! Claimed +${reward} Points.`);
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+      syncUI();
+      alert(`Success! Claimed +${reward} $MURSAL Points!`);
     }
 
-    // 4-Hour Mining Engine
-    function startMining() {
+    /* =========================================================
+       5. MINING 4-HOUR ENGINE
+       ========================================================= */
+    function triggerMining() {
       const now = Date.now();
-      if (miningEndTime > now) return;
+      if (state.miningEndTime > now) return;
 
-      miningEndTime = now + (4 * 60 * 60 * 1000);
-      localStorage.setItem('mursal_mining_end', miningEndTime);
+      state.miningEndTime = now + (4 * 60 * 60 * 1000);
+      localStorage.setItem('mursal_mining_end', state.miningEndTime);
       runMiningLoop();
     }
 
     function runMiningLoop() {
-      const btn = document.getElementById('mining-btn');
-      const timerEl = document.getElementById('mining-timer');
+      const btn = document.getElementById('btn-mining');
+      const clock = document.getElementById('mining-clock');
 
       const interval = setInterval(() => {
-        const remaining = miningEndTime - Date.now();
+        const remaining = state.miningEndTime - Date.now();
 
         if (remaining <= 0) {
           clearInterval(interval);
-          timerEl.innerText = "04:00:00";
+          clock.innerText = "04:00:00";
           btn.disabled = false;
-          btn.innerText = "Claim 20 Points";
+          btn.innerText = "Claim +20 $MURSAL Points";
           btn.onclick = () => {
-            points += 20;
-            miningEndTime = 0;
+            state.points += 20;
+            state.miningEndTime = 0;
             localStorage.removeItem('mursal_mining_end');
-            updateUI();
-            btn.innerText = "Start Mining (20 Points)";
-            btn.onclick = startMining;
+            syncUI();
+            btn.innerText = "Start Mining Engine (+20 PTS)";
+            btn.onclick = triggerMining;
           };
         } else {
           btn.disabled = true;
           const h = String(Math.floor(remaining / 3600000)).padStart(2, '0');
           const m = String(Math.floor((remaining % 3600000) / 60000)).padStart(2, '0');
           const s = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
-          timerEl.innerText = `${h}:${m}:${s}`;
+          clock.innerText = `${h}:${m}:${s}`;
           btn.innerText = "Mining in Progress...";
         }
       }, 1000);
     }
 
-    // Task Execution with Anti-Cheat Delay Verification
-    function performTask(taskId, targetUrl) {
-      const btn = document.getElementById(`task-btn-${taskId}`);
-      
-      if (taskStatus[taskId] === 'completed') {
-        alert("This task has already been completed.");
-        return;
-      }
+    /* =========================================================
+       6. TASKS & ANTI-CHEAT VERIFICATION
+       ========================================================= */
+    function renderTasks() {
+      const container = document.getElementById('tasks-list');
+      container.innerHTML = '';
 
-      if (!taskStatus[taskId]) {
-        // Step 1: Open Link & Start Verification Timer (Anti-Cheat)
-        window.open(targetUrl, '_blank');
-        taskStatus[taskId] = { status: 'pending', start: Date.now() };
-        localStorage.setItem('mursal_tasks', JSON.stringify(taskStatus));
+      state.tasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = 'task-row';
 
-        btn.innerText = "Verifying (15s)...";
+        let btnLabel = "Start";
+        let isDone = task.status === 'completed';
+
+        if (task.status === 'verifying') btnLabel = "Verifying...";
+        if (isDone) btnLabel = "Completed";
+
+        div.innerHTML = `
+          <div class="task-info">
+            <h4>${task.title}</h4>
+            <p>+${task.rewardPts} PTS | +${task.rewardUsdt} USDT</p>
+          </div>
+          <button class="btn btn-action-small" id="btn-task-${task.id}" ${isDone ? 'disabled' : ''} onclick="processTask(${task.id})">
+            ${btnLabel}
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function processTask(taskId) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (!task || task.status === 'completed') return;
+
+      const btn = document.getElementById(`btn-task-${taskId}`);
+
+      if (task.status === 'idle') {
+        window.open(task.url, '_blank');
+        task.status = 'verifying';
         btn.disabled = true;
-
         let countdown = 15;
-        const checkTimer = setInterval(() => {
+
+        const timer = setInterval(() => {
           countdown--;
           if (countdown > 0) {
-            btn.innerText = `Verifying (${countdown}s)...`;
+            btn.innerText = `Wait (${countdown}s)`;
           } else {
-            clearInterval(checkTimer);
-            btn.innerText = "Claim Reward";
+            clearInterval(timer);
+            btn.innerText = "Claim";
             btn.disabled = false;
-            btn.classList.remove('btn-secondary');
+            task.status = 'claimable';
           }
         }, 1000);
-
-      } else if (taskStatus[taskId].status === 'pending') {
-        // Step 2: Final Verification & Claim
-        points += 20;
-        usdt += 0.001;
-        taskStatus[taskId] = 'completed';
-        localStorage.setItem('mursal_tasks', JSON.stringify(taskStatus));
-
-        btn.innerText = "Completed";
-        btn.disabled = true;
-        btn.classList.add('btn-secondary');
-
-        updateUI();
-        alert("Task verified successfully! Received 20 Points and 0.001 USDT.");
+      } else if (task.status === 'claimable') {
+        state.points += task.rewardPts;
+        state.usdt += task.rewardUsdt;
+        task.status = 'completed';
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        syncUI();
       }
     }
 
-    // Referral Copy
+    /* =========================================================
+       7. WALLET & WITHDRAW
+       ========================================================= */
+    async function pasteClipboardTo(inputId) {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) document.getElementById(inputId).value = text;
+      } catch (err) {
+        const manual = prompt("Paste your address / ID here:");
+        if (manual) document.getElementById(inputId).value = manual;
+      }
+    }
+
     function copyRefLink() {
-      const link = document.getElementById('ref-link');
-      link.select();
-      navigator.clipboard.writeText(link.value);
+      const el = document.getElementById('ref-link');
+      el.select();
+      navigator.clipboard.writeText(el.value);
       alert("Referral link copied to clipboard!");
     }
 
-    // Easy Wallet Paste (Telegram Native & Clipboard fallback)
-    async function pasteWalletAddress() {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text) {
-          document.getElementById('wallet-address').value = text;
-        } else {
-          alert("Clipboard is empty or permission denied.");
-        }
-      } catch (err) {
-        const manual = prompt("Paste your BEP20 Wallet Address here:");
-        if (manual) document.getElementById('wallet-address').value = manual;
-      }
-    }
+    function submitWithdraw() {
+      const addr = document.getElementById('withdraw-addr').value.trim();
+      const amount = parseFloat(document.getElementById('withdraw-val').value);
 
-    // USDT Withdrawal Processing
-    function submitWithdrawal() {
-      const address = document.getElementById('wallet-address').value.trim();
-      const amount = parseFloat(document.getElementById('withdraw-amount').value);
-
-      if (!address || !address.startsWith('0x') || address.length < 40) {
-        alert("Please enter a valid BEP20 USDT address (0x...)");
+      if (!addr || !addr.startsWith('0x') || addr.length < 40) {
+        alert("Please enter a valid BEP-20 USDT address (0x...)");
         return;
       }
 
       if (isNaN(amount) || amount < 1.0) {
-        alert("Minimum withdrawal amount is 1.0000 USDT.");
+        alert("Minimum withdrawal is 1.0000 USDT.");
         return;
       }
 
-      if (amount > usdt) {
+      if (amount > state.usdt) {
         alert("Insufficient USDT balance.");
         return;
       }
 
-      // Deduct balance and update table
-      usdt -= amount;
-      updateUI();
+      state.usdt -= amount;
+      const record = {
+        id: Date.now(),
+        address: addr,
+        amount: amount,
+        status: 'pending',
+        date: new Date().toISOString().split('T')[0]
+      };
 
-      const tbody = document.getElementById('withdraw-history-body');
-      const row = document.createElement('tr');
-      const shortAddr = address.substring(0, 6) + '...' + address.substring(address.length - 4);
-      row.innerHTML = `
-        <td>${shortAddr}</td>
-        <td>${amount.toFixed(4)} USDT</td>
-        <td><span class="badge-status status-pending">Pending</span></td>
-      `;
-      tbody.prepend(row);
-
-      document.getElementById('withdraw-amount').value = '';
-      alert("Withdrawal request submitted! Processing via BEP20.");
+      state.withdrawals.unshift(record);
+      document.getElementById('withdraw-val').value = '';
+      syncUI();
+      alert("Withdrawal submitted! Awaiting BEP-20 transfer confirmation.");
     }
 
-    // Initialization check
-    updateUI();
-    if (miningEndTime > Date.now()) {
-      runMiningLoop();
+    function renderWithdrawTables() {
+      const userTbody = document.getElementById('withdraw-tbody');
+      const adminTbody = document.getElementById('admin-withdraw-tbody');
+      userTbody.innerHTML = '';
+      if (adminTbody) adminTbody.innerHTML = '';
+
+      state.withdrawals.forEach(w => {
+        const shortAddr = w.address.substring(0, 6) + '...' + w.address.slice(-4);
+        
+        // User View
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${shortAddr}</td>
+          <td>${w.amount.toFixed(4)} USDT</td>
+          <td><span class="badge ${w.status}">${w.status.toUpperCase()}</span></td>
+        `;
+        userTbody.appendChild(row);
+
+        // Admin Approval View
+        if (adminTbody) {
+          const aRow = document.createElement('tr');
+          aRow.innerHTML = `
+            <td>${shortAddr}</td>
+            <td>${w.amount.toFixed(4)} USDT</td>
+            <td>
+              ${w.status === 'pending' ? `
+                <button class="btn btn-action-small" style="background:#00e676; color:#000; padding:3px 6px;" onclick="adminApproveWithdraw(${w.id})">OK</button>
+                <button class="btn btn-admin btn-action-small" style="padding:3px 6px;" onclick="adminRejectWithdraw(${w.id})">X</button>
+              ` : `<span class="badge ${w.status}">${w.status}</span>`}
+            </td>
+          `;
+          adminTbody.appendChild(aRow);
+        }
+      });
     }
+
+    /* =========================================================
+       8. ADMIN LOCKDOWN & CLEARANCE SYSTEM
+       ========================================================= */
+    let brandTapCount = 0;
+    let brandTapTimeout;
+
+    function handleBrandTap() {
+      brandTapCount++;
+      clearTimeout(brandTapTimeout);
+      brandTapTimeout = setTimeout(() => { brandTapCount = 0; }, 1200);
+
+      if (brandTapCount >= 3) {
+        brandTapCount = 0;
+        document.getElementById('admin-modal').style.display = 'flex';
+      }
+    }
+
+    function closeAdminModal() {
+      document.getElementById('admin-modal').style.display = 'none';
+    }
+
+    function verifyAdminClearance() {
+      const idInput = document.getElementById('admin-id-input').value.trim();
+      const pinInput = document.getElementById('admin-pin-input').value.trim();
+
+      if ((idInput === AUTHORIZED_ADMIN_BOT_ID || idInput.startsWith('0x')) && pinInput === MASTER_PIN) {
+        activateAdminAccess();
+        closeAdminModal();
+        alert("ROOT ADMIN ACCESS GRANTED.");
+      } else {
+        alert("Clearance Denied. Invalid Bot ID or PIN.");
+      }
+    }
+
+    function activateAdminAccess() {
+      state.isAdmin = true;
+      localStorage.setItem('mursal_is_admin', 'true');
+      document.getElementById('admin-nav-item').style.display = 'flex';
+      document.getElementById('admin-badge').style.display = 'block';
+    }
+
+    // Auto-authenticate if launched by Admin Telegram ID
+    if (tg?.initDataUnsafe?.user?.id?.toString() === AUTHORIZED_ADMIN_BOT_ID || state.isAdmin) {
+      activateAdminAccess();
+    }
+
+    /* Admin Action Functions */
+    function adminSetBroadcast() {
+      const text = document.getElementById('admin-broadcast-input').value.trim();
+      if (text) {
+        document.getElementById('broadcast-ticker').innerText = "⚡ " + text;
+        alert("Broadcast updated successfully.");
+      }
+    }
+
+    function adminAddTask() {
+      const title = document.getElementById('task-title-input').value.trim();
+      const url = document.getElementById('task-url-input').value.trim();
+      const pts = parseInt(document.getElementById('task-pts-input').value) || 20;
+      const usdt = parseFloat(document.getElementById('task-usdt-input').value) || 0.001;
+
+      if (!title || !url) {
+        alert("Please complete title and url.");
+        return;
+      }
+
+      state.tasks.push({
+        id: Date.now(),
+        title: title,
+        url: url,
+        rewardPts: pts,
+        rewardUsdt: usdt,
+        status: 'idle'
+      });
+
+      document.getElementById('task-title-input').value = '';
+      document.getElementById('task-url-input').value = '';
+      syncUI();
+      alert("New mission created.");
+    }
+
+    function adminApproveWithdraw(id) {
+      const item = state.withdrawals.find(w => w.id === id);
+      if (item) {
+        item.status = 'confirmed';
+        syncUI();
+      }
+    }
+
+    function adminRejectWithdraw(id) {
+      const item = state.withdrawals.find(w => w.id === id);
+      if (item) {
+        item.status = 'rejected';
+        state.usdt += item.amount; // Refund to balance
+        syncUI();
+      }
+    }
+
+    function adminOverrideBalances() {
+      const p = parseFloat(document.getElementById('admin-set-pts').value);
+      const u = parseFloat(document.getElementById('admin-set-usdt').value);
+
+      if (!isNaN(p)) state.points = p;
+      if (!isNaN(u)) state.usdt = u;
+      syncUI();
+      alert("Balances updated.");
+    }
+
+    /* =========================================================
+       9. INITIALIZATION
+       ========================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      init3DCoin();
+      syncUI();
+      if (state.miningEndTime > Date.now()) {
+        runMiningLoop();
+      }
+    });
   </script>
 </body>
 </html>
