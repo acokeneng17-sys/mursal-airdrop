@@ -13,7 +13,7 @@
   <style>
     :root {
       --bg-dark: #07090c;
-      --card-bg: rgba(18, 22, 30, 0.82);
+      --card-bg: rgba(18, 22, 30, 0.88);
       --gold-primary: #e5b93b;
       --gold-glow: #ffdf6d;
       --gold-dark: #8c6a12;
@@ -22,6 +22,7 @@
       --text-main: #f0f3f8;
       --text-sub: #8d98aa;
       --admin-red: #ff3366;
+      --blue-accent: #29b6f6;
     }
 
     * {
@@ -57,7 +58,6 @@
       text-overflow: ellipsis;
       text-align: center;
       font-weight: 600;
-      letter-spacing: 0.5px;
     }
 
     /* Header */
@@ -191,7 +191,7 @@
     /* 3D Coin Canvas Box */
     .coin-viewport {
       width: 100%;
-      height: 190px;
+      height: 180px;
       position: relative;
       display: flex;
       justify-content: center;
@@ -210,7 +210,6 @@
       bottom: 4px;
       font-size: 10px;
       color: var(--text-sub);
-      letter-spacing: 0.5px;
       background: rgba(0,0,0,0.5);
       padding: 2px 8px;
       border-radius: 10px;
@@ -219,7 +218,7 @@
     /* Buttons */
     .btn {
       width: 100%;
-      padding: 13px;
+      padding: 12px;
       border-radius: 10px;
       border: none;
       font-weight: 700;
@@ -241,7 +240,6 @@
 
     .btn:disabled {
       opacity: 0.4;
-      filter: grayscale(1);
       cursor: not-allowed;
       box-shadow: none;
     }
@@ -252,6 +250,11 @@
       box-shadow: 0 0 15px rgba(255, 77, 109, 0.4);
     }
 
+    .btn-blue {
+      background: linear-gradient(135deg, #29b6f6, #0288d1);
+      color: #fff;
+    }
+
     .btn-action-small {
       width: auto;
       padding: 6px 12px;
@@ -259,7 +262,7 @@
       border-radius: 6px;
     }
 
-    /* Daily Streaks Strip */
+    /* Daily Streaks */
     .streak-container {
       display: flex;
       gap: 6px;
@@ -290,10 +293,10 @@
     .streak-day { font-size: 9px; color: var(--text-sub); }
     .streak-pts { font-size: 10px; font-weight: bold; color: var(--gold-glow); margin-top: 2px; }
 
-    /* Mining Countdown */
+    /* Mining */
     .mining-display {
       text-align: center;
-      padding: 12px 0;
+      padding: 10px 0;
     }
 
     .timer-text {
@@ -305,7 +308,7 @@
       margin: 6px 0;
     }
 
-    /* Tasks */
+    /* Task List */
     .task-row {
       display: flex;
       justify-content: space-between;
@@ -347,7 +350,7 @@
       background: #090b0e;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 10px 65px 10px 10px;
+      padding: 10px 70px 10px 10px;
       color: #fff;
       font-size: 13px;
     }
@@ -407,14 +410,41 @@
     .badge.confirmed { background: rgba(0, 230, 118, 0.2); color: var(--candle-green); }
     .badge.rejected { background: rgba(255, 51, 102, 0.2); color: var(--admin-red); }
 
-    /* Navigation Bar */
+    /* Admin Dashboard Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 51, 102, 0.3);
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-card h4 {
+      font-size: 10px;
+      color: var(--text-sub);
+    }
+
+    .stat-card h2 {
+      font-size: 16px;
+      color: var(--admin-red);
+      margin-top: 4px;
+    }
+
+    /* Navigation */
     nav {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
       height: 64px;
-      background: rgba(14, 17, 24, 0.92);
+      background: rgba(14, 17, 24, 0.94);
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(16px);
       display: flex;
@@ -433,7 +463,6 @@
       gap: 3px;
       font-size: 10px;
       cursor: pointer;
-      position: relative;
     }
 
     .nav-item.active {
@@ -443,7 +472,7 @@
 
     .nav-item.admin-tab {
       color: var(--admin-red);
-      display: none; /* Strictly hidden until authenticated */
+      display: none;
     }
 
     .nav-item.admin-tab.active {
@@ -454,7 +483,7 @@
       font-size: 18px;
     }
 
-    /* Backdoor Pin Modal */
+    /* Modal */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -485,13 +514,13 @@
     ⚡ Welcome to $MURSAL Airdrop: Mine points & prepare for listing distribution!
   </div>
 
-  <!-- App Header -->
+  <!-- Header -->
   <header>
     <div class="brand" id="brand-trigger" onclick="handleBrandTap()">
       <div class="brand-icon">$M</div>
       <div class="brand-text">
         <h1>$MURSAL AIRDROP</h1>
-        <span>Official Community Hub</span>
+        <span id="user-display-tag">User: #Guest</span>
       </div>
     </div>
     <div class="admin-status-badge" id="admin-badge">ROOT ADMIN</div>
@@ -513,15 +542,15 @@
   <main>
     <!-- TAB 1: MINE & STREAK -->
     <section id="tab-mine" class="tab-content active">
-      <!-- 3D Gold Coin Viewport -->
+      <!-- 3D Coin Canvas -->
       <div class="card" style="padding: 10px;">
         <div class="coin-viewport" id="coin-viewport">
           <canvas id="three-canvas"></canvas>
-          <div class="tap-hint">Tap coin for feedback & spin</div>
+          <div class="tap-hint">Interactive 3D Coin • Drag to rotate</div>
         </div>
       </div>
 
-      <!-- Daily Streak -->
+      <!-- Daily Attendance -->
       <div class="card">
         <h3>
           Daily Attendance
@@ -555,30 +584,28 @@
       </div>
     </section>
 
-    <!-- TAB 3: FRIENDS -->
+    <!-- TAB 3: FRIENDS / REFERRAL -->
     <section id="tab-friends" class="tab-content">
       <div class="card">
-        <h3>Referral Link (+50 PTS / Invite)</h3>
+        <h3>Your Referral Link (+50 PTS / Friend)</h3>
         <p style="font-size:11px; color:var(--text-sub); margin-bottom: 10px;">
-          Share your custom link to earn 50 points per active recruit.
+          Invite friends to earn 50 $MURSAL points instantly when they launch the app!
         </p>
         <div class="field-group">
-          <input type="text" id="ref-link" class="input-box" readonly value="https://t.me/ast2komunitasmining_bot?start=ref_7797850782" />
+          <input type="text" id="ref-link" class="input-box" readonly />
           <button class="btn-paste" onclick="copyRefLink()">COPY</button>
         </div>
+        <button class="btn btn-blue" onclick="shareRefOnTelegram()">🚀 Share via Telegram</button>
       </div>
 
       <div class="card">
-        <h3>Referral History (<span id="ref-count">2</span> Friends)</h3>
+        <h3>Referral History (<span id="ref-count">0</span> Friends)</h3>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Username</th><th>Reward</th><th>Date</th></tr>
+              <tr><th>Friend User ID</th><th>Reward</th><th>Date</th></tr>
             </thead>
-            <tbody id="ref-tbody">
-              <tr><td>@crypto_warrior</td><td>+50 PTS</td><td>2026-09-28</td></tr>
-              <tr><td>@web3_enthusiast</td><td>+50 PTS</td><td>2026-09-29</td></tr>
-            </tbody>
+            <tbody id="ref-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -589,7 +616,7 @@
       <div class="card">
         <h3>$MURSAL Listing Allocation</h3>
         <p style="font-size:12px; color:var(--text-sub); line-height: 1.4;">
-          Your accumulated points will be directly converted into official <strong>$MURSAL</strong> tokens upon DEX/CEX listing. Keep mining and completing tasks!
+          Accumulated points will convert automatically into official <strong>$MURSAL</strong> tokens during public listing.
         </p>
       </div>
 
@@ -626,43 +653,78 @@
       </div>
     </section>
 
-    <!-- TAB 5: ADMIN PANEL (HIDDEN BY DEFAULT) -->
+    <!-- TAB 5: ADMIN PANEL -->
     <section id="tab-admin" class="tab-content">
       <div class="card" style="border-color: var(--admin-red);">
-        <h3 style="color: var(--admin-red);">Admin Master Console</h3>
-        <p style="font-size:11px; color:var(--text-sub); margin-bottom: 10px;">
-          Authorized Admin ID: <strong>7797850782</strong>
-        </p>
+        <h3 style="color: var(--admin-red);">App Statistics & Master Results</h3>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h4>TOTAL USERS</h4>
+            <h2 id="adm-stat-users">1</h2>
+          </div>
+          <div class="stat-card">
+            <h4>PTS MINED</h4>
+            <h2 id="adm-stat-pts">0</h2>
+          </div>
+          <div class="stat-card">
+            <h4>USDT POOL</h4>
+            <h2 id="adm-stat-usdt">0.0000</h2>
+          </div>
+          <div class="stat-card">
+            <h4>PENDING W/D</h4>
+            <h2 id="adm-stat-wd">0</h2>
+          </div>
+        </div>
+      </div>
 
+      <!-- Broadcast Ticker -->
+      <div class="card" style="border-color: var(--admin-red);">
+        <h3 style="color: var(--admin-red);">Broadcast Marquee Announcement</h3>
         <div class="field-group">
-          <label>Broadcast Marquee Announcement</label>
-          <input type="text" id="admin-broadcast-input" class="input-box" placeholder="Update live marquee..." />
+          <input type="text" id="admin-broadcast-input" class="input-box" placeholder="New announcement text..." />
         </div>
         <button class="btn btn-admin btn-action-small" onclick="adminSetBroadcast()">Push Broadcast</button>
       </div>
 
-      <!-- Add New Task -->
+      <!-- Task Manager (Create / Edit) -->
       <div class="card" style="border-color: var(--admin-red);">
-        <h3 style="color: var(--admin-red);">Add New Task</h3>
+        <h3 style="color: var(--admin-red);">
+          <span id="adm-task-form-title">Create New Task</span>
+          <button class="btn-action-small" id="adm-task-cancel-btn" style="display:none; background:#333; color:#ccc;" onclick="adminCancelEditTask()">Cancel Edit</button>
+        </h3>
+        <input type="hidden" id="task-edit-id" value="" />
         <div class="field-group">
           <label>Task Title</label>
-          <input type="text" id="task-title-input" class="input-box" placeholder="e.g. Retweet Announcement" />
+          <input type="text" id="task-title-input" class="input-box" placeholder="e.g. Join Community Chat" />
         </div>
         <div class="field-group">
           <label>Target URL</label>
-          <input type="text" id="task-url-input" class="input-box" placeholder="https://..." />
+          <input type="text" id="task-url-input" class="input-box" placeholder="https://t.me/..." />
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
           <div class="field-group">
-            <label>Points Reward</label>
+            <label>Points</label>
             <input type="number" id="task-pts-input" class="input-box" value="20" />
           </div>
           <div class="field-group">
-            <label>USDT Reward</label>
+            <label>USDT</label>
             <input type="number" id="task-usdt-input" class="input-box" value="0.001" step="0.001" />
           </div>
         </div>
-        <button class="btn btn-admin" onclick="adminAddTask()">Create Task</button>
+        <button class="btn btn-admin" id="adm-task-save-btn" onclick="adminSaveTask()">Save Task</button>
+      </div>
+
+      <!-- Current Tasks Table (Edit / Delete) -->
+      <div class="card" style="border-color: var(--admin-red);">
+        <h3 style="color: var(--admin-red);">Manage Tasks List</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Title</th><th>Reward</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="admin-task-tbody"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Withdrawal Approvals -->
@@ -680,7 +742,7 @@
 
       <!-- Balance Override -->
       <div class="card" style="border-color: var(--admin-red);">
-        <h3 style="color: var(--admin-red);">Override User Balance (Testing)</h3>
+        <h3 style="color: var(--admin-red);">Modify Balances (Admin Test)</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
           <div class="field-group">
             <label>Points</label>
@@ -691,7 +753,7 @@
             <input type="number" id="admin-set-usdt" class="input-box" step="0.1" />
           </div>
         </div>
-        <button class="btn btn-admin btn-action-small" onclick="adminOverrideBalances()">Update Balance</button>
+        <button class="btn btn-admin btn-action-small" onclick="adminOverrideBalances()">Update User Balance</button>
       </div>
     </section>
   </main>
@@ -699,7 +761,7 @@
   <!-- Navigation -->
   <nav>
     <button class="nav-item active" onclick="switchNav('mine', this)">
-      <span class="nav-icon">⛏️</span>
+      <span class="nav-icon">⛏️️</span>
       <span>Mine</span>
     </button>
     <button class="nav-item" onclick="switchNav('tasks', this)">
@@ -714,29 +776,29 @@
       <span class="nav-icon">💼</span>
       <span>Wallet</span>
     </button>
-    <!-- Hidden Admin Button -->
+    <!-- Hidden Admin Tab -->
     <button class="nav-item admin-tab" id="admin-nav-item" onclick="switchNav('admin', this)">
       <span class="nav-icon">🛡️</span>
       <span>Admin</span>
     </button>
   </nav>
 
-  <!-- Hidden Backdoor Modal -->
+  <!-- Backdoor PIN Modal -->
   <div class="modal-overlay" id="admin-modal">
     <div class="modal-box">
-      <h3 style="color: var(--admin-red); font-size:14px; margin-bottom:8px;">Root Clearance Login</h3>
+      <h3 style="color: var(--admin-red); font-size:14px; margin-bottom:8px;">Admin Clearance Login</h3>
       <p style="font-size:11px; color:var(--text-sub); margin-bottom: 12px;">
-        Provide Authorized Admin Bot ID or Master Wallet
+        Enter Bot ID or Master Wallet + PIN
       </p>
 
       <div class="field-group">
-        <label>Admin ID / Master Wallet</label>
+        <label>Admin Bot ID / Wallet</label>
         <input type="text" id="admin-id-input" class="input-box" placeholder="e.g. 7797850782" />
         <button class="btn-paste" onclick="pasteClipboardTo('admin-id-input')">PASTE</button>
       </div>
 
       <div class="field-group">
-        <label>Security PIN (Default: 1234)</label>
+        <label>PIN (Default: 1234)</label>
         <input type="password" id="admin-pin-input" class="input-box" placeholder="PIN..." />
       </div>
 
@@ -749,10 +811,11 @@
 
   <script>
     /* =========================================================
-       1. APP CONFIGURATION & STATE
+       1. INITIALIZATION & DATA PERSISTENCE
        ========================================================= */
     const AUTHORIZED_ADMIN_BOT_ID = "7797850782";
     const MASTER_PIN = "1234";
+    const BOT_USERNAME = "ast2komunitasmining_bot";
 
     const tg = window.Telegram?.WebApp;
     if (tg) {
@@ -760,23 +823,100 @@
       tg.ready();
     }
 
+    // Determine persistent User ID
+    let currentUserId = tg?.initDataUnsafe?.user?.id?.toString();
+    if (!currentUserId) {
+      currentUserId = localStorage.getItem('mursal_saved_uid');
+      if (!currentUserId) {
+        currentUserId = "user_" + Math.floor(100000 + Math.random() * 900000);
+        localStorage.setItem('mursal_saved_uid', currentUserId);
+      }
+    }
+
+    // Load or initialize persistent database
+    function getStoredData(key, defaultVal) {
+      const saved = localStorage.getItem(`${key}_${currentUserId}`);
+      return saved !== null ? JSON.parse(saved) : defaultVal;
+    }
+
+    function saveStoredData(key, val) {
+      localStorage.setItem(`${key}_${currentUserId}`, JSON.stringify(val));
+    }
+
     let state = {
-      points: parseFloat(localStorage.getItem('mursal_pts')) || 0,
-      usdt: parseFloat(localStorage.getItem('mursal_usdt')) || 0.0000,
-      streakDay: parseInt(localStorage.getItem('mursal_streak')) || 1,
-      lastCheckinTime: parseInt(localStorage.getItem('mursal_last_checkin')) || 0,
-      miningEndTime: parseInt(localStorage.getItem('mursal_mining_end')) || 0,
+      uid: currentUserId,
+      points: parseFloat(localStorage.getItem(`mursal_pts_${currentUserId}`)) || 0,
+      usdt: parseFloat(localStorage.getItem(`mursal_usdt_${currentUserId}`)) || 0.0000,
+      streakDay: parseInt(localStorage.getItem(`mursal_streak_${currentUserId}`)) || 1,
+      lastCheckinTime: parseInt(localStorage.getItem(`mursal_last_checkin_${currentUserId}`)) || 0,
+      miningEndTime: parseInt(localStorage.getItem(`mursal_mining_end_${currentUserId}`)) || 0,
       isAdmin: localStorage.getItem('mursal_is_admin') === 'true',
-      tasks: JSON.parse(localStorage.getItem('mursal_task_list')) || [
-        { id: 1, title: 'Join Official Telegram Community', rewardPts: 20, rewardUsdt: 0.001, url: 'https://t.me/ast2komunitasmining_bot', status: 'idle' },
-        { id: 2, title: 'Follow $MURSAL on Twitter / X', rewardPts: 20, rewardUsdt: 0.001, url: 'https://twitter.com', status: 'idle' },
-        { id: 3, title: 'Subscribe Official YouTube Channel', rewardPts: 20, rewardUsdt: 0.001, url: 'https://youtube.com', status: 'idle' }
-      ],
-      withdrawals: JSON.parse(localStorage.getItem('mursal_withdraw_list')) || []
+      completedTasks: getStoredData('mursal_completed_tasks', []),
+      referrals: getStoredData('mursal_referrals', []),
+      withdrawals: getStoredData('mursal_withdrawals', [])
     };
 
+    // Global Task Pool (Shared)
+    let globalTasks = JSON.parse(localStorage.getItem('mursal_global_tasks')) || [
+      { id: 1, title: 'Join Official Telegram Community', rewardPts: 20, rewardUsdt: 0.001, url: 'https://t.me/ast2komunitasmining_bot' },
+      { id: 2, title: 'Follow $MURSAL on Twitter / X', rewardPts: 20, rewardUsdt: 0.001, url: 'https://twitter.com' },
+      { id: 3, title: 'Subscribe Official YouTube Channel', rewardPts: 20, rewardUsdt: 0.001, url: 'https://youtube.com' }
+    ];
+
     /* =========================================================
-       2. THREE.JS 3D GOLD COIN RENDERER
+       2. REFERRAL LINK ENGINE
+       ========================================================= */
+    function initReferralSystem() {
+      const myRefLink = `https://t.me/${BOT_USERNAME}?start=ref_${state.uid}`;
+      document.getElementById('ref-link').value = myRefLink;
+
+      // Check if user came from a referrer
+      const urlParams = new URLSearchParams(window.location.search);
+      let referrer = urlParams.get('start') || tg?.initDataUnsafe?.start_param || "";
+
+      if (referrer.startsWith('ref_')) {
+        const inviterId = referrer.replace('ref_', '');
+        const alreadyReferred = localStorage.getItem(`mursal_referred_by_${state.uid}`);
+
+        if (!alreadyReferred && inviterId !== state.uid) {
+          localStorage.setItem(`mursal_referred_by_${state.uid}`, inviterId);
+
+          // Give +50 reward to the inviter
+          let inviterPts = parseFloat(localStorage.getItem(`mursal_pts_${inviterId}`)) || 0;
+          inviterPts += 50;
+          localStorage.setItem(`mursal_pts_${inviterId}`, inviterPts);
+
+          // Add to inviter's referral history
+          let inviterRefs = JSON.parse(localStorage.getItem(`mursal_referrals_${inviterId}`)) || [];
+          inviterRefs.unshift({
+            uid: `@${state.uid}`,
+            pts: 50,
+            date: new Date().toISOString().split('T')[0]
+          });
+          localStorage.setItem(`mursal_referrals_${inviterId}`, JSON.stringify(inviterRefs));
+        }
+      }
+    }
+
+    function copyRefLink() {
+      const el = document.getElementById('ref-link');
+      el.select();
+      navigator.clipboard.writeText(el.value);
+      alert("Referral link copied!");
+    }
+
+    function shareRefOnTelegram() {
+      const link = document.getElementById('ref-link').value;
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent("Join $MURSAL Airdrop and Mine free crypto points now!")}`;
+      if (tg?.openTelegramLink) {
+        tg.openTelegramLink(shareUrl);
+      } else {
+        window.open(shareUrl, '_blank');
+      }
+    }
+
+    /* =========================================================
+       3. THREE.JS 3D GOLD COIN RENDERER
        ========================================================= */
     let scene, camera, renderer, coinGroup;
 
@@ -794,22 +934,19 @@
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-      // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
       scene.add(ambientLight);
 
-      const pointLight1 = new THREE.PointLight(0xffdf6d, 2.0, 50);
-      pointLight1.position.set(4, 4, 5);
-      scene.add(pointLight1);
+      const light1 = new THREE.PointLight(0xffdf6d, 2.0, 50);
+      light1.position.set(4, 4, 5);
+      scene.add(light1);
 
-      const pointLight2 = new THREE.PointLight(0x00e676, 1.2, 50);
-      pointLight2.position.set(-4, -3, 3);
-      scene.add(pointLight2);
+      const light2 = new THREE.PointLight(0x00e676, 1.2, 50);
+      light2.position.set(-4, -3, 3);
+      scene.add(light2);
 
-      // 3D Coin Assembly
       coinGroup = new THREE.Group();
 
-      // Main Coin Cylinder
       const coinGeo = new THREE.CylinderGeometry(1.8, 1.8, 0.22, 64);
       const goldMat = new THREE.MeshStandardMaterial({
         color: 0xd4af37,
@@ -820,7 +957,6 @@
       coinMesh.rotation.x = Math.PI / 2;
       coinGroup.add(coinMesh);
 
-      // Gold Outer Ring Bevel
       const ringGeo = new THREE.TorusGeometry(1.82, 0.06, 16, 64);
       const ringMat = new THREE.MeshStandardMaterial({
         color: 0xffe082,
@@ -830,7 +966,6 @@
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
       coinGroup.add(ringMesh);
 
-      // Emissive Candlestick Pillars (Green Candlesticks as on Logo)
       const candleMat = new THREE.MeshStandardMaterial({
         color: 0x00e676,
         emissive: 0x00e676,
@@ -845,7 +980,6 @@
         barMesh.position.set(-0.45 + (i * 0.3), -0.2 + (i * 0.18), 0.14);
         coinGroup.add(barMesh);
 
-        // Candle Wick Line
         const wickGeo = new THREE.CylinderGeometry(0.015, 0.015, h + 0.3, 8);
         const wickMesh = new THREE.Mesh(wickGeo, candleMat);
         wickMesh.position.set(-0.45 + (i * 0.3), -0.2 + (i * 0.18), 0.14);
@@ -854,22 +988,21 @@
 
       scene.add(coinGroup);
 
-      // Interactive Tap & Drag rotation
       let isDragging = false;
-      let prevMouseX = 0;
+      let prevX = 0;
 
       container.addEventListener('pointerdown', (e) => {
         isDragging = true;
-        prevMouseX = e.clientX;
+        prevX = e.clientX;
         coinGroup.scale.set(0.94, 0.94, 0.94);
         if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
       });
 
       window.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
-        const deltaX = e.clientX - prevMouseX;
-        coinGroup.rotation.y += deltaX * 0.012;
-        prevMouseX = e.clientX;
+        const delta = e.clientX - prevX;
+        coinGroup.rotation.y += delta * 0.012;
+        prevX = e.clientX;
       });
 
       window.addEventListener('pointerup', () => {
@@ -888,23 +1021,29 @@
     }
 
     /* =========================================================
-       3. NAVIGATION & UI UPDATES
+       4. SYNC UI & STORAGE
        ========================================================= */
     function syncUI() {
       document.getElementById('ui-pts').innerText = state.points.toLocaleString();
       document.getElementById('ui-usdt').innerText = state.usdt.toFixed(4);
       document.getElementById('ui-streak-day').innerText = `Day ${state.streakDay} of 30`;
       document.getElementById('ui-checkin-val').innerText = state.streakDay * 10;
+      document.getElementById('user-display-tag').innerText = `ID: #${state.uid.substring(0, 10)}`;
 
-      localStorage.setItem('mursal_pts', state.points);
-      localStorage.setItem('mursal_usdt', state.usdt);
-      localStorage.setItem('mursal_streak', state.streakDay);
-      localStorage.setItem('mursal_task_list', JSON.stringify(state.tasks));
-      localStorage.setItem('mursal_withdraw_list', JSON.stringify(state.withdrawals));
+      // Save user persistent state
+      localStorage.setItem(`mursal_pts_${state.uid}`, state.points);
+      localStorage.setItem(`mursal_usdt_${state.uid}`, state.usdt);
+      localStorage.setItem(`mursal_streak_${state.uid}`, state.streakDay);
+      saveStoredData('mursal_completed_tasks', state.completedTasks);
+      saveStoredData('mursal_referrals', state.referrals);
+      saveStoredData('mursal_withdrawals', state.withdrawals);
+      localStorage.setItem('mursal_global_tasks', JSON.stringify(globalTasks));
 
       renderStreakStrip();
       renderTasks();
+      renderReferralTable();
       renderWithdrawTables();
+      updateAdminDashboard();
     }
 
     function switchNav(tabKey, el) {
@@ -916,7 +1055,7 @@
     }
 
     /* =========================================================
-       4. DAILY STREAK (DAY 1 - 30)
+       5. ATTENDANCE & MINING
        ========================================================= */
     function renderStreakStrip() {
       const container = document.getElementById('streak-strip');
@@ -944,22 +1083,19 @@
       state.points += reward;
       state.lastCheckinTime = now;
       state.streakDay = state.streakDay >= 30 ? 1 : state.streakDay + 1;
-      localStorage.setItem('mursal_last_checkin', state.lastCheckinTime);
+      localStorage.setItem(`mursal_last_checkin_${state.uid}`, state.lastCheckinTime);
 
       if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
       syncUI();
       alert(`Success! Claimed +${reward} $MURSAL Points!`);
     }
 
-    /* =========================================================
-       5. MINING 4-HOUR ENGINE
-       ========================================================= */
     function triggerMining() {
       const now = Date.now();
       if (state.miningEndTime > now) return;
 
       state.miningEndTime = now + (4 * 60 * 60 * 1000);
-      localStorage.setItem('mursal_mining_end', state.miningEndTime);
+      localStorage.setItem(`mursal_mining_end_${state.uid}`, state.miningEndTime);
       runMiningLoop();
     }
 
@@ -978,7 +1114,7 @@
           btn.onclick = () => {
             state.points += 20;
             state.miningEndTime = 0;
-            localStorage.removeItem('mursal_mining_end');
+            localStorage.removeItem(`mursal_mining_end_${state.uid}`);
             syncUI();
             btn.innerText = "Start Mining Engine (+20 PTS)";
             btn.onclick = triggerMining;
@@ -995,21 +1131,21 @@
     }
 
     /* =========================================================
-       6. TASKS & ANTI-CHEAT VERIFICATION
+       6. TASKS & FRAUD PREVENTION
        ========================================================= */
+    const taskTimers = {};
+
     function renderTasks() {
       const container = document.getElementById('tasks-list');
       container.innerHTML = '';
 
-      state.tasks.forEach(task => {
+      globalTasks.forEach(task => {
+        const isDone = state.completedTasks.includes(task.id);
         const div = document.createElement('div');
         div.className = 'task-row';
 
-        let btnLabel = "Start";
-        let isDone = task.status === 'completed';
-
-        if (task.status === 'verifying') btnLabel = "Verifying...";
-        if (isDone) btnLabel = "Completed";
+        let btnLabel = isDone ? "Completed" : "Start";
+        if (taskTimers[task.id]) btnLabel = "Verifying...";
 
         div.innerHTML = `
           <div class="task-info">
@@ -1025,55 +1161,67 @@
     }
 
     function processTask(taskId) {
-      const task = state.tasks.find(t => t.id === taskId);
-      if (!task || task.status === 'completed') return;
+      if (state.completedTasks.includes(taskId)) return;
+      const task = globalTasks.find(t => t.id === taskId);
+      if (!task) return;
 
       const btn = document.getElementById(`btn-task-${taskId}`);
 
-      if (task.status === 'idle') {
+      if (!taskTimers[taskId]) {
         window.open(task.url, '_blank');
-        task.status = 'verifying';
+        taskTimers[taskId] = true;
         btn.disabled = true;
         let countdown = 15;
 
-        const timer = setInterval(() => {
+        const interval = setInterval(() => {
           countdown--;
           if (countdown > 0) {
             btn.innerText = `Wait (${countdown}s)`;
           } else {
-            clearInterval(timer);
+            clearInterval(interval);
             btn.innerText = "Claim";
             btn.disabled = false;
-            task.status = 'claimable';
+            taskTimers[taskId] = "claimable";
           }
         }, 1000);
-      } else if (task.status === 'claimable') {
+      } else if (taskTimers[taskId] === "claimable") {
         state.points += task.rewardPts;
         state.usdt += task.rewardUsdt;
-        task.status = 'completed';
+        state.completedTasks.push(taskId);
+        delete taskTimers[taskId];
+
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         syncUI();
       }
     }
 
     /* =========================================================
-       7. WALLET & WITHDRAW
+       7. REFERRAL & WITHDRAWAL TABLES
        ========================================================= */
+    function renderReferralTable() {
+      const tbody = document.getElementById('ref-tbody');
+      tbody.innerHTML = '';
+      document.getElementById('ref-count').innerText = state.referrals.length;
+
+      state.referrals.forEach(ref => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${ref.uid}</td>
+          <td>+${ref.pts} PTS</td>
+          <td>${ref.date}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
     async function pasteClipboardTo(inputId) {
       try {
         const text = await navigator.clipboard.readText();
         if (text) document.getElementById(inputId).value = text;
       } catch (err) {
-        const manual = prompt("Paste your address / ID here:");
+        const manual = prompt("Paste here:");
         if (manual) document.getElementById(inputId).value = manual;
       }
-    }
-
-    function copyRefLink() {
-      const el = document.getElementById('ref-link');
-      el.select();
-      navigator.clipboard.writeText(el.value);
-      alert("Referral link copied to clipboard!");
     }
 
     function submitWithdraw() {
@@ -1098,6 +1246,7 @@
       state.usdt -= amount;
       const record = {
         id: Date.now(),
+        user: state.uid,
         address: addr,
         amount: amount,
         status: 'pending',
@@ -1119,7 +1268,6 @@
       state.withdrawals.forEach(w => {
         const shortAddr = w.address.substring(0, 6) + '...' + w.address.slice(-4);
         
-        // User View
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${shortAddr}</td>
@@ -1128,7 +1276,6 @@
         `;
         userTbody.appendChild(row);
 
-        // Admin Approval View
         if (adminTbody) {
           const aRow = document.createElement('tr');
           aRow.innerHTML = `
@@ -1136,8 +1283,8 @@
             <td>${w.amount.toFixed(4)} USDT</td>
             <td>
               ${w.status === 'pending' ? `
-                <button class="btn btn-action-small" style="background:#00e676; color:#000; padding:3px 6px;" onclick="adminApproveWithdraw(${w.id})">OK</button>
-                <button class="btn btn-admin btn-action-small" style="padding:3px 6px;" onclick="adminRejectWithdraw(${w.id})">X</button>
+                <button class="btn btn-action-small" style="background:#00e676; color:#000; padding:2px 6px;" onclick="adminApproveWithdraw(${w.id})">OK</button>
+                <button class="btn btn-admin btn-action-small" style="padding:2px 6px;" onclick="adminRejectWithdraw(${w.id})">X</button>
               ` : `<span class="badge ${w.status}">${w.status}</span>`}
             </td>
           `;
@@ -1147,7 +1294,7 @@
     }
 
     /* =========================================================
-       8. ADMIN LOCKDOWN & CLEARANCE SYSTEM
+       8. ADMIN MANAGEMENT & CONTROLS
        ========================================================= */
     let brandTapCount = 0;
     let brandTapTimeout;
@@ -1185,46 +1332,117 @@
       localStorage.setItem('mursal_is_admin', 'true');
       document.getElementById('admin-nav-item').style.display = 'flex';
       document.getElementById('admin-badge').style.display = 'block';
+      updateAdminDashboard();
     }
 
-    // Auto-authenticate if launched by Admin Telegram ID
     if (tg?.initDataUnsafe?.user?.id?.toString() === AUTHORIZED_ADMIN_BOT_ID || state.isAdmin) {
       activateAdminAccess();
     }
 
-    /* Admin Action Functions */
-    function adminSetBroadcast() {
-      const text = document.getElementById('admin-broadcast-input').value.trim();
-      if (text) {
-        document.getElementById('broadcast-ticker').innerText = "⚡ " + text;
-        alert("Broadcast updated successfully.");
-      }
+    function updateAdminDashboard() {
+      const pendingWd = state.withdrawals.filter(w => w.status === 'pending').length;
+      document.getElementById('adm-stat-users').innerText = Math.max(1, state.referrals.length + 1);
+      document.getElementById('adm-stat-pts').innerText = state.points.toLocaleString();
+      document.getElementById('adm-stat-usdt').innerText = state.usdt.toFixed(4);
+      document.getElementById('adm-stat-wd').innerText = pendingWd;
+
+      renderAdminTasksTable();
     }
 
-    function adminAddTask() {
+    function renderAdminTasksTable() {
+      const tbody = document.getElementById('admin-task-tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      globalTasks.forEach(task => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${task.title}</td>
+          <td>${task.rewardPts} P / ${task.rewardUsdt} U</td>
+          <td>
+            <button class="btn btn-action-small" style="background:#ffb703; color:#000; padding:2px 6px;" onclick="adminEditTask(${task.id})">Edit</button>
+            <button class="btn btn-admin btn-action-small" style="padding:2px 6px;" onclick="adminDeleteTask(${task.id})">Del</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function adminSaveTask() {
+      const editId = document.getElementById('task-edit-id').value;
       const title = document.getElementById('task-title-input').value.trim();
       const url = document.getElementById('task-url-input').value.trim();
       const pts = parseInt(document.getElementById('task-pts-input').value) || 20;
       const usdt = parseFloat(document.getElementById('task-usdt-input').value) || 0.001;
 
       if (!title || !url) {
-        alert("Please complete title and url.");
+        alert("Please provide both task title and valid URL.");
         return;
       }
 
-      state.tasks.push({
-        id: Date.now(),
-        title: title,
-        url: url,
-        rewardPts: pts,
-        rewardUsdt: usdt,
-        status: 'idle'
-      });
+      if (editId) {
+        // Edit existing task
+        const task = globalTasks.find(t => t.id == editId);
+        if (task) {
+          task.title = title;
+          task.url = url;
+          task.rewardPts = pts;
+          task.rewardUsdt = usdt;
+        }
+        adminCancelEditTask();
+      } else {
+        // Create new task
+        globalTasks.push({
+          id: Date.now(),
+          title: title,
+          url: url,
+          rewardPts: pts,
+          rewardUsdt: usdt
+        });
+      }
 
       document.getElementById('task-title-input').value = '';
       document.getElementById('task-url-input').value = '';
       syncUI();
-      alert("New mission created.");
+      alert("Task saved successfully!");
+    }
+
+    function adminEditTask(id) {
+      const task = globalTasks.find(t => t.id === id);
+      if (!task) return;
+
+      document.getElementById('task-edit-id').value = task.id;
+      document.getElementById('task-title-input').value = task.title;
+      document.getElementById('task-url-input').value = task.url;
+      document.getElementById('task-pts-input').value = task.rewardPts;
+      document.getElementById('task-usdt-input').value = task.rewardUsdt;
+
+      document.getElementById('adm-task-form-title').innerText = "Edit Task";
+      document.getElementById('adm-task-cancel-btn').style.display = "inline-block";
+      document.getElementById('adm-task-save-btn').innerText = "Update Task";
+    }
+
+    function adminCancelEditTask() {
+      document.getElementById('task-edit-id').value = '';
+      document.getElementById('task-title-input').value = '';
+      document.getElementById('task-url-input').value = '';
+      document.getElementById('adm-task-form-title').innerText = "Create New Task";
+      document.getElementById('adm-task-cancel-btn').style.display = "none";
+      document.getElementById('adm-task-save-btn').innerText = "Save Task";
+    }
+
+    function adminDeleteTask(id) {
+      if (!confirm("Are you sure you want to delete this task?")) return;
+      globalTasks = globalTasks.filter(t => t.id !== id);
+      syncUI();
+    }
+
+    function adminSetBroadcast() {
+      const text = document.getElementById('admin-broadcast-input').value.trim();
+      if (text) {
+        document.getElementById('broadcast-ticker').innerText = "⚡ " + text;
+        alert("Broadcast headline updated.");
+      }
     }
 
     function adminApproveWithdraw(id) {
@@ -1251,13 +1469,14 @@
       if (!isNaN(p)) state.points = p;
       if (!isNaN(u)) state.usdt = u;
       syncUI();
-      alert("Balances updated.");
+      alert("User balance overridden.");
     }
 
     /* =========================================================
        9. INITIALIZATION
        ========================================================= */
     window.addEventListener('DOMContentLoaded', () => {
+      initReferralSystem();
       init3DCoin();
       syncUI();
       if (state.miningEndTime > Date.now()) {
